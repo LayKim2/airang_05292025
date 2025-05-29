@@ -29,11 +29,13 @@ export function Header() {
   }, [])
 
   const isServicesPage = pathname === "/services"
+  const isTrendsPage = pathname === "/trends"
+  const isMatchPage = pathname === "/match"
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isServicesPage || scrollY > 50 ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" : "bg-transparent"
+        isServicesPage || isTrendsPage || isMatchPage || scrollY > 50 ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-6 py-4">
@@ -77,7 +79,7 @@ export function Header() {
                     </motion.h1>
                   )}
                 </AnimatePresence>
-                <p className="text-sm text-gray-500 font-medium">AI 공동 작업실</p>
+                <p className="text-sm text-gray-500 font-medium">AI 크리에이터 커뮤니티</p>
               </div>
             </Link>
           </div>
@@ -86,8 +88,8 @@ export function Header() {
             {[
               { name: "AI Services", path: "/services" },
               { name: "Community", path: "#" },
-              { name: "Match", path: "#" },
-              { name: "Trends", path: "#" }
+              { name: "Match", path: "/match" },
+              { name: "Trends", path: "/trends" }
             ].map((item) => (
               <Link
                 key={item.name}

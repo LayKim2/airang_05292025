@@ -149,7 +149,7 @@ export function Hero({ services }: HeroProps) {
                     ease: "linear"
                   }}
                 >
-                  AI 공동 작업실, AIrang
+                  AI 크리에이터 커뮤니티, AIrang
                 </motion.span>
               </motion.div>
             </div>
