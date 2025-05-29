@@ -35,52 +35,54 @@ export function Header() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="relative group">
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                <Sparkles className="w-7 h-7 text-white" />
+            <Link href="/" className="flex items-center space-x-4 group">
+              <div className="relative group">
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Sparkles className="w-7 h-7 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
               </div>
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
-            </div>
-            <div>
-              <AnimatePresence>
-                {isAnimating && (
-                  <motion.h1 
-                    className="text-3xl font-black"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <motion.span 
-                      className="bg-clip-text text-transparent"
-                      animate={{
-                        backgroundImage: [
-                          "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                          "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
-                          "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
-                          "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                        ]
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "linear"
-                      }}
+              <div>
+                <AnimatePresence>
+                  {isAnimating && (
+                    <motion.h1 
+                      className="text-3xl font-black"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      AIrang
-                    </motion.span>
-                  </motion.h1>
-                )}
-              </AnimatePresence>
-              <p className="text-sm text-gray-500 font-medium">AI 공동 작업실</p>
-            </div>
+                      <motion.span 
+                        className="bg-clip-text text-transparent"
+                        animate={{
+                          backgroundImage: [
+                            "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
+                            "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
+                            "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
+                            "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
+                          ]
+                        }}
+                        transition={{
+                          duration: 5,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
+                      >
+                        AIrang
+                      </motion.span>
+                    </motion.h1>
+                  )}
+                </AnimatePresence>
+                <p className="text-sm text-gray-500 font-medium">AI 공동 작업실</p>
+              </div>
+            </Link>
           </div>
 
           <nav className="hidden lg:flex items-center space-x-8">
-            {["서비스 갤러리", "커뮤니티", "AI 트렌드", "협업 찾기", "이벤트"].map((item) => (
+          {["AI Services", "Community", "Match", "Trends"].map((item) => (
               <Link
                 key={item}
-                href="#"
+                href={item === "AI Services" ? "/services" : "#"}
                 className="text-gray-700 hover:text-violet-600 transition-colors font-semibold relative group"
               >
                 {item}
