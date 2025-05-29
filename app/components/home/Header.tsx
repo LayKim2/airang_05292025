@@ -87,7 +87,7 @@ export function Header() {
           <nav className="hidden lg:flex items-center space-x-8">
             {[
               { name: "AI Services", path: "/services" },
-              { name: "Community", path: "#" },
+              { name: "Community", path: "/community" },
               { name: "Match", path: "/match" },
               { name: "Trends", path: "/trends" }
             ].map((item) => (

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/app/components/ui/button"
-import { Users, Play } from "lucide-react"
+import { Users, Play, MessageCircle } from "lucide-react"
 import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
 import { motion } from "framer-motion"
 
@@ -80,8 +80,27 @@ export function Hero({ services }: HeroProps) {
 
       <div className="container mx-auto px-6 py-32 relative z-10">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
-          {/* Left Content - Minimized */}
-          <div className="space-y-8">
+          {/* Left Content - Service Carousel */}
+          <motion.div 
+            className="relative"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-center mb-8"
+            >
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">AI Creator들의 서비스</h2>
+              <p className="text-gray-600">실제로 만들어진 AI 서비스들을 둘러보세요</p>
+            </motion.div>
+            <ServiceCarousel services={services} />
+          </motion.div>
+
+          {/* Right Content - Text Content */}
+          <div className="space-y-12">
             {/* Subtle Badge */}
             <motion.div 
               className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm"
@@ -104,39 +123,46 @@ export function Hero({ services }: HeroProps) {
               <span className="text-gray-600 text-sm font-medium">AI 크리에이터 커뮤니티</span>
             </motion.div>
 
-            {/* Refined Heading */}
-            <div className="space-y-4">
-              <motion.h1 
-                className="text-3xl lg:text-4xl font-bold leading-tight text-gray-800"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+            {/* Speech Bubbles */}
+            <div className="space-y-6">
+              {/* First Speech Bubble */}
+              <motion.div 
+                className="relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                혼자 AI 서비스 만들기
-                <br />
-                <span className="text-gray-500">막막하셨죠?</span>
-              </motion.h1>
-
-              <motion.div 
-                className="text-lg text-gray-600 leading-relaxed space-y-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <p>실전 사례부터 아이디어, MVP, 출시까지 함께 공유하고</p>
-                <p>협업 파트너도 만날 수 있는</p>
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/90 rotate-45" />
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">혼자 AI 서비스 만들기</h2>
+                <p className="text-gray-600">막막하셨죠?</p>
               </motion.div>
 
+              {/* Second Speech Bubble */}
               <motion.div 
-                className="text-2xl lg:text-3xl font-bold leading-tight"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                className="relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg mr-12"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/90 rotate-45" />
+                <p className="text-gray-700 leading-relaxed">
+                  실전 사례부터 아이디어, MVP, 출시까지 함께 공유하고
+                  <br />
+                  협업 파트너도 만날 수 있는
+                </p>
+              </motion.div>
+
+              {/* Third Speech Bubble */}
+              <motion.div 
+                className="relative bg-gradient-to-r from-violet-50 to-blue-50 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
-                <span className="text-gray-700">기획자·개발자·디자이너의</span>
-                <br />
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-gradient-to-r from-violet-50 to-blue-50 rotate-45" />
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">기획자·개발자·디자이너의</h2>
                 <motion.span 
-                  className="bg-clip-text text-transparent"
+                  className="text-2xl font-bold bg-clip-text text-transparent"
                   animate={{
                     backgroundImage: [
                       "linear-gradient(to right, #7c3aed, #2563eb)",
@@ -152,21 +178,21 @@ export function Hero({ services }: HeroProps) {
                   AI 크리에이터 커뮤니티, AIrang
                 </motion.span>
               </motion.div>
-            </div>
 
-            {/* Subtle Description */}
-            <motion.p 
-              className="text-gray-500 leading-relaxed max-w-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              더 이상 혼자 고민하지 마세요. AIrang에서 당신의 AI 프로젝트를 현실로 만들어보세요.
-            </motion.p>
+              {/* Description */}
+              <motion.p 
+                className="text-gray-500 leading-relaxed max-w-lg mr-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                더 이상 혼자 고민하지 마세요. AIrang에서 당신의 AI 프로젝트를 현실로 만들어보세요.
+              </motion.p>
+            </div>
 
             {/* Refined CTA */}
             <motion.div 
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-4 mr-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
@@ -193,16 +219,6 @@ export function Hero({ services }: HeroProps) {
               </Button>
             </motion.div>
           </div>
-
-          {/* Right Content - Service Carousel */}
-          <motion.div 
-            className="relative"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
-            <ServiceCarousel services={services} />
-          </motion.div>
         </div>
       </div>
     </section>
