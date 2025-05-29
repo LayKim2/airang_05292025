@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="240" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="240" fill="#F3F4F6"/>
+  <rect x="80" y="60" width="120" height="120" rx="4" fill="#F59E0B"/>
+  <rect x="200" y="60" width="120" height="120" rx="4" fill="#6366F1"/>
+  <text x="100" y="120" fill="white" font-family="Arial" font-size="24" font-weight="bold">안녕</text>
+  <text x="220" y="120" fill="white" font-family="Arial" font-size="24" font-weight="bold">Hello</text>
+  <path d="M180 120L220 120" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="4 4"/>
+</svg> 

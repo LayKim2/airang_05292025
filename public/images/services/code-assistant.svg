@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="240" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="240" fill="#F3F4F6"/>
+  <rect x="60" y="40" width="280" height="160" rx="8" fill="#1F2937"/>
+  <text x="80" y="80" fill="#10B981" font-family="monospace" font-size="16">&lt;div&gt;</text>
+  <text x="100" y="110" fill="#60A5FA" font-family="monospace" font-size="16">function() {</text>
+  <text x="120" y="140" fill="#F472B6" font-family="monospace" font-size="16">return "Hello AI";</text>
+  <text x="100" y="170" fill="#60A5FA" font-family="monospace" font-size="16">}</text>
+  <text x="80" y="200" fill="#10B981" font-family="monospace" font-size="16">&lt;/div&gt;</text>
+</svg> 

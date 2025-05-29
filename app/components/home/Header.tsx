@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
 import { Sparkles, Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -10,6 +11,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isAnimating, setIsAnimating] = useState(true)
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -26,10 +28,12 @@ export function Header() {
     return () => clearInterval(interval)
   }, [])
 
+  const isServicesPage = pathname === "/services"
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrollY > 50 ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" : "bg-transparent"
+        isServicesPage || scrollY > 50 ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-6 py-4">
@@ -79,14 +83,23 @@ export function Header() {
           </div>
 
           <nav className="hidden lg:flex items-center space-x-8">
-          {["AI Services", "Community", "Match", "Trends"].map((item) => (
+            {[
+              { name: "AI Services", path: "/services" },
+              { name: "Community", path: "#" },
+              { name: "Match", path: "#" },
+              { name: "Trends", path: "#" }
+            ].map((item) => (
               <Link
-                key={item}
-                href={item === "AI Services" ? "/services" : "#"}
-                className="text-gray-700 hover:text-violet-600 transition-colors font-semibold relative group"
+                key={item.name}
+                href={item.path}
+                className={`text-gray-700 hover:text-violet-600 transition-colors font-semibold relative group ${
+                  pathname === item.path ? "text-violet-600" : ""
+                }`}
               >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-600 to-blue-600 group-hover:w-full transition-all duration-300" />
+                {item.name}
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-violet-600 to-blue-600 transition-all duration-300 ${
+                  pathname === item.path ? "w-full" : "w-0 group-hover:w-full"
+                }`} />
               </Link>
             ))}
           </nav>
