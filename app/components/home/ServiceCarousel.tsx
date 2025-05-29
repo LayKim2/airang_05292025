@@ -6,6 +6,7 @@ import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
 import { ChevronRight, Heart, Eye, MessageCircle, TrendingUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { categories } from "@/app/data/categories"
 
 interface Service {
   id: number
@@ -101,15 +102,22 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
             {currentService.trending && (
-              <Badge className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 text-sm font-medium">
+              <Badge className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 text-sm font-medium shadow-lg z-10">
                 <TrendingUp className="w-4 h-4 mr-1" />
                 트렌딩
               </Badge>
             )}
 
-            <Badge className="absolute top-4 right-4 bg-white/90 text-gray-700 border-0 text-sm font-medium">
-              {currentService.category}
-            </Badge>
+            {(() => {
+              const category = categories.find(cat => cat.name === currentService.category)
+              return (
+                <Badge 
+                  className={`absolute top-4 right-4 bg-gradient-to-r ${category?.color || 'from-gray-500 to-gray-600'} text-white border-0 text-sm font-medium shadow-lg z-10 backdrop-blur-sm`}
+                >
+                  {currentService.category}
+                </Badge>
+              )
+            })()}
 
             {/* Navigation Buttons */}
             <Button
