@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent } from "@/app/components/ui/card"
+import { Badge } from "@/app/components/ui/badge"
 import {
   Sparkles,
   Users,
@@ -32,7 +32,7 @@ import {
   MapPin,
   Briefcase,
 } from "lucide-react"
-import { ServiceCarousel } from "@/components/home/ServiceCarousel"
+import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
 
 export default function AIrangLanding() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
