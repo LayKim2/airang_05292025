@@ -1,15 +1,18 @@
 "use client"
 
 import { Button } from "@/app/components/ui/button"
-import { Users, Play, MessageCircle } from "lucide-react"
+import { Users, UserPlus } from "lucide-react"
 import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
 import { motion } from "framer-motion"
+import { useRouter } from 'next/navigation'
 
 interface HeroProps {
   services: any[] // TODO: Add proper type
 }
 
 export function Hero({ services }: HeroProps) {
+  const router = useRouter();
+
   // 애니메이션 config 재사용
   const orbAnimation = {
     animate: {
@@ -61,35 +64,28 @@ export function Hero({ services }: HeroProps) {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
       {/* Modern Background Elements */}
       <div className="absolute inset-0">
         {/* Animated Gradient Orbs */}
         <motion.div 
-          className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-200/20 to-purple-200/20 rounded-full blur-3xl"
+          className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-full blur-3xl"
           {...orbAnimation}
         />
         <motion.div 
-          className="absolute bottom-32 right-32 w-80 h-80 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
+          className="absolute bottom-32 right-32 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"
           {...orb2Animation}
         />
 
-        {/* Subtle Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(124,58,237,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(124,58,237,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
-
         {/* Floating Elements */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-24 h-24 bg-gradient-to-br from-violet-100/40 to-purple-100/40 rounded-2xl blur-xl"
+          className="absolute top-1/4 left-1/4 w-24 h-24 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-2xl blur-xl"
           {...float1}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 rounded-2xl blur-xl"
+          className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl"
           {...float2}
         />
-
-        {/* Radial Gradients */}
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.05),transparent_50%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.05),transparent_50%)]" />
       </div>
 
       <div className="container mx-auto px-6 py-32 relative z-10">
@@ -107,8 +103,8 @@ export function Hero({ services }: HeroProps) {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-center mb-8"
             >
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">AI Creator들의 서비스</h2>
-              <p className="text-gray-600">실제로 만들어진 AI 서비스들을 둘러보세요</p>
+              <h2 className="text-3xl font-bold text-white mb-2">AI Creator들의 서비스</h2>
+              <p className="text-gray-300">실제로 만들어진 AI 서비스들을 둘러보세요</p>
             </motion.div>
             <ServiceCarousel services={services} />
           </motion.div>
@@ -117,7 +113,7 @@ export function Hero({ services }: HeroProps) {
           <div className="space-y-12">
             {/* Subtle Badge */}
             <motion.div 
-              className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm"
+              className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -134,32 +130,32 @@ export function Hero({ services }: HeroProps) {
                   ease: "easeInOut"
                 }}
               />
-              <span className="text-gray-600 text-sm font-medium">AI 크리에이터 커뮤니티</span>
+              <span className="text-gray-300 text-sm font-medium">AI 크리에이터 커뮤니티</span>
             </motion.div>
 
             {/* Speech Bubbles */}
             <div className="space-y-6">
               {/* First Speech Bubble */}
               <motion.div 
-                className="relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg"
+                className="relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 max-w-lg"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/90 rotate-45" />
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">혼자 AI 서비스 만들기</h2>
-                <p className="text-gray-600">막막하셨죠?</p>
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/10 rotate-45" />
+                <h2 className="text-2xl font-bold text-white mb-2">혼자 AI 서비스 만들기</h2>
+                <p className="text-gray-300">막막하셨죠?</p>
               </motion.div>
 
               {/* Second Speech Bubble */}
               <motion.div 
-                className="relative bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg mr-12"
+                className="relative bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 max-w-lg mr-12"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/90 rotate-45" />
-                <p className="text-gray-700 leading-relaxed">
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-white/10 rotate-45" />
+                <p className="text-gray-300 leading-relaxed">
                   실전 사례부터 아이디어, MVP, 출시까지 함께 공유하고
                   <br />
                   협업 파트너도 만날 수 있는
@@ -168,13 +164,13 @@ export function Hero({ services }: HeroProps) {
 
               {/* Third Speech Bubble */}
               <motion.div 
-                className="relative bg-gradient-to-r from-violet-50 to-blue-50 backdrop-blur-sm p-6 rounded-2xl shadow-lg max-w-lg"
+                className="relative bg-gradient-to-r from-violet-500/20 to-blue-500/20 backdrop-blur-sm p-6 rounded-2xl border border-white/20 max-w-lg"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
-                <div className="absolute -right-2 top-6 w-4 h-4 bg-gradient-to-r from-violet-50 to-blue-50 rotate-45" />
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">기획자·개발자·디자이너의</h2>
+                <div className="absolute -right-2 top-6 w-4 h-4 bg-gradient-to-r from-violet-500/20 to-blue-500/20 rotate-45" />
+                <h2 className="text-2xl font-bold text-white mb-2">기획자·개발자·디자이너의</h2>
                 <motion.span 
                   className="text-2xl font-bold bg-clip-text text-transparent"
                   animate={{
@@ -195,12 +191,13 @@ export function Hero({ services }: HeroProps) {
 
               {/* Description */}
               <motion.p 
-                className="text-gray-500 leading-relaxed max-w-lg mr-12"
+                className="text-gray-300 leading-relaxed max-w-lg mr-12"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
               >
-                더 이상 혼자 고민하지 마세요. AIrang에서 당신의 AI 프로젝트를 현실로 만들어보세요.
+                AI 서비스를 만들고 싶은 크리에이터들이 모여 아이디어를 공유하고, 
+                함께 프로젝트를 진행하며 성장하는 커뮤니티입니다.
               </motion.p>
             </div>
 
@@ -214,6 +211,7 @@ export function Hero({ services }: HeroProps) {
               <Button
                 size="lg"
                 className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 group shadow-lg hover:shadow-xl"
+                onClick={() => router.push('/community')}
               >
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
@@ -227,9 +225,10 @@ export function Hero({ services }: HeroProps) {
                 size="lg"
                 variant="outline"
                 className="border border-gray-300 hover:border-gray-400 hover:bg-gray-50 font-medium px-6 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                onClick={() => router.push('/match')}
               >
-                <Play className="w-5 h-5 mr-2" />
-                둘러보기
+                <UserPlus className="w-5 h-5 mr-2" />
+                팀 및 전문가 매칭
               </Button>
             </motion.div>
           </div>

@@ -61,16 +61,19 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
 
   const slideVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
-      opacity: 0
+      x: direction > 0 ? 600 : -600,
+      opacity: 0,
+      scale: 0.95
     }),
     center: {
       x: 0,
-      opacity: 1
+      opacity: 1,
+      scale: 1
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? 100 : -100,
-      opacity: 0
+      x: direction < 0 ? 600 : -600,
+      opacity: 0,
+      scale: 0.95
     })
   }
 
@@ -89,7 +92,18 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
             x: { type: "spring", stiffness: 200, damping: 25 },
             opacity: { duration: 0.2 }
           }}
-          className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-100 overflow-hidden group"
+          className="relative bg-gray-800/80 backdrop-blur-md rounded-3xl shadow-xl border border-white/10 overflow-hidden group"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.35}
+          whileDrag={{ scale: 0.96, boxShadow: "0 8px 32px 0 rgba(80, 80, 160, 0.18)" }}
+          onDragEnd={(event, info) => {
+            if (info.offset.x < -80) {
+              nextSlide();
+            } else if (info.offset.x > 80) {
+              prevSlide();
+            }
+          }}
         >
           <div className="relative overflow-hidden">
             <Image
@@ -99,7 +113,6 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
               height={360}
               className="w-full h-64 lg:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
             {currentService.trending && (
               <Badge className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 text-sm font-medium shadow-lg z-10">
@@ -124,7 +137,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
               variant="ghost"
               size="sm"
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-gray-800/80 hover:bg-gray-800 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
             >
               <ChevronRight className="w-5 h-5 rotate-180" />
             </Button>
@@ -133,7 +146,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
               variant="ghost"
               size="sm"
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-gray-800/80 hover:bg-gray-800 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -142,29 +155,29 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
           <div className="p-8">
             <div className="space-y-4">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                <h3 className="text-2xl font-bold text-white mb-3">
                   {currentService.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-300 leading-relaxed">
                   {currentService.description}
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {currentService.tags.map((tag: string, tagIndex: number) => (
-                  <Badge key={tagIndex} variant="secondary" className="bg-gray-100 text-gray-600 text-sm font-medium">
+                  <Badge key={tagIndex} variant="secondary" className="bg-white/10 text-gray-200 text-sm font-medium">
                     {tag}
                   </Badge>
                 ))}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-2 text-gray-500">
+              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                <div className="flex items-center space-x-2 text-gray-400">
                   <span className="text-sm">by</span>
-                  <span className="font-semibold text-gray-700">{currentService.creator}</span>
+                  <span className="font-semibold text-white">{currentService.creator}</span>
                 </div>
 
-                <div className="flex items-center space-x-4 text-gray-500">
+                <div className="flex items-center space-x-4 text-gray-400">
                   <div className="flex items-center space-x-1 transition-transform hover:scale-105">
                     <Heart className="w-4 h-4" />
                     <span className="font-medium text-sm">{currentService.likes}</span>
@@ -196,7 +209,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
               setTimeout(() => setIsAutoPlaying(true), 10000)
             }}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "bg-violet-600 w-8" : "bg-gray-300 hover:bg-gray-400"
+              index === currentIndex ? "bg-violet-500 w-8" : "bg-gray-600 hover:bg-gray-500"
             }`}
           />
         ))}
@@ -204,7 +217,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
 
       {/* Service Counter */}
       <div className="text-center mt-4">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-400">
           {currentIndex + 1} / {services.length}
         </span>
       </div>

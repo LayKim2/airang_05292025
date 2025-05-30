@@ -16,42 +16,40 @@ import {
   Eye,
   MessageCircle,
   TrendingUp,
+  Sparkles,
 } from "lucide-react"
 import { Service, Category } from "@/app/types"
+import { LucideIcon } from "lucide-react"
 
 interface ServicesGalleryProps {
   services: Service[]
   categories: Category[]
 }
 
-// 메모이제이션된 카테고리 버튼 컴포넌트
-const CategoryButton = memo(({ category, isSelected, onClick }: { 
-  category: Category; 
-  isSelected: boolean; 
+interface CategoryButtonProps {
+  category: Category;
+  isSelected: boolean;
   onClick: () => void;
-}) => {
-  const Icon = category.icon
+}
+
+const CategoryButton = ({ category, isSelected, onClick }: CategoryButtonProps) => {
+  const Icon = category.icon;
   return (
-    <motion.div variants={itemVariants}>
-      <Button
-        variant={isSelected ? "default" : "outline"}
-        onClick={onClick}
-        className={`${
-          isSelected
-            ? `bg-gradient-to-r ${category.color} text-white shadow-xl hover:shadow-2xl`
-            : "border-2 border-gray-300 hover:border-violet-500 hover:bg-violet-50"
-        } transition-all duration-300 px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-lg`}
-      >
-        <Icon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-        <span className="hidden sm:inline">{category.name}</span>
-        <Badge variant="secondary" className="ml-2 sm:ml-3 text-xs sm:text-sm font-bold">
-          {category.count}
-        </Badge>
-      </Button>
-    </motion.div>
-  )
-})
-CategoryButton.displayName = "CategoryButton"
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+        isSelected
+          ? "bg-white/20 backdrop-blur-sm text-white border border-white/20"
+          : "bg-white/10 backdrop-blur-sm text-gray-400 hover:text-white border border-white/10"
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      <span className="font-medium">{category.name}</span>
+    </motion.button>
+  );
+};
 
 // 메모이제이션된 서비스 카드 컴포넌트
 const ServiceCard = memo(({ service, index, hoveredCard, onHover }: {
@@ -211,21 +209,22 @@ const itemVariants = {
   },
 }
 
-export function ServicesGallery({ services, categories }: ServicesGalleryProps) {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState("전체")
+const ServicesGallery = ({ services, categories }: ServicesGalleryProps) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const handleCategoryClick = useCallback((categoryName: string) => {
-    setSelectedCategory(categoryName)
-  }, [])
+  const handleCardHover = (index: number | null) => {
+    setHoveredCard(index);
+  };
 
-  const handleCardHover = useCallback((index: number | null) => {
-    setHoveredCard(index)
-  }, [])
+  const filteredServices = selectedCategory === "all"
+    ? services
+    : services.filter(service => service.category === selectedCategory);
 
   return (
-    <section className="py-12 md:py-16 lg:py-24 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 md:py-16 lg:py-24 relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-violet-500/10" />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -237,9 +236,9 @@ export function ServicesGallery({ services, categories }: ServicesGalleryProps) 
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
-              <Brain className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              크리에이터들의 AI 작품
+            <Badge className="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              AI 서비스 갤러리
             </Badge>
           </motion.div>
           <motion.h2
@@ -248,73 +247,63 @@ export function ServicesGallery({ services, categories }: ServicesGalleryProps) 
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-6 sm:mb-8 leading-tight"
           >
-            <span className="bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
-              AI로 만든 혁신적인
-            </span>
+            <span className="text-white">다양한 AI 서비스를</span>
             <br />
-            <span className="text-gray-900">서비스들을 만나보세요</span>
+            <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-violet-500 bg-clip-text text-transparent">
+              한눈에 만나보세요
+            </span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4"
+            className="text-lg sm:text-xl lg:text-2xl text-gray-400 max-w-4xl mx-auto leading-relaxed px-4"
           >
             AIrang 커뮤니티 멤버들이 AI 기술을 활용해 직접 개발한 다양한 서비스들을 둘러보고 영감을 얻어보세요.
           </motion.p>
         </motion.div>
 
-        {/* Category Filter */}
+        {/* Category Buttons */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
-          className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 lg:mb-16 px-2"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="flex flex-wrap justify-center gap-4 mb-12 md:mb-16"
         >
-          {categories.map((category) => (
-            <CategoryButton
-              key={category.name}
-              category={category}
-              isSelected={selectedCategory === category.name}
-              onClick={() => handleCategoryClick(category.name)}
-            />
+          {categories.map((category, index) => (
+            <motion.div key={index} variants={itemVariants}>
+              <CategoryButton
+                category={category}
+                isSelected={selectedCategory === category.id}
+                onClick={() => setSelectedCategory(category.id)}
+              />
+            </motion.div>
           ))}
         </motion.div>
 
-        {/* Services Grid */}
+        {/* Service Cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
         >
-          {services.map((service, index) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              index={index}
-              hoveredCard={hoveredCard}
-              onHover={handleCardHover}
-            />
+          {filteredServices.map((service, index) => (
+            <motion.div key={index} variants={itemVariants}>
+              <ServiceCard
+                service={service}
+                index={index}
+                hoveredCard={hoveredCard}
+                onHover={handleCardHover}
+              />
+            </motion.div>
           ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-center mt-8 sm:mt-12 lg:mt-16"
-        >
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-2 border-gray-300 hover:border-violet-500 hover:bg-violet-50 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 text-base sm:text-lg"
-          >
-            더 많은 서비스 보기
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
-          </Button>
         </motion.div>
       </div>
     </section>
-  )
-} 
+  );
+};
+
+export default ServicesGallery; 

@@ -29,6 +29,7 @@ export interface CommunityMember {
 }
 
 export interface Category {
+  id: string
   name: string
   icon: LucideIcon
   count: number
