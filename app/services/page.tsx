@@ -7,71 +7,73 @@ import { Button } from "@/app/components/ui/button"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Brain, ChevronRight, Heart, Eye, MessageCircle, Search } from "lucide-react"
 
+// 애니메이션 config 재사용
+const orbAnimation = {
+  animate: {
+    scale: [1, 1.2, 1],
+    opacity: [0.2, 0.3, 0.2],
+    x: [0, 20, 0],
+    y: [0, -20, 0],
+  },
+  transition: {
+    duration: 16, // 기존 8에서 16으로 늘림
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+}
+const orb2Animation = {
+  animate: {
+    scale: [1, 1.3, 1],
+    opacity: [0.2, 0.4, 0.2],
+    x: [0, -20, 0],
+    y: [0, 20, 0],
+  },
+  transition: {
+    duration: 20, // 기존 10에서 20으로 늘림
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+}
+const float1 = {
+  animate: {
+    rotate: [0, 5, 0, -5, 0],
+    scale: [1, 1.1, 1],
+  },
+  transition: {
+    duration: 20, // 기존 10에서 20으로 늘림
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+}
+const float2 = {
+  animate: {
+    rotate: [0, -5, 0, 5, 0],
+    scale: [1, 1.1, 1],
+  },
+  transition: {
+    duration: 24, // 기존 12에서 24로 늘림
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+}
+
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-[128px] sm:pt-16">
       {/* Hero Section */}
       <section className="relative py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white">
         {/* Modern Background Elements */}
         <div className="absolute inset-0">
           {/* Animated Gradient Orbs */}
-          <motion.div 
-            className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-200/20 to-purple-200/20 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.3, 0.2],
-              x: [0, 20, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div 
-            className="absolute bottom-32 right-32 w-80 h-80 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.2, 0.4, 0.2],
-              x: [0, -20, 0],
-              y: [0, 20, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
+          <motion.div className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-200/20 to-purple-200/20 rounded-full blur-3xl" {...orbAnimation} />
+          <motion.div className="absolute bottom-32 right-32 w-80 h-80 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl" {...orb2Animation} />
 
           {/* Subtle Grid Pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(124,58,237,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(124,58,237,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
 
           {/* Floating Elements */}
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-24 h-24 bg-gradient-to-br from-violet-100/40 to-purple-100/40 rounded-2xl blur-xl"
-            animate={{
-              rotate: [0, 5, 0, -5, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 rounded-2xl blur-xl"
-            animate={{
-              rotate: [0, -5, 0, 5, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
+          <motion.div className="absolute top-1/4 left-1/4 w-24 h-24 bg-gradient-to-br from-violet-100/40 to-purple-100/40 rounded-2xl blur-xl" {...float1} />
+          <motion.div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 rounded-2xl blur-xl" {...float2} />
 
           {/* Radial Gradients */}
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.05),transparent_50%)]" />

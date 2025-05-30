@@ -10,6 +10,56 @@ interface HeroProps {
 }
 
 export function Hero({ services }: HeroProps) {
+  // 애니메이션 config 재사용
+  const orbAnimation = {
+    animate: {
+      scale: [1, 1.2, 1],
+      opacity: [0.2, 0.3, 0.2],
+      x: [0, 20, 0],
+      y: [0, -20, 0],
+    },
+    transition: {
+      duration: 16, // 기존 8에서 16으로 늘림
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+  const orb2Animation = {
+    animate: {
+      scale: [1, 1.3, 1],
+      opacity: [0.2, 0.4, 0.2],
+      x: [0, -20, 0],
+      y: [0, 20, 0],
+    },
+    transition: {
+      duration: 20, // 기존 10에서 20으로 늘림
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+  const float1 = {
+    animate: {
+      rotate: [0, 5, 0, -5, 0],
+      scale: [1, 1.1, 1],
+    },
+    transition: {
+      duration: 20, // 기존 10에서 20으로 늘림
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+  const float2 = {
+    animate: {
+      rotate: [0, -5, 0, 5, 0],
+      scale: [1, 1.1, 1],
+    },
+    transition: {
+      duration: 24, // 기존 12에서 24로 늘림
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-50 to-white">
       {/* Modern Background Elements */}
@@ -17,31 +67,11 @@ export function Hero({ services }: HeroProps) {
         {/* Animated Gradient Orbs */}
         <motion.div 
           className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-200/20 to-purple-200/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
-            x: [0, 20, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          {...orbAnimation}
         />
         <motion.div 
           className="absolute bottom-32 right-32 w-80 h-80 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-            x: [0, -20, 0],
-            y: [0, 20, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          {...orb2Animation}
         />
 
         {/* Subtle Grid Pattern */}
@@ -50,27 +80,11 @@ export function Hero({ services }: HeroProps) {
         {/* Floating Elements */}
         <motion.div
           className="absolute top-1/4 left-1/4 w-24 h-24 bg-gradient-to-br from-violet-100/40 to-purple-100/40 rounded-2xl blur-xl"
-          animate={{
-            rotate: [0, 5, 0, -5, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          {...float1}
         />
         <motion.div
           className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 rounded-2xl blur-xl"
-          animate={{
-            rotate: [0, -5, 0, 5, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          {...float2}
         />
 
         {/* Radial Gradients */}

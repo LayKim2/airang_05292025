@@ -10,7 +10,7 @@ import { categories } from "@/app/data/categories"
 
 export default function AIrangLanding() {
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden pt-[48px] sm:pt-0">
       <Hero services={services} />
       <CommunityConnection members={members} />
       <ServicesGallery services={services} categories={categories} />

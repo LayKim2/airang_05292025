@@ -3,11 +3,12 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
-import { Sparkles, Search, Filter, MessageCircle, Heart, Share2, Bookmark, TrendingUp, Users, Lightbulb, Code, Mic, Image, FileText } from "lucide-react"
+import { Sparkles, Search, Filter, MessageCircle, Heart, Share2, Bookmark, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText } from "lucide-react"
+import Image from "next/image"
 
 const categories = [
   { id: "all", name: "전체", icon: TrendingUp },
-  { id: "image", name: "이미지 생성", icon: Image },
+  { id: "image", name: "이미지 생성", icon: ImageIcon },
   { id: "voice", name: "음성 변환", icon: Mic },
   { id: "text", name: "텍스트 생성", icon: FileText },
   { id: "code", name: "코드 생성", icon: Code },
@@ -141,7 +142,7 @@ export default function CommunityPage() {
   ]
 
   return (
-    <main className="min-h-screen pt-20 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[128px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
       <section className="relative py-8 md:py-12 lg:py-16">
         {/* Modern Background Elements */}
@@ -189,7 +190,7 @@ export default function CommunityPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-8 md:mb-12 lg:mb-16"
+            className="text-center mb-4 md:mb-6 lg:mb-8"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -253,10 +254,13 @@ export default function CommunityPage() {
                   {/* Post Header */}
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center space-x-4">
-                      <img
+                      <Image
                         src={post.avatar}
                         alt={post.author}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-full"
+                        unoptimized
                       />
                       <div>
                         <h3 className="font-semibold text-gray-900">{post.author}</h3>
@@ -268,10 +272,13 @@ export default function CommunityPage() {
                   {/* Post Content */}
                   <div className="p-6">
                     <p className="text-gray-700 mb-4">{post.content}</p>
-                    <img
+                    <Image
                       src={post.image}
                       alt="Post content"
+                      width={800}
+                      height={400}
                       className="w-full h-64 object-cover rounded-xl mb-4"
+                      unoptimized
                     />
                     <div className="flex flex-wrap gap-2">
                       {post.tags.map((tag) => (
@@ -321,10 +328,13 @@ export default function CommunityPage() {
                   <div className="h-[300px] overflow-y-auto space-y-4 mb-4">
                     {chatMessages.map((chat, index) => (
                       <div key={index} className="flex items-start space-x-3">
-                        <img
+                        <Image
                           src={chat.avatar}
                           alt={chat.user}
+                          width={32}
+                          height={32}
                           className="w-8 h-8 rounded-full"
+                          unoptimized
                         />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
@@ -378,10 +388,13 @@ export default function CommunityPage() {
                 <div className="space-y-4">
                   {recommendedCreators.map((creator) => (
                     <div key={creator.id} className="flex items-center space-x-4">
-                      <img
+                      <Image
                         src={creator.avatar}
                         alt={creator.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-full"
+                        unoptimized
                       />
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{creator.name}</h4>
