@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/app/components/ui/button"
 import { Sparkles, Github, Twitter, Mail } from "lucide-react"
 
 export function Footer() {

@@ -111,14 +111,18 @@ export function Header() {
             ))}
           </nav>
 
+          
           <div className="hidden sm:flex items-center space-x-4">
+            {/* 로그인/시작하기 버튼 - 현재 비활성화
             <Button variant="ghost" className="text-gray-700 hover:text-violet-600 font-semibold">
               로그인
             </Button>
             <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
               시작하기
             </Button>
+            */}
           </div>
+          
           <Button variant="ghost" size="sm" className="sm:hidden z-50 ml-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </Button>

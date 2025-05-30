@@ -111,7 +111,7 @@ export default function ServicesPage() {
               </div>
 
               {/* Category Filter */}
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="flex overflow-x-auto whitespace-nowrap gap-2 scrollbar-hide sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
                 {[
                   { name: "전체", count: 42 },
                   { name: "이미지 생성", count: 15 },
