@@ -13,6 +13,8 @@
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "1.1.1",
     "@radix-ui/react-toast": "1.2.4",
+    "@supabase/storage-js": "^2.7.3",
+    "@supabase/supabase-js": "^2.49.9",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
