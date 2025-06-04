@@ -154,6 +154,9 @@ export default function LandingPage() {
               <p className="text-xl text-gray-300">
                 선착순 10명에게 스타벅스 만원 상품권을 드립니다!
               </p>
+              <p className="text-lg text-violet-400 font-semibold mt-4">
+                지금 신청하시면, 본인의 AI 서비스가 사이트 메인 페이지에 소개됩니다!
+              </p>
             </div>
             
             <CreatorApplicationForm />
