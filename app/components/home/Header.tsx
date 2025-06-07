@@ -7,6 +7,7 @@ import { Button } from "@/app/components/ui/button"
 import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
@@ -16,6 +17,7 @@ export function Header() {
   const [scrollY, setScrollY] = useState(0)
   const [isAnimating, setIsAnimating] = useState(true)
   const pathname = usePathname()
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -98,7 +100,7 @@ export function Header() {
                     )}
                   </AnimatePresence>
                   <p className="text-xs sm:text-sm font-medium text-gray-300">
-                    AI 크리에이터 커뮤니티
+                    {t('headerCommunity')}
                   </p>
                 </div>
               </div>
@@ -142,7 +144,7 @@ export function Header() {
                     )}
                   </AnimatePresence>
                   <p className="text-xs sm:text-sm font-medium text-gray-500">
-                    AI 크리에이터 커뮤니티
+                    {t('headerCommunity')}
                   </p>
                 </div>
               </Link>

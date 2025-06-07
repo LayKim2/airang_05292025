@@ -23,7 +23,7 @@ export interface CommunityMember {
   location: string
   experience: string
   avatar: string
-  status: "온라인" | "방금 전" | "오프라인"
+  status: "온라인" | "방금 전" | "오프라인" | "online" | "just now" | "offline"
   projects: number
   connections: number
 }

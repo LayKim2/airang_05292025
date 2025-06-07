@@ -18,6 +18,7 @@ import {
   Clock,
 } from "lucide-react"
 import { CommunityMember, Feature } from "@/app/types"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 interface CommunityConnectionProps {
   members: CommunityMember[]
@@ -138,23 +139,24 @@ const itemVariants = {
 }
 
 export function CommunityConnection({ members }: CommunityConnectionProps) {
+  const { t } = useTranslation();
   const features: Feature[] = [
     {
       icon: UserPlus,
-      title: "스마트 매칭",
-      description: "AI가 당신의 관심사와 스킬을 분석해 최적의 협업 파트너를 추천합니다",
+      title: t('communityFeatureSmartMatching'),
+      description: t('communityFeatureSmartMatchingDesc'),
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: MessageSquare,
-      title: "실시간 인사이트 교환",
-      description: "프로젝트 경험과 노하우를 실시간으로 공유하고 피드백을 받아보세요",
+      title: t('communityFeatureRealtimeInsight'),
+      description: t('communityFeatureRealtimeInsightDesc'),
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: Handshake,
-      title: "협업 프로젝트 매칭",
-      description: "아이디어는 있지만 팀이 필요한 프로젝트와 참여하고 싶은 크리에이터를 연결합니다",
+      title: t('communityFeatureProjectMatching'),
+      description: t('communityFeatureProjectMatchingDesc'),
       color: "from-green-500 to-emerald-500",
     },
   ]
@@ -175,7 +177,7 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
           >
             <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
               <Network className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              같은 관심사를 가진 사람들과의 연결
+              {t('communityBadge')}
             </Badge>
           </motion.div>
           <motion.h2
@@ -184,10 +186,10 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-6 sm:mb-8 leading-tight"
           >
-            <span className="text-gray-900">혼자가 아닌</span>
+            <span className="text-gray-900">{t('communityTitleAlone')}</span>
             <br />
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              함께 만들어가는 AI
+              {t('communityTitleHighlight')}
             </span>
           </motion.h2>
           <motion.p
@@ -196,7 +198,7 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4"
           >
-            비슷한 관심사와 목표를 가진 크리에이터들과 연결되어 협업하고, 인사이트를 교환하며 함께 성장하세요.
+            {t('communityDesc')}
           </motion.p>
         </motion.div>
 
@@ -222,8 +224,8 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
           className="bg-white/60 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl"
         >
           <div className="text-center mb-8 sm:mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">지금 활동 중인 크리에이터들</h3>
-            <p className="text-sm sm:text-base text-gray-600">실시간으로 연결되어 협업하고 있는 AIrang 멤버들을 만나보세요</p>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t('communityActiveCreators')}</h3>
+            <p className="text-sm sm:text-base text-gray-600">{t('communityActiveCreatorsDesc')}</p>
           </div>
 
           <motion.div
@@ -249,7 +251,8 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg"
             >
-              <Network className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />더 많은 크리에이터 만나기
+              <Network className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+              {t('communityMoreCreators')}
             </Button>
           </motion.div>
         </motion.div>

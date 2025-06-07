@@ -6,6 +6,7 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Loader2, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from '@/app/i18n/useTranslation'
 
 export function CreatorApplicationForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,6 +16,7 @@ export function CreatorApplicationForm() {
     serviceDescription: '',
     serviceImage: null as File | null
   })
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,7 +59,7 @@ export function CreatorApplicationForm() {
       
       if (error) throw error
       
-      alert('신청이 완료되었습니다!')
+      alert(t('formSuccess'))
       setFormData({
         name: '',
         email: '',
@@ -66,7 +68,7 @@ export function CreatorApplicationForm() {
       })
     } catch (error) {
       console.error('Error:', error)
-      alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.')
+      alert(t('formError'))
     } finally {
       setIsLoading(false)
     }
@@ -88,7 +90,7 @@ export function CreatorApplicationForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-          이름
+          {t('formName')}
         </label>
         <Input
           id="name"
@@ -98,13 +100,13 @@ export function CreatorApplicationForm() {
           value={formData.name}
           onChange={handleInputChange}
           className="bg-white/5 border-white/10 text-white"
-          placeholder="홍길동"
+          placeholder={t('formName')}
         />
       </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-          이메일 주소
+          {t('formEmail')}
         </label>
         <Input
           id="email"
@@ -114,13 +116,13 @@ export function CreatorApplicationForm() {
           value={formData.email}
           onChange={handleInputChange}
           className="bg-white/5 border-white/10 text-white"
-          placeholder="example@email.com"
+          placeholder={t('formEmail')}
         />
       </div>
 
       <div>
         <label htmlFor="serviceDescription" className="block text-sm font-medium text-gray-300 mb-2">
-          서비스 설명
+          {t('formServiceDescription')}
         </label>
         <Textarea
           id="serviceDescription"
@@ -129,13 +131,13 @@ export function CreatorApplicationForm() {
           value={formData.serviceDescription}
           onChange={handleInputChange}
           className="bg-white/5 border-white/10 text-white min-h-[120px]"
-          placeholder="개발 중인 AI 서비스에 대해 설명해주세요"
+          placeholder={t('formServiceDescription')}
         />
       </div>
 
       <div>
         <label htmlFor="serviceImage" className="block text-sm font-medium text-gray-300 mb-2">
-          서비스 이미지
+          {t('formServiceImage')}
         </label>
         <Input
           id="serviceImage"
@@ -147,7 +149,7 @@ export function CreatorApplicationForm() {
       </div>
 
       <p className="text-xs text-gray-400 mt-2">
-        본 신청서를 통해 (이름, 이메일, 서비스 설명, 서비스 이미지)는 사이트 오픈 시 메인 페이지 등에서 공개적으로 노출될 수 있습니다. 이에 동의하시는 경우에만 신청해주시기 바랍니다.
+        {t('formNotice')}
       </p>
 
       <div className="flex justify-center">
@@ -159,11 +161,11 @@ export function CreatorApplicationForm() {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              처리 중...
+              {t('formSubmitting')}
             </>
           ) : (
             <>
-              신청하기
+              {t('formSubmit')}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </>
           )}
