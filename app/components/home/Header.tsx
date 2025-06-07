@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
 import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
@@ -184,6 +185,7 @@ export function Header() {
                   시작하기
                 </Button>
                 */}
+                <LanguageSwitcher />
               </div>
               
               <Button 
