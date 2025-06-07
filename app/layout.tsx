@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from './components/theme-provider'
 import { Header } from "./components/home/Header"
+import ClientLayout from "@/app/components/ClientLayout"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,15 +20,17 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          {children}
-        </ThemeProvider>
+        <ClientLayout>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            {children}
+          </ThemeProvider>
+        </ClientLayout>
       </body>
     </html>
   )

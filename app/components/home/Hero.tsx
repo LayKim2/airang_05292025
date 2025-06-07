@@ -5,6 +5,7 @@ import { Users, UserPlus } from "lucide-react"
 import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
 import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation'
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 interface HeroProps {
   services: any[] // TODO: Add proper type
@@ -12,6 +13,7 @@ interface HeroProps {
 
 export function Hero({ services }: HeroProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   // 애니메이션 config 재사용
   const orbAnimation = {
@@ -103,8 +105,8 @@ export function Hero({ services }: HeroProps) {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-center mb-8"
             >
-              <h2 className="text-3xl font-bold text-white mb-2">AI Creator들의 서비스</h2>
-              <p className="text-gray-300">실제로 만들어진 AI 서비스들을 둘러보세요</p>
+              <h2 className="text-3xl font-bold text-white mb-2">{t('heroServiceTitle')}</h2>
+              <p className="text-gray-300">{t('heroServiceDesc')}</p>
             </motion.div>
             <ServiceCarousel services={services} />
           </motion.div>
@@ -143,8 +145,8 @@ export function Hero({ services }: HeroProps) {
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
                 <div className="absolute -right-2 top-6 w-4 h-4 bg-white/10 rotate-45" />
-                <h2 className="text-2xl font-bold text-white mb-2">혼자 AI 서비스 만들기</h2>
-                <p className="text-gray-300">막막하셨죠?</p>
+                <h2 className="text-2xl font-bold text-white mb-2">{t('heroBubble1Title')}</h2>
+                <p className="text-gray-300">{t('heroBubble1Desc')}</p>
               </motion.div>
 
               {/* Second Speech Bubble */}
@@ -156,9 +158,9 @@ export function Hero({ services }: HeroProps) {
               >
                 <div className="absolute -right-2 top-6 w-4 h-4 bg-white/10 rotate-45" />
                 <p className="text-gray-300 leading-relaxed">
-                  실전 사례부터 아이디어, MVP, 출시까지 함께 공유하고
+                  {t('heroBubble2Desc1')}
                   <br />
-                  협업 파트너도 만날 수 있는
+                  {t('heroBubble2Desc2')}
                 </p>
               </motion.div>
 
@@ -170,7 +172,7 @@ export function Hero({ services }: HeroProps) {
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <div className="absolute -right-2 top-6 w-4 h-4 bg-gradient-to-r from-violet-500/20 to-blue-500/20 rotate-45" />
-                <h2 className="text-2xl font-bold text-white mb-2">기획자·개발자·디자이너의</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">{t('heroBubble3Title')}</h2>
                 <motion.span 
                   className="text-2xl font-bold bg-clip-text text-transparent"
                   animate={{
@@ -185,7 +187,7 @@ export function Hero({ services }: HeroProps) {
                     ease: "linear"
                   }}
                 >
-                  AI 크리에이터 커뮤니티, AIrang
+                  {t('heroBubble3Highlight')}
                 </motion.span>
               </motion.div>
 
@@ -196,8 +198,7 @@ export function Hero({ services }: HeroProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
               >
-                AI 서비스를 만들고 싶은 크리에이터들이 모여 아이디어를 공유하고, 
-                함께 프로젝트를 진행하며 성장하는 커뮤니티입니다.
+                {t('heroDescLong')}
               </motion.p>
             </div>
 
@@ -219,7 +220,7 @@ export function Hero({ services }: HeroProps) {
                 >
                   <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 </motion.div>
-                커뮤니티 참여하기
+                {t('heroCommunityBtn')}
               </Button>
               <Button
                 size="lg"
@@ -228,7 +229,7 @@ export function Hero({ services }: HeroProps) {
                 onClick={() => router.push('/match')}
               >
                 <UserPlus className="w-5 h-5 mr-2" />
-                팀 및 전문가 매칭
+                {t('heroMatchBtn')}
               </Button>
             </motion.div>
           </div>

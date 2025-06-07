@@ -40,7 +40,7 @@ export function Modal({ isOpen, onClose }: ModalProps) {
                 </button>
               </div>
               <p className="text-gray-300 mb-6">
-                2025년 6월 17일 오픈 예정입니다.
+                2025년 7월 1일 오픈 예정입니다.
                 <br />
                 <span className="text-violet-400 font-semibold mt-2 block">
                   지금 신청하시면, 본인의 AI 서비스가 사이트 메인 페이지에 소개됩니다!

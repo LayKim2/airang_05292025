@@ -6,10 +6,15 @@ import { Sparkles, Users, Gift, ArrowRight, CheckCircle2, Eye } from 'lucide-rea
 import Link from 'next/link'
 import { CreatorApplicationForm } from '@/app/components/landing/CreatorApplicationForm'
 import { Modal } from '@/app/components/ui/modal'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
+import { useTranslation } from "@/app/i18n/useTranslation";
+import { LanguageSwitcher } from "@/app/components/LanguageSwitcher";
+import { LanguageContext } from "@/app/i18n/LanguageProvider";
 
 export default function LandingPage() {
   const [showModal, setShowModal] = useState(false)
+  const { t } = useTranslation();
+  const { setLanguage } = useContext(LanguageContext);
 
   useEffect(() => {
     // 페이지 로드 시 모달 표시
@@ -19,6 +24,9 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <div className="absolute right-8 top-8 z-20">
+        <LanguageSwitcher />
+      </div>
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
@@ -61,11 +69,10 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                AI 크리에이터의 새로운 시작
+                {t('heroTitle')}
               </h1>
               <p className="text-xl text-gray-300 mb-8">
-                AI 서비스 개발에 관심 있는 크리에이터들이 모여 아이디어를 공유하고, 
-                팀과 전문가를 매칭받으며 함께 성장하는 커뮤니티에 참여하세요.
+                {t('heroDesc')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -74,7 +81,7 @@ export default function LandingPage() {
                   onClick={() => document.getElementById('application-form')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  크리에이터 신청하기
+                  {t('applyButton')}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
@@ -84,7 +91,7 @@ export default function LandingPage() {
                   onClick={() => window.location.href = '/'}
                 >
                   <Eye className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  사이트 미리보기
+                  {t('previewButton')}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>
@@ -98,7 +105,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-white text-center mb-12">
-              AIrang에서 만나는 특별한 혜택
+              {t('featuresTitle')}
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <motion.div
@@ -108,9 +115,9 @@ export default function LandingPage() {
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10"
               >
                 <Users className="w-12 h-12 text-violet-500 mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">커뮤니티 참여</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t('featureCommunity')}</h3>
                 <p className="text-gray-400">
-                  AI 서비스 개발에 관심 있는 크리에이터들과 함께 아이디어를 공유하고 협업할 수 있습니다.
+                  {t('featureCommunityDesc')}
                 </p>
               </motion.div>
               <motion.div
@@ -120,9 +127,9 @@ export default function LandingPage() {
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10"
               >
                 <Sparkles className="w-12 h-12 text-violet-500 mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">서비스 홍보</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t('featurePromotion')}</h3>
                 <p className="text-gray-400">
-                  개발한 AI 서비스를 커뮤니티 내에서 홍보하고 피드백을 받을 수 있습니다.
+                  {t('featurePromotionDesc')}
                 </p>
               </motion.div>
               <motion.div
@@ -132,9 +139,9 @@ export default function LandingPage() {
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10"
               >
                 <Gift className="w-12 h-12 text-violet-500 mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">이벤트 참여</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t('featureMatching')}</h3>
                 <p className="text-gray-400">
-                  다양한 이벤트와 프로모션에 참여하여 혜택을 받을 수 있습니다.
+                  {t('featureMatchingDesc')}
                 </p>
               </motion.div>
             </div>
@@ -149,13 +156,13 @@ export default function LandingPage() {
             <div className="text-center mb-8">
               <Gift className="w-16 h-16 text-violet-500 mx-auto mb-4" />
               <h2 className="text-3xl font-bold text-white mb-4">
-                스타벅스 기프트카드 이벤트
+                {t('giveawayTitle')}
               </h2>
               <p className="text-xl text-gray-300">
-                선착순 10명에게 스타벅스 만원 상품권을 드립니다!
+                {t('giveawayDesc')}
               </p>
               <p className="text-lg text-violet-400 font-semibold mt-4">
-                지금 신청하시면, 본인의 AI 서비스가 사이트 메인 페이지에 소개됩니다!
+                {t('giveawayHighlight')}
               </p>
             </div>
             
@@ -177,7 +184,7 @@ export default function LandingPage() {
               </div>
             </Link>
             <p className="text-gray-400">
-              © 2025 AIrang. All rights reserved.
+              {t('footerCopyright')}
             </p>
           </div>
         </div>
