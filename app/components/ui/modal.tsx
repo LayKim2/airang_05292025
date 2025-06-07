@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import { Button } from "./button"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 interface ModalProps {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose }: ModalProps) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -31,7 +33,7 @@ export function Modal({ isOpen, onClose }: ModalProps) {
           >
             <div className="bg-gradient-to-br from-violet-500/20 to-blue-500/20 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-xl w-[320px]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">오픈 예정</h3>
+                <h3 className="text-lg font-semibold text-white">{t('modalTitle')}</h3>
                 <button
                   onClick={onClose}
                   className="text-gray-400 hover:text-white transition-colors"
@@ -40,10 +42,10 @@ export function Modal({ isOpen, onClose }: ModalProps) {
                 </button>
               </div>
               <p className="text-gray-300 mb-6">
-                2025년 7월 1일 오픈 예정입니다.
+                {t('modalDesc')}
                 <br />
                 <span className="text-violet-400 font-semibold mt-2 block">
-                  지금 신청하시면, 본인의 AI 서비스가 사이트 메인 페이지에 소개됩니다!
+                  {t('modalHighlight')}
                 </span>
               </p>
               <div className="flex justify-end">
@@ -51,7 +53,7 @@ export function Modal({ isOpen, onClose }: ModalProps) {
                   onClick={onClose}
                   className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-300"
                 >
-                  확인
+                  {t('modalConfirm')}
                 </Button>
               </div>
             </div>

@@ -3,18 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import { LanguageContext } from "../i18n/LanguageProvider";
 
 export function LanguageSwitcher() {
-  const { setLanguage } = useContext(LanguageContext);
+  const { language, setLanguage } = useContext(LanguageContext);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedLang, setSelectedLang] = useState<'en' | 'ko'>('en');
-
-  useEffect(() => {
-    // 컴포넌트 마운트 시 localStorage에서 언어 값 읽기
-    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('selectedLang') : null;
-    if (storedLang === 'ko' || storedLang === 'en') {
-      setSelectedLang(storedLang);
-      setLanguage(storedLang);
-    }
-  }, [setLanguage]);
 
   return (
     <div className="relative inline-block text-left">
@@ -26,7 +16,7 @@ export function LanguageSwitcher() {
         aria-expanded="false"
         onClick={() => setShowDropdown((prev) => !prev)}
       >
-        {selectedLang === 'en' ? 'English' : '한국어'} ▼
+        {language === 'en' ? 'English' : 'Korean'} ▼
       </button>
       {showDropdown && (
         <div className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
@@ -34,9 +24,8 @@ export function LanguageSwitcher() {
             <button
               onClick={() => {
                 setLanguage('ko');
-                setSelectedLang('ko');
                 setShowDropdown(false);
-                if (typeof window !== 'undefined') localStorage.setItem('selectedLang', 'ko');
+                if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'ko');
               }}
               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-violet-100 hover:text-violet-900"
               role="menuitem"
@@ -46,9 +35,8 @@ export function LanguageSwitcher() {
             <button
               onClick={() => {
                 setLanguage('en');
-                setSelectedLang('en');
                 setShowDropdown(false);
-                if (typeof window !== 'undefined') localStorage.setItem('selectedLang', 'en');
+                if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'en');
               }}
               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900"
               role="menuitem"

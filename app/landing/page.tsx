@@ -82,7 +82,7 @@ export default function LandingPage() {
                 aria-expanded="false"
                 onClick={() => setShowDropdown((prev) => !prev)}
               >
-                {selectedLang === 'en' ? 'English' : '한국어'} ▼
+                {selectedLang === 'en' ? 'English' : 'Korean'} ▼
               </button>
               {showDropdown && (
                 <div className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
