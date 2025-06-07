@@ -8,8 +8,8 @@ import { CreatorApplicationForm } from '@/app/components/landing/CreatorApplicat
 import { Modal } from '@/app/components/ui/modal'
 import { useEffect, useState, useContext } from 'react'
 import { useTranslation } from "@/app/i18n/useTranslation";
-import { LanguageSwitcher } from "@/app/components/LanguageSwitcher";
 import { LanguageContext } from "@/app/i18n/LanguageProvider";
+import { LanguageSwitcher } from "@/app/components/LanguageSwitcher";
 
 export default function LandingPage() {
   const [showModal, setShowModal] = useState(false)
