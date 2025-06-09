@@ -25,7 +25,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     // 컴포넌트 마운트 시 localStorage에서 언어 값 읽기
-    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('selectedLang') : null;
+    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('airang_lang') : null;
     if (storedLang === 'ko' || storedLang === 'en') {
       setSelectedLang(storedLang);
       setLanguage(storedLang);
@@ -92,7 +92,7 @@ export default function LandingPage() {
                         setLanguage('ko');
                         setSelectedLang('ko');
                         setShowDropdown(false);
-                        if (typeof window !== 'undefined') localStorage.setItem('selectedLang', 'ko');
+                        if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'ko');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-violet-100 hover:text-violet-900"
                       role="menuitem"
@@ -104,7 +104,7 @@ export default function LandingPage() {
                         setLanguage('en');
                         setSelectedLang('en');
                         setShowDropdown(false);
-                        if (typeof window !== 'undefined') localStorage.setItem('selectedLang', 'en');
+                        if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'en');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900"
                       role="menuitem"
