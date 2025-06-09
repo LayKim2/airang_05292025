@@ -132,7 +132,7 @@ export function Hero({ services }: HeroProps) {
                   ease: "easeInOut"
                 }}
               />
-              <span className="text-gray-300 text-sm font-medium">AI 크리에이터 커뮤니티</span>
+              <span className="text-gray-300 text-sm font-medium">{t('headerCommunity')}</span>
             </motion.div>
 
             {/* Speech Bubbles */}

@@ -5,6 +5,13 @@ import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
 import { Sparkles, Search, Filter, MessageCircle, Heart, Share2, Bookmark, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText } from "lucide-react"
 import Image from "next/image"
+import { useTranslation } from "@/app/i18n/useTranslation"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: 'Community',
+  description: 'Connect with AI creators and collaborate on innovative projects',
+}
 
 const categories = [
   { id: "all", name: "전체", icon: TrendingUp },
@@ -112,6 +119,7 @@ export default function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [chatMessage, setChatMessage] = useState("")
+  const { t } = useTranslation()
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === "all" || post.category === selectedCategory
@@ -199,7 +207,7 @@ export default function CommunityPage() {
             >
               <Badge className="bg-gradient-to-r from-pink-100 to-orange-100 text-pink-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                AI 크리에이터 커뮤니티
+                {t('headerCommunity')}
               </Badge>
             </motion.div>
           </motion.div>

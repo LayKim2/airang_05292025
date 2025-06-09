@@ -8,8 +8,11 @@ import ClientLayout from "@/app/components/ClientLayout"
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AIrang - AI 크리에이터 커뮤니티',
-  description: 'AI 기술을 활용한 혁신적인 서비스들을 만나보세요',
+  title: {
+    template: '%s | AIrang',
+    default: 'AIrang - AI Creator Community',
+  },
+  description: 'Connect with AI creators and collaborate on innovative projects',
 }
 
 export default function RootLayout({
@@ -18,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ClientLayout>
           <ThemeProvider
