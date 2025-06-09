@@ -7,6 +7,7 @@ import { Badge } from "@/app/components/ui/badge"
 import { ChevronRight, Heart, Eye, MessageCircle, TrendingUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { categories } from "@/app/data/categories"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 interface Service {
   id: number
@@ -31,6 +32,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [direction, setDirection] = useState(0)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (!isAutoPlaying) return
@@ -77,6 +79,8 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
     })
   }
 
+  const category = categories.find(cat => cat.id === currentService.category)
+
   return (
     <div className="relative max-w-lg lg:max-w-xl mx-auto">
       {/* Main Service Card */}
@@ -121,16 +125,12 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
               </Badge>
             )}
 
-            {(() => {
-              const category = categories.find(cat => cat.name === currentService.category)
-              return (
-                <Badge 
-                  className={`absolute top-4 right-4 bg-gradient-to-r ${category?.color || 'from-gray-500 to-gray-600'} text-white border-0 text-sm font-medium shadow-lg z-10 backdrop-blur-sm`}
-                >
-                  {currentService.category}
-                </Badge>
-              )
-            })()}
+            {category && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <category.icon className="w-3 h-3" />
+                {category.name}
+              </Badge>
+            )}
 
             {/* Navigation Buttons */}
             <Button

@@ -1,9 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { Button } from "@/app/components/ui/button"
 import { Sparkles, Github, Twitter, Mail } from "lucide-react"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 export function Footer() {
+  const { t } = useTranslation();
+  
   return (
     <footer className="bg-gray-50 border-t border-gray-100">
       <div className="container mx-auto px-6 py-12">
@@ -19,9 +23,9 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-gray-600 mb-4">
-              AI 크리에이터들을 위한 커뮤니티 플랫폼입니다.
+              {t('footerDescription')}
               <br />
-              함께 성장하고 혁신을 만들어가세요.
+              {t('footerDescription2')}
             </p>
             <div className="flex space-x-4">
               <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -38,26 +42,26 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">바로가기</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('footerQuickLinks')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/services" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  AI 서비스
+                  {t('footerServices')}
                 </Link>
               </li>
               <li>
                 <Link href="/community" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  커뮤니티
+                  {t('footerCommunity')}
                 </Link>
               </li>
               <li>
                 <Link href="/match" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  매칭
+                  {t('footerMatch')}
                 </Link>
               </li>
               <li>
                 <Link href="/trends" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  트렌드
+                  {t('footerTrends')}
                 </Link>
               </li>
             </ul>
@@ -65,21 +69,21 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">법적 고지</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('footerLegal')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/terms" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  이용약관
+                  {t('footerTerms')}
                 </Link>
               </li>
               <li>
                 <Link href="/privacy" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  개인정보처리방침
+                  {t('footerPrivacy')}
                 </Link>
               </li>
               <li>
                 <Link href="/cookies" className="text-gray-600 hover:text-violet-600 transition-colors">
-                  쿠키 정책
+                  {t('footerCookies')}
                 </Link>
               </li>
             </ul>
@@ -88,7 +92,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-100 mt-12 pt-8 text-center text-gray-500 text-sm">
-          <p>© 2025 AIrang. All rights reserved.</p>
+          <p>{t('footerCopyright')}</p>
         </div>
       </div>
     </footer>

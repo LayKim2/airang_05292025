@@ -42,78 +42,81 @@ const FeatureCard = memo(({ feature }: { feature: Feature }) => {
 FeatureCard.displayName = "FeatureCard"
 
 // 메모이제이션된 멤버 카드 컴포넌트
-const MemberCard = memo(({ member }: { member: CommunityMember }) => (
-  <Card className="p-4 sm:p-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl sm:rounded-2xl group bg-white hover:-translate-y-1">
-    <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
-      <div className="relative">
-        <Image
-          src={member.avatar || "/placeholder.svg"}
-          alt={member.name}
-          width={80}
-          height={80}
-          className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
-          loading="lazy"
-          sizes="(max-width: 640px) 48px, 64px"
-          quality={75}
-        />
-        <div
-          className={`absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white ${
-            member.status === "온라인" ? "bg-green-500" : "bg-yellow-500"
-          }`}
-        />
-      </div>
-      <div className="flex-1">
-        <h4 className="font-bold text-gray-900 text-base sm:text-lg">{member.name}</h4>
-        <p className="text-gray-600 text-xs sm:text-sm">{member.role}</p>
-        <div className="flex items-center space-x-3 sm:space-x-4 mt-2 text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
-            <MapPin className="w-3 h-3" />
-            <span>{member.location}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Briefcase className="w-3 h-3" />
-            <span>{member.experience}</span>
+const MemberCard = memo(({ member }: { member: CommunityMember }) => {
+  const { t } = useTranslation();
+  return (
+    <Card className="p-4 sm:p-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl sm:rounded-2xl group bg-white hover:-translate-y-1">
+      <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
+        <div className="relative">
+          <Image
+            src={member.avatar || "/placeholder.svg"}
+            alt={member.name}
+            width={80}
+            height={80}
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
+            loading="lazy"
+            sizes="(max-width: 640px) 48px, 64px"
+            quality={75}
+          />
+          <div
+            className={`absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white ${
+              member.status === t('statusOnline') ? "bg-green-500" : "bg-yellow-500"
+            }`}
+          />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-bold text-gray-900 text-base sm:text-lg">{member.name}</h4>
+          <p className="text-gray-600 text-xs sm:text-sm">{member.role}</p>
+          <div className="flex items-center space-x-3 sm:space-x-4 mt-2 text-xs text-gray-500">
+            <div className="flex items-center space-x-1">
+              <MapPin className="w-3 h-3" />
+              <span>{member.location}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Briefcase className="w-3 h-3" />
+              <span>{member.experience}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-1">
-        {member.interests.slice(0, 3).map((interest, idx) => (
-          <Badge
-            key={idx}
-            variant="secondary"
-            className="text-xs bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
-          >
-            {interest}
-          </Badge>
-        ))}
-      </div>
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-1">
+          {member.interests.slice(0, 3).map((interest, idx) => (
+            <Badge
+              key={idx}
+              variant="secondary"
+              className="text-xs bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+            >
+              {interest}
+            </Badge>
+          ))}
+        </div>
 
-      <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
-        <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="flex items-center space-x-1">
-            <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span>{member.projects}개 프로젝트</span>
+        <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-1">
+              <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{`${member.projects}${t('projectsCount')}`}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{`${member.connections}${t('connectionsCount')}`}</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-1">
-            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span>{member.connections}명 연결</span>
+          <div className="flex items-center space-x-1 text-green-600">
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{member.status}</span>
           </div>
         </div>
-        <div className="flex items-center space-x-1 text-green-600">
-          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span>{member.status}</span>
-        </div>
-      </div>
 
-      <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg sm:rounded-xl text-sm sm:text-base">
-        연결하기
-      </Button>
-    </div>
-  </Card>
-))
+        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg sm:rounded-xl text-sm sm:text-base">
+          {t('connect')}
+        </Button>
+      </div>
+    </Card>
+  )
+})
 MemberCard.displayName = "MemberCard"
 
 // 애니메이션 variants
