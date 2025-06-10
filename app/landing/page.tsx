@@ -14,23 +14,13 @@ import { useLanguage } from "@/app/i18n/LanguageProvider";
 export default function LandingPage() {
   const [showModal, setShowModal] = useState(false)
   const { t } = useTranslation();
-  const { setLanguage } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedLang, setSelectedLang] = useState<'en' | 'ko'>('en');
 
   useEffect(() => {
     // 페이지 로드 시 모달 표시
     setShowModal(true)
   }, [])
-
-  useEffect(() => {
-    // 컴포넌트 마운트 시 localStorage에서 언어 값 읽기
-    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('airang_lang') : null;
-    if (storedLang === 'ko' || storedLang === 'en') {
-      setSelectedLang(storedLang);
-      setLanguage(storedLang);
-    }
-  }, [setLanguage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
@@ -73,49 +63,77 @@ export default function LandingPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex justify-end mb-4">
-            <div className="relative inline-block text-left">
+            <div className="relative">
               <button
-                type="button"
-                className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
-                id="language-menu"
-                aria-haspopup="true"
-                aria-expanded="false"
-                onClick={() => setShowDropdown((prev) => !prev)}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors"
               >
-                {selectedLang === 'en' ? 'English' : 'Korean'} ▼
+                <span className="text-sm font-medium">
+                  {language === 'ko' ? '한국어' : language === 'en' ? 'English' : language === 'ja' ? '日本語' : '中文'}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
+
               {showDropdown && (
-                <div className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
+                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-gray-800 shadow-lg border border-white/10 overflow-hidden">
+                  <div className="py-1">
                     <button
                       onClick={() => {
                         setLanguage('ko');
-                        setSelectedLang('ko');
                         setShowDropdown(false);
-                        if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'ko');
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-violet-100 hover:text-violet-900"
-                      role="menuitem"
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 transition-colors ${
+                        language === 'ko' ? 'text-violet-400' : 'text-white'
+                      }`}
                     >
-                      Korean
+                      한국어
                     </button>
                     <button
                       onClick={() => {
                         setLanguage('en');
-                        setSelectedLang('en');
                         setShowDropdown(false);
-                        if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'en');
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900"
-                      role="menuitem"
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 transition-colors ${
+                        language === 'en' ? 'text-violet-400' : 'text-white'
+                      }`}
                     >
                       English
+                    </button>
+                    <button
+                      onClick={() => {
+                        setLanguage('ja');
+                        setShowDropdown(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 transition-colors ${
+                        language === 'ja' ? 'text-violet-400' : 'text-white'
+                      }`}
+                    >
+                      日本語
+                    </button>
+                    <button
+                      onClick={() => {
+                        setLanguage('zh');
+                        setShowDropdown(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 transition-colors ${
+                        language === 'zh' ? 'text-violet-400' : 'text-white'
+                      }`}
+                    >
+                      中文
                     </button>
                   </div>
                 </div>
               )}
             </div>
           </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
