@@ -6,15 +6,15 @@ import { Sparkles, Users, Gift, ArrowRight, CheckCircle2, Eye } from 'lucide-rea
 import Link from 'next/link'
 import { CreatorApplicationForm } from '@/app/components/landing/CreatorApplicationForm'
 import { Modal } from '@/app/components/ui/modal'
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from "@/app/i18n/useTranslation";
-import { LanguageContext } from "@/app/i18n/LanguageProvider";
-import { LanguageSwitcher } from "@/app/components/LanguageSwitcher";
+import { useLanguage } from "@/app/i18n/LanguageProvider";
+
 
 export default function LandingPage() {
   const [showModal, setShowModal] = useState(false)
   const { t } = useTranslation();
-  const { setLanguage } = useContext(LanguageContext);
+  const { setLanguage } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedLang, setSelectedLang] = useState<'en' | 'ko'>('en');
 
