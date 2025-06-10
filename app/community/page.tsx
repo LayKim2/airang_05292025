@@ -6,12 +6,6 @@ import { Badge } from "@/app/components/ui/badge"
 import { Sparkles, Search, Filter, MessageCircle, Heart, Share2, Bookmark, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText } from "lucide-react"
 import Image from "next/image"
 import { useTranslation } from "@/app/i18n/useTranslation"
-import { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: 'Community',
-  description: 'Connect with AI creators and collaborate on innovative projects',
-}
 
 const categories = [
   { id: "all", name: "전체", icon: TrendingUp },
