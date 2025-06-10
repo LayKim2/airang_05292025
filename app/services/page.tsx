@@ -6,6 +6,7 @@ import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Brain, ChevronRight, Heart, Eye, MessageCircle, Search } from "lucide-react"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -58,6 +59,92 @@ const float2 = {
 }
 
 export default function ServicesPage() {
+  const { t } = useTranslation()
+
+  const categories = [
+    { name: "All", count: 42, category: "all" },
+    { name: "Image Generation", count: 15, category: "image" },
+    { name: "Text Generation", count: 12, category: "text" },
+    { name: "Voice Conversion", count: 8, category: "voice" },
+    { name: "Code Generation", count: 5, category: "code" },
+    { name: "Data Analysis", count: 2, category: "data" }
+  ]
+
+  const services = [
+    {
+      id: 1,
+      title: "AI Image Generator",
+      description: "An AI service that generates high-quality images from text prompts. Supports various styles and resolutions.",
+      image: "/images/services/image-generator.svg",
+      tags: ["Image Generation", "AI", "Design"],
+      author: "AIrang",
+      likes: 128,
+      views: 1200,
+      comments: 32,
+      category: "image"
+    },
+    {
+      id: 2,
+      title: "AI Code Assistant",
+      description: "An AI coding helper that assists with code writing and debugging. Provides real-time code suggestions and optimization.",
+      image: "/images/services/code-assistant.svg",
+      tags: ["Code Generation", "Development", "AI"],
+      author: "AIrang",
+      likes: 256,
+      views: 2100,
+      comments: 45,
+      category: "code"
+    },
+    {
+      id: 3,
+      title: "AI Voice Converter",
+      description: "A service that converts text into natural-sounding speech. Supports various voices and languages.",
+      image: "/images/services/voice-converter.svg",
+      tags: ["Voice Conversion", "AI", "Content"],
+      author: "AIrang",
+      likes: 189,
+      views: 1500,
+      comments: 28,
+      category: "voice"
+    },
+    {
+      id: 4,
+      title: "AI Document Summarizer",
+      description: "An AI service that automatically summarizes long documents. Quickly grasp key content.",
+      image: "/images/services/document-summarizer.svg",
+      tags: ["Text Generation", "AI", "Productivity"],
+      author: "AIrang",
+      likes: 145,
+      views: 1800,
+      comments: 36,
+      category: "text"
+    },
+    {
+      id: 5,
+      title: "AI Data Analysis Tool",
+      description: "An AI tool that automatically analyzes complex data and provides insights.",
+      image: "/images/services/data-analysis.svg",
+      tags: ["Data Analysis", "AI", "Business"],
+      author: "AIrang",
+      likes: 167,
+      views: 1400,
+      comments: 24,
+      category: "data"
+    },
+    {
+      id: 6,
+      title: "AI Translation Service",
+      description: "An AI translator that provides accurate real-time translation. Supports over 100 languages.",
+      image: "/images/services/translator.svg",
+      tags: ["Text Generation", "AI", "Translation"],
+      author: "AIrang",
+      likes: 198,
+      views: 2300,
+      comments: 42,
+      category: "text"
+    }
+  ]
+
   return (
     <main className="min-h-screen pt-[128px] sm:pt-16">
       {/* Hero Section */}
@@ -94,116 +181,46 @@ export default function ServicesPage() {
             >
               <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
                 <Brain className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                크리에이터들의 AI 작품
+                {t('servicesTitle')}
               </Badge>
             </motion.div>
 
             {/* Search and Filter Section */}
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="space-y-6">
               {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="서비스를 검색해보세요"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-300"
-                />
+              <div className="max-w-2xl mx-auto">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder={t('servicesSearchPlaceholder')}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-300"
+                  />
+                </div>
               </div>
 
               {/* Category Filter */}
-              <div className="flex overflow-x-auto whitespace-nowrap gap-2 scrollbar-hide sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
-                {[
-                  { name: "전체", count: 42 },
-                  { name: "이미지 생성", count: 15 },
-                  { name: "텍스트 생성", count: 12 },
-                  { name: "음성 변환", count: 8 },
-                  { name: "코드 생성", count: 5 },
-                  { name: "데이터 분석", count: 2 }
-                ].map((category) => (
-                  <button
-                    key={category.name}
-                    className="group relative px-4 py-2.5 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:border-violet-500 hover:bg-violet-50 text-gray-700 hover:text-violet-700 transition-all duration-200 shadow-sm hover:shadow-md"
-                  >
-                    {category.name}
-                    <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-violet-100 text-violet-700 group-hover:bg-violet-200 transition-colors duration-200">
-                      {category.count}
-                    </span>
-                  </button>
-                ))}
+              <div className="max-w-7xl mx-auto">
+                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide justify-center">
+                  {categories.map((category) => (
+                    <button
+                      key={category.name}
+                      className="flex-shrink-0 group relative px-4 py-2.5 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:border-violet-500 hover:bg-violet-50 text-gray-700 hover:text-violet-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                    >
+                      {category.name}
+                      <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-violet-100 text-violet-700 group-hover:bg-violet-200 transition-colors duration-200">
+                        {category.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
 
           {/* Service Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                id: 1,
-                title: "AI 이미지 생성기",
-                description: "텍스트 프롬프트를 입력하면 고품질 이미지를 생성해주는 AI 서비스입니다. 다양한 스타일과 해상도를 지원합니다.",
-                image: "/images/services/image-generator.svg",
-                tags: ["이미지 생성", "AI", "디자인"],
-                author: "AIrang",
-                likes: 128,
-                views: 1200,
-                comments: 32
-              },
-              {
-                id: 2,
-                title: "AI 코드 어시스턴트",
-                description: "코드 작성과 디버깅을 도와주는 AI 코딩 도우미입니다. 실시간 코드 제안과 최적화를 제공합니다.",
-                image: "/images/services/code-assistant.svg",
-                tags: ["코드 생성", "개발", "AI"],
-                author: "AIrang",
-                likes: 256,
-                views: 2100,
-                comments: 45
-              },
-              {
-                id: 3,
-                title: "AI 음성 변환기",
-                description: "텍스트를 자연스러운 음성으로 변환해주는 서비스입니다. 다양한 목소리와 언어를 지원합니다.",
-                image: "/images/services/voice-converter.svg",
-                tags: ["음성 변환", "AI", "콘텐츠"],
-                author: "AIrang",
-                likes: 189,
-                views: 1500,
-                comments: 28
-              },
-              {
-                id: 4,
-                title: "AI 문서 요약기",
-                description: "긴 문서를 자동으로 요약해주는 AI 서비스입니다. 핵심 내용을 빠르게 파악할 수 있습니다.",
-                image: "/images/services/document-summarizer.svg",
-                tags: ["텍스트 생성", "AI", "생산성"],
-                author: "AIrang",
-                likes: 145,
-                views: 1800,
-                comments: 36
-              },
-              {
-                id: 5,
-                title: "AI 데이터 분석 도구",
-                description: "복잡한 데이터를 자동으로 분석하고 인사이트를 제공하는 AI 도구입니다.",
-                image: "/images/services/data-analysis.svg",
-                tags: ["데이터 분석", "AI", "비즈니스"],
-                author: "AIrang",
-                likes: 167,
-                views: 1400,
-                comments: 24
-              },
-              {
-                id: 6,
-                title: "AI 번역 서비스",
-                description: "실시간으로 정확한 번역을 제공하는 AI 번역기입니다. 100개 이상의 언어를 지원합니다.",
-                image: "/images/services/translator.svg",
-                tags: ["텍스트 생성", "AI", "번역"],
-                author: "AIrang",
-                likes: 198,
-                views: 2300,
-                comments: 42
-              }
-            ].map((service) => (
+            {services.map((service) => (
               <Card key={service.id} className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 border-0 shadow-lg overflow-hidden rounded-2xl sm:rounded-3xl bg-white">
                 <motion.div
                   className="relative overflow-hidden"
@@ -228,7 +245,7 @@ export default function ServicesPage() {
                   />
 
                   <Badge className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-white/95 text-gray-700 border-0 font-semibold text-xs sm:text-sm">
-                    AI 서비스
+                    {t('aiService')}
                   </Badge>
 
                   <motion.div
@@ -238,7 +255,7 @@ export default function ServicesPage() {
                     className="absolute bottom-3 sm:bottom-4 left-3 sm:right-4 right-3 sm:right-4"
                   >
                     <Button className="w-full bg-white/90 text-gray-900 hover:bg-white font-semibold text-sm sm:text-base">
-                      자세히 보기
+                      {t('viewDetails')}
                     </Button>
                   </motion.div>
                 </motion.div>

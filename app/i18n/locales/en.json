@@ -153,5 +153,8 @@
   "quickActionCollaboration": "Collaboration",
   "quickActionQA": "Q&A",
   "quickActionProject": "Project",
-  "trendsTitle": "AI Trends"
+  "trendsTitle": "AI Trends",
+  "servicesTitle": "AI Creator Works",
+  "servicesSearchPlaceholder": "Search services...",
+  "aiService": "AI Service"
 } 

@@ -153,5 +153,8 @@
   "quickActionCollaboration": "협업",
   "quickActionQA": "Q&A",
   "quickActionProject": "프로젝트",
-  "trendsTitle": "AI 트렌드"
+  "trendsTitle": "AI 트렌드",
+  "servicesTitle": "크리에이터들의 AI 작품",
+  "servicesSearchPlaceholder": "서비스를 검색해보세요",
+  "aiService": "AI 서비스"
 } 
