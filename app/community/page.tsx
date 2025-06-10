@@ -8,33 +8,36 @@ import Image from "next/image"
 import { useTranslation } from "@/app/i18n/useTranslation"
 
 const categories = [
-  { id: "all", name: "전체", icon: TrendingUp },
-  { id: "image", name: "이미지 생성", icon: ImageIcon },
-  { id: "voice", name: "음성 변환", icon: Mic },
-  { id: "text", name: "텍스트 생성", icon: FileText },
-  { id: "code", name: "코드 생성", icon: Code },
-  { id: "idea", name: "아이디어", icon: Lightbulb },
+  { id: "all", name: "All", icon: TrendingUp },
+  { id: "image", name: "Image Generation", icon: ImageIcon },
+  { id: "voice", name: "Voice Conversion", icon: Mic },
+  { id: "text", name: "Text Generation", icon: FileText },
+  { id: "code", name: "Code Generation", icon: Code },
+  { id: "idea", name: "Ideas", icon: Lightbulb },
 ]
 
 const hotTopics = [
   {
     id: 1,
-    title: "Stable Diffusion 3.0 출시",
-    category: "이미지 생성",
+    title: "Stable Diffusion 3.0 Release",
+    category: "Image Generation",
+    categoryId: "image",
     comments: 128,
     likes: 256
   },
   {
     id: 2,
-    title: "ChatGPT API 활용 팁",
-    category: "텍스트 생성",
+    title: "ChatGPT API Usage Tips",
+    category: "Text Generation",
+    categoryId: "text",
     comments: 95,
     likes: 189
   },
   {
     id: 3,
-    title: "AI 음성 변환 품질 개선",
-    category: "음성 변환",
+    title: "AI Voice Conversion Quality Improvement",
+    category: "Voice Conversion",
+    categoryId: "voice",
     comments: 76,
     likes: 145
   }
@@ -43,24 +46,24 @@ const hotTopics = [
 const recommendedCreators = [
   {
     id: 1,
-    name: "김AI",
-    role: "AI 이미지 크리에이터",
+    name: "Kim AI",
+    role: "AI Image Creator",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
     followers: 1234,
     projects: 15
   },
   {
     id: 2,
-    name: "이코딩",
-    role: "AI 개발자",
+    name: "Lee Coding",
+    role: "AI Developer",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
     followers: 856,
     projects: 8
   },
   {
     id: 3,
-    name: "박음성",
-    role: "AI 음성 크리에이터",
+    name: "Park Voice",
+    role: "AI Voice Creator",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
     followers: 2345,
     projects: 23
@@ -70,41 +73,41 @@ const recommendedCreators = [
 const posts = [
   {
     id: 1,
-    author: "김AI",
+    author: "Kim AI",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-    role: "AI 이미지 크리에이터",
-    content: "Stable Diffusion으로 만든 새로운 작품입니다. 프롬프트 공유해드려요!",
+    role: "AI Image Creator",
+    content: "Here's my new artwork created with Stable Diffusion. Sharing the prompt!",
     image: "https://picsum.photos/800/400?random=1",
     likes: 128,
     comments: 32,
     shares: 15,
-    tags: ["이미지 생성", "Stable Diffusion", "프롬프트"],
+    tags: ["Image Generation", "Stable Diffusion", "Prompt"],
     category: "image"
   },
   {
     id: 2,
-    author: "이코딩",
+    author: "Lee Coding",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-    role: "AI 개발자",
-    content: "ChatGPT API를 활용한 새로운 프로젝트를 시작했습니다. 함께 참여하실 분 구합니다!",
+    role: "AI Developer",
+    content: "Starting a new project using ChatGPT API. Looking for collaborators!",
     image: "https://picsum.photos/800/400?random=2",
     likes: 95,
     comments: 24,
     shares: 8,
-    tags: ["프로젝트", "ChatGPT", "협업"],
+    tags: ["Project", "ChatGPT", "Collaboration"],
     category: "code"
   },
   {
     id: 3,
-    author: "박음성",
+    author: "Park Voice",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-    role: "AI 음성 크리에이터",
-    content: "새로운 AI 음성 변환 모델을 테스트해보았습니다. 결과가 놀랍네요!",
+    role: "AI Voice Creator",
+    content: "Tested a new AI voice conversion model. The results are amazing!",
     image: "https://picsum.photos/800/400?random=3",
     likes: 156,
     comments: 45,
     shares: 23,
-    tags: ["음성 변환", "AI 모델", "테스트"],
+    tags: ["Voice Conversion", "AI Model", "Test"],
     category: "voice"
   }
 ]
@@ -117,28 +120,30 @@ export default function CommunityPage() {
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === "all" || post.category === selectedCategory
-    const matchesSearch = post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesSearch = searchQuery === "" || 
+      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      post.author.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
   const chatMessages = [
     {
-      user: "김AI",
+      user: "Kim AI",
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-      message: "안녕하세요! 오늘도 좋은 하루 되세요 😊",
+      message: "Hello! Have a great day 😊",
       time: "10:30"
     },
     {
-      user: "이코딩",
+      user: "Lee Coding",
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-      message: "Stable Diffusion 3.0 사용해보신 분 있나요?",
+      message: "Has anyone tried Stable Diffusion 3.0?",
       time: "10:32"
     },
     {
-      user: "박음성",
+      user: "Park Voice",
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-      message: "네, 저도 사용 중입니다. 어떤 점이 궁금하신가요?",
+      message: "Yes, I'm using it. What would you like to know?",
       time: "10:33"
     }
   ]
@@ -213,7 +218,7 @@ export default function CommunityPage() {
               <div className="flex-1 relative">
                 <input
                   type="text"
-                  placeholder="커뮤니티에서 검색해보세요"
+                  placeholder={t('communitySearchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
@@ -324,7 +329,7 @@ export default function CommunityPage() {
             <div className="space-y-8">
               {/* Real-time Chat */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">실시간 채팅</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Real-time Chat</h3>
                 <div className="space-y-4">
                   {/* Chat Messages */}
                   <div className="h-[300px] overflow-y-auto space-y-4 mb-4">
@@ -352,7 +357,7 @@ export default function CommunityPage() {
                   <div className="flex items-center space-x-2">
                     <input
                       type="text"
-                      placeholder="메시지를 입력하세요..."
+                      placeholder="Type your message..."
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
@@ -366,7 +371,7 @@ export default function CommunityPage() {
 
               {/* Hot Topics */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">핫 토픽</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Hot Topics</h3>
                 <div className="space-y-4">
                   {hotTopics.map((topic) => (
                     <div key={topic.id} className="flex items-start space-x-4">
@@ -375,9 +380,9 @@ export default function CommunityPage() {
                         <p className="text-sm text-gray-500">{topic.category}</p>
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span>{topic.comments} 댓글</span>
+                        <span>{topic.comments} comments</span>
                         <span>•</span>
-                        <span>{topic.likes} 좋아요</span>
+                        <span>{topic.likes} likes</span>
                       </div>
                     </div>
                   ))}
@@ -386,7 +391,7 @@ export default function CommunityPage() {
 
               {/* Recommended Creators */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">추천 크리에이터</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommended Creators</h3>
                 <div className="space-y-4">
                   {recommendedCreators.map((creator) => (
                     <div key={creator.id} className="flex items-center space-x-4">
@@ -402,12 +407,12 @@ export default function CommunityPage() {
                         <h4 className="font-medium text-gray-900">{creator.name}</h4>
                         <p className="text-sm text-gray-500">{creator.role}</p>
                         <div className="flex items-center space-x-4 mt-1">
-                          <span className="text-sm text-gray-500">{creator.followers} 팔로워</span>
-                          <span className="text-sm text-gray-500">{creator.projects} 프로젝트</span>
+                          <span className="text-sm text-gray-500">{creator.followers} followers</span>
+                          <span className="text-sm text-gray-500">{creator.projects} projects</span>
                         </div>
                       </div>
                       <button className="px-3 py-1 text-sm font-medium text-violet-600 hover:text-violet-700">
-                        팔로우
+                        Follow
                       </button>
                     </div>
                   ))}
@@ -416,23 +421,23 @@ export default function CommunityPage() {
 
               {/* Quick Actions */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">빠른 액션</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quickActions')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <button className="flex flex-col items-center justify-center p-4 bg-violet-50 rounded-xl hover:bg-violet-100 transition-colors">
                     <MessageCircle className="w-6 h-6 text-violet-600 mb-2" />
-                    <span className="text-sm font-medium text-violet-600">채팅방</span>
+                    <span className="text-sm font-medium text-violet-600">{t('quickActionChat')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
                     <Users className="w-6 h-6 text-blue-600 mb-2" />
-                    <span className="text-sm font-medium text-blue-600">협업</span>
+                    <span className="text-sm font-medium text-blue-600">{t('quickActionCollaboration')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center p-4 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors">
                     <Lightbulb className="w-6 h-6 text-pink-600 mb-2" />
-                    <span className="text-sm font-medium text-pink-600">Q&A</span>
+                    <span className="text-sm font-medium text-pink-600">{t('quickActionQA')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors">
                     <Code className="w-6 h-6 text-orange-600 mb-2" />
-                    <span className="text-sm font-medium text-orange-600">프로젝트</span>
+                    <span className="text-sm font-medium text-orange-600">{t('quickActionProject')}</span>
                   </button>
                 </div>
               </div>

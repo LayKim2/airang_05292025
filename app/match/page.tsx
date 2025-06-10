@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
 import { Sparkles, Search, Filter, ArrowRight, Users, UserCheck, Plus } from "lucide-react"
+import { useTranslation } from "@/app/i18n/useTranslation"
 
 const categories = [
   "전체",
@@ -24,7 +25,7 @@ const orbAnimation = {
     y: [0, -20, 0],
   },
   transition: {
-    duration: 16, // 기존 8에서 16으로 늘림
+    duration: 16,
     repeat: Infinity,
     ease: "easeInOut"
   }
@@ -37,13 +38,15 @@ const orb2Animation = {
     y: [0, 20, 0],
   },
   transition: {
-    duration: 20, // 기존 10에서 20으로 늘림
+    duration: 20,
     repeat: Infinity,
     ease: "easeInOut"
   }
 }
 
 export default function MatchPage() {
+  const { t } = useTranslation();
+
   return (
     <main className="min-h-screen pt-[112px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
@@ -77,7 +80,7 @@ export default function MatchPage() {
             >
               <Badge className="bg-gradient-to-r from-pink-100 to-orange-100 text-pink-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                AI 크리에이터 매칭
+                {t('headerMatch')}
               </Badge>
             </motion.div>
           </motion.div>
@@ -95,13 +98,12 @@ export default function MatchPage() {
                 <div className="flex items-center justify-center w-16 h-16 bg-violet-100 rounded-xl mb-6 mx-auto">
                   <Users className="w-8 h-8 text-violet-600" />
                 </div>
-                <h3 className="text-xl font-bold text-center mb-4">팀 프로젝트</h3>
+                <h3 className="text-xl font-bold text-center mb-4">{t('matchTeamProject')}</h3>
                 <p className="text-gray-600 text-center mb-6 flex-grow">
-                  함께 AI 프로젝트를 진행할 팀원을 찾아보세요.
-                  개발자, 디자이너, 기획자 등 다양한 역할의 팀원과 협업할 수 있습니다.
+                  {t('matchTeamProjectDesc')}
                 </p>
                 <button className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors">
-                  팀 프로젝트 찾기
+                  {t('matchFindTeam')}
                 </button>
               </div>
             </motion.div>
@@ -117,13 +119,12 @@ export default function MatchPage() {
                 <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-xl mb-6 mx-auto">
                   <UserCheck className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-center mb-4">전문가 의뢰</h3>
+                <h3 className="text-xl font-bold text-center mb-4">{t('matchExpert')}</h3>
                 <p className="text-gray-600 text-center mb-6 flex-grow">
-                  AI 전문가에게 프로젝트를 의뢰하세요.
-                  경험 많은 전문가들이 최상의 결과물을 만들어드립니다.
+                  {t('matchExpertDesc')}
                 </p>
                 <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-                  전문가 찾기
+                  {t('matchFindExpert')}
                 </button>
               </div>
             </motion.div>
@@ -134,7 +135,7 @@ export default function MatchPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="프로젝트나 전문가를 검색해보세요"
+                placeholder={t('matchSearchPlaceholder')}
                 className="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
               />
               <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -151,7 +152,7 @@ export default function MatchPage() {
                 transition={{ delay: index * 0.1 }}
                 className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-gray-700 hover:text-violet-600 font-medium"
               >
-                {category}
+                {t(`matchCategory${index}`)}
               </motion.button>
             ))}
           </div>
@@ -160,19 +161,19 @@ export default function MatchPage() {
           <div className="flex justify-center gap-4 mb-12">
             <button className="flex items-center space-x-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
               <Filter className="w-5 h-5 text-gray-700" />
-              <span className="text-gray-700 font-medium">필터</span>
+              <span className="text-gray-700 font-medium">{t('matchFilter')}</span>
             </button>
             <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
               <Plus className="w-5 h-5" />
-              <span className="font-medium">새 프로젝트 등록</span>
+              <span className="font-medium">{t('matchNewProject')}</span>
             </button>
           </div>
 
           {/* Match Results Placeholder */}
           <div className="text-center text-gray-600">
-            <p className="mb-4">아직 매칭된 프로젝트가 없습니다.</p>
+            <p className="mb-4">{t('matchNoResults')}</p>
             <button className="inline-flex items-center space-x-2 text-violet-600 hover:text-violet-700 font-medium transition-colors">
-              <span>프로젝트 등록하기</span>
+              <span>{t('matchRegisterProject')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

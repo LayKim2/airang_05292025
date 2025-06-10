@@ -121,7 +121,7 @@ export function ServiceCarousel({ services }: ServiceCarouselProps) {
             {currentService.trending && (
               <Badge className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 text-sm font-medium shadow-lg z-10">
                 <TrendingUp className="w-4 h-4 mr-1" />
-                트렌딩
+                trending
               </Badge>
             )}
 
