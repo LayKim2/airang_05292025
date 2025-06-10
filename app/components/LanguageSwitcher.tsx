@@ -1,10 +1,10 @@
 "use client"
-import { useContext, useEffect, useState } from "react";
-import { LanguageContext } from "../i18n/LanguageProvider";
+import { useState } from "react";
+import { useLanguage } from "../i18n/LanguageProvider";
 import { Icon } from '@iconify/react';
 
 export function LanguageSwitcher() {
-  const { language, setLanguage } = useContext(LanguageContext);
+  const { language, setLanguage } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
@@ -19,10 +19,15 @@ export function LanguageSwitcher() {
       >
         {language === 'en' ? (
           <Icon icon="twemoji:flag-united-states" width="20" height="20" />
+        ) : language === 'ja' ? (
+          <Icon icon="twemoji:flag-japan" width="20" height="20" />
+        ) : language === 'zh' ? (
+          <Icon icon="twemoji:flag-china" width="20" height="20" />
         ) : (
           <Icon icon="twemoji:flag-south-korea" width="20" height="20" />
         )}
       </button>
+      
       {showDropdown && (
         <div className="origin-top-right absolute right-0 mt-2 w-20 rounded-xl shadow-lg bg-white/5 backdrop-blur-sm ring-1 ring-white/10 z-50">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
@@ -47,6 +52,28 @@ export function LanguageSwitcher() {
               role="menuitem"
             >
               <Icon icon="twemoji:flag-united-states" width="20" height="20" />
+            </button>
+            <button
+              onClick={() => {
+                setLanguage('ja');
+                setShowDropdown(false);
+                if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'ja');
+              }}
+              className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-200 hover:bg-white/10 transition-colors duration-200"
+              role="menuitem"
+            >
+              <Icon icon="twemoji:flag-japan" width="20" height="20" />
+            </button>
+            <button
+              onClick={() => {
+                setLanguage('zh');
+                setShowDropdown(false);
+                if (typeof window !== 'undefined') localStorage.setItem('airang_lang', 'zh');
+              }}
+              className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-200 hover:bg-white/10 transition-colors duration-200"
+              role="menuitem"
+            >
+              <Icon icon="twemoji:flag-china" width="20" height="20" />
             </button>
           </div>
         </div>

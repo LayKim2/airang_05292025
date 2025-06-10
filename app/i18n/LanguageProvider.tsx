@@ -1,47 +1,48 @@
 "use client"
-import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+type Language = 'ko' | 'en' | 'ja' | 'zh';
 
 interface LanguageContextType {
-  language: 'ko' | 'en';
-  setLanguage: (lang: 'ko' | 'en') => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
 }
 
-export const LanguageContext = createContext<LanguageContextType>({
-  language: 'ko',
-  setLanguage: () => {},
-});
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<'ko' | 'en'>("ko");
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguage] = useState<Language>('ko');
 
   useEffect(() => {
-    // localStorage에서 저장된 언어 설정 확인
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('airang_lang') : null;
-    if (stored === 'ko' || stored === 'en') {
-      setLanguageState(stored);
-      return;
-    }
-
-    // localStorage에 저장된 설정이 없으면 브라우저 언어 확인
-    const browserLang = navigator.language || (navigator as any).userLanguage;
-    const defaultLang = browserLang.startsWith('ko') ? 'ko' : 'en';
-    
-    setLanguageState(defaultLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('airang_lang', defaultLang);
+    const savedLang = localStorage.getItem('language') as Language;
+    if (savedLang) {
+      setLanguage(savedLang);
+    } else {
+      const browserLang = navigator.language.split('-')[0];
+      let defaultLang: 'ko' | 'en' | 'ja' | 'zh' = 'en';
+      if (browserLang === 'ko') defaultLang = 'ko';
+      else if (browserLang === 'ja') defaultLang = 'ja';
+      else if (browserLang === 'zh') defaultLang = 'zh';
+      setLanguage(defaultLang);
     }
   }, []);
 
-  const setLanguage = (lang: 'ko' | 'en') => {
-    setLanguageState(lang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('airang_lang', lang);
-    }
+  const handleSetLanguage = (lang: Language) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
 } 
