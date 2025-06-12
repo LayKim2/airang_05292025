@@ -156,5 +156,40 @@
   "trendsTitle": "AIトレンド",
   "servicesTitle": "AIクリエイターの作品",
   "servicesSearchPlaceholder": "サービスを検索...",
-  "aiService": "AIサービス"
+  "aiService": "AIサービス",
+  "aiTools": {
+    "header": "AIツール集",
+    "category": {
+      "all": "すべて",
+      "writing": "ライティング",
+      "image": "画像",
+      "video": "動画",
+      "data": "データ",
+      "meeting": "会議",
+      "coding": "コーディング",
+      "voice": "音声",
+      "customer": "顧客",
+      "marketing": "マーケティング",
+      "education": "教育",
+      "research": "研究",
+      "3d": "3D",
+      "music": "音楽",
+      "codeopt": "最適化",
+      "assistant": "アシスタント",
+      "schedule": "スケジュール",
+      "resume": "履歴書",
+      "email": "メール",
+      "presentation": "発表",
+      "law": "法律"
+    },
+    "button": {
+      "more": "もっと見る",
+      "less": "閉じる",
+      "visit": "訪問"
+    },
+    "label": {
+      "free": "無料",
+      "paid": "有料"
+    }
+  }
 } 

@@ -156,5 +156,40 @@
   "trendsTitle": "AI Trends",
   "servicesTitle": "AI Creator Works",
   "servicesSearchPlaceholder": "Search services...",
-  "aiService": "AI Service"
+  "aiService": "AI Service",
+  "aiTools": {
+    "header": "AI Tools",
+    "category": {
+      "all": "All",
+      "writing": "Writing",
+      "image": "Image",
+      "video": "Video",
+      "data": "Data",
+      "meeting": "Meeting",
+      "coding": "Coding",
+      "voice": "Voice",
+      "customer": "Customer",
+      "marketing": "Marketing",
+      "education": "Education",
+      "research": "Research",
+      "3d": "3D",
+      "music": "Music",
+      "codeopt": "Optimization",
+      "assistant": "Assistant",
+      "schedule": "Schedule",
+      "resume": "Resume",
+      "email": "Email",
+      "presentation": "Presentation",
+      "law": "Law"
+    },
+    "button": {
+      "more": "More",
+      "less": "Less",
+      "visit": "Visit"
+    },
+    "label": {
+      "free": "Free",
+      "paid": "Paid"
+    }
+  }
 } 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp } from "lucide-react"
+import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -35,7 +35,7 @@ export function Header() {
   }, [])
 
   const isServicesPage = pathname === "/services"
-  const isTrendsPage = pathname === "/trends"
+  const isAIToolsPage = pathname === "/ai-tools"
   const isMatchPage = pathname === "/match"
   const isCommunityPage = pathname === "/community"
   const isLandingPage = pathname === "/landing"
@@ -44,7 +44,7 @@ export function Header() {
     { name: "AI Services", path: "/services", icon: <Grid className="w-5 h-5 mb-0.5" /> },
     { name: "Community", path: "/community", icon: <Users className="w-5 h-5 mb-0.5" /> },
     { name: "Match", path: "/match", icon: <HeartHandshake className="w-5 h-5 mb-0.5" /> },
-    { name: "Trends", path: "/trends", icon: <TrendingUp className="w-5 h-5 mb-0.5" /> }
+    { name: "AI Tools", path: "/ai-tools", icon: <Wrench className="w-5 h-5 mb-0.5" /> }
   ];
 
   return (
@@ -52,7 +52,7 @@ export function Header() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isLandingPage 
           ? "bg-transparent" 
-          : isServicesPage || isTrendsPage || isMatchPage || isCommunityPage || scrollY > 50 
+          : isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50 
             ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" 
             : "bg-transparent"
       }`}
@@ -159,12 +159,12 @@ export function Header() {
                     key={item.name}
                     href={item.path}
                     className={`transition-colors font-semibold relative group ${
-                      isServicesPage || isTrendsPage || isMatchPage || isCommunityPage || scrollY > 50
+                      isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
                         ? "text-gray-700 hover:text-violet-600"
                         : "text-gray-200 hover:text-white"
                     } ${
                       pathname === item.path
-                        ? isServicesPage || isTrendsPage || isMatchPage || isCommunityPage || scrollY > 50
+                        ? isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
                           ? "text-violet-600"
                           : "text-white"
                         : ""
@@ -190,7 +190,7 @@ export function Header() {
                   variant="ghost" 
                   size="sm" 
                   className={`sm:hidden z-50 ${
-                    isServicesPage || isTrendsPage || isMatchPage || isCommunityPage || scrollY > 50
+                    isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
                       ? "text-gray-700 hover:text-violet-600"
                       : "text-gray-200 hover:text-white"
                   }`}

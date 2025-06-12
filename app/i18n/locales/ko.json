@@ -156,5 +156,40 @@
   "trendsTitle": "AI 트렌드",
   "servicesTitle": "크리에이터들의 AI 작품",
   "servicesSearchPlaceholder": "서비스를 검색해보세요",
-  "aiService": "AI 서비스"
+  "aiService": "AI 서비스",
+  "aiTools": {
+    "header": "AI Tools",
+    "category": {
+      "all": "전체",
+      "writing": "글쓰기",
+      "image": "이미지",
+      "video": "영상",
+      "data": "데이터",
+      "meeting": "회의",
+      "coding": "코딩",
+      "voice": "음성",
+      "customer": "고객",
+      "marketing": "마케팅",
+      "education": "교육",
+      "research": "연구",
+      "3d": "3D",
+      "music": "음악",
+      "codeopt": "최적화",
+      "assistant": "비서",
+      "schedule": "일정",
+      "resume": "이력서",
+      "email": "이메일",
+      "presentation": "발표",
+      "law": "법률"
+    },
+    "button": {
+      "more": "더보기",
+      "less": "접기",
+      "visit": "바로가기"
+    },
+    "label": {
+      "free": "무료",
+      "paid": "유료"
+    }
+  }
 } 

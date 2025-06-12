@@ -13,10 +13,14 @@ const resources = {
   zh,
 };
 
+function getNestedValue(obj: any, path: string) {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
 export function useTranslation() {
   const { language } = useLanguage();
   const t = useMemo(() => {
-    return (key: string) => (resources[language] as Record<string, string>)[key] || key;
+    return (key: string) => getNestedValue(resources[language], key) || key;
   }, [language]);
   return { t, language };
 } 

@@ -156,5 +156,40 @@
   "trendsTitle": "AI趋势",
   "servicesTitle": "AI创作者作品",
   "servicesSearchPlaceholder": "搜索服务...",
-  "aiService": "AI服务"
+  "aiService": "AI服务",
+  "aiTools": {
+    "header": "AI工具集",
+    "category": {
+      "all": "全部",
+      "writing": "写作",
+      "image": "图片",
+      "video": "视频",
+      "data": "数据",
+      "meeting": "会议",
+      "coding": "编程",
+      "voice": "语音",
+      "customer": "客户",
+      "marketing": "营销",
+      "education": "教育",
+      "research": "研究",
+      "3d": "3D",
+      "music": "音乐",
+      "codeopt": "优化",
+      "assistant": "助手",
+      "schedule": "日程",
+      "resume": "简历",
+      "email": "邮件",
+      "presentation": "演示",
+      "law": "法律"
+    },
+    "button": {
+      "more": "更多",
+      "less": "收起",
+      "visit": "访问"
+    },
+    "label": {
+      "free": "免费",
+      "paid": "付费"
+    }
+  }
 } 
