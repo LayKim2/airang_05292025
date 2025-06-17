@@ -15,6 +15,32 @@
 - Use `Lucide Icons` and `Iconify` as primary icon sources
 - For missing icons, suggest alternatives from well-known packages (e.g., React Icons, Font Awesome) with justification
 
+## Component Structure
+- All new components must be created inside `app/components` directory
+- Components should be organized by feature/domain in subdirectories (e.g., `app/components/home`, `app/components/auth`)
+- Common UI components should be placed in `app/components/ui`
+
+## Authentication & User Management
+- **Clerk must be used for all authentication and user management features**
+- Implementation requirements:
+  - Wrap the entire application with `ClerkProvider` in the root layout
+  - Use Clerk's pre-built components for authentication UI:
+    - `SignInButton` for login triggers
+    - `SignUpButton` for registration triggers
+    - `UserButton` for user profile/account management
+    - `SignedIn` and `SignedOut` for conditional rendering
+  - Implement protected routes using Clerk's middleware
+  - Use Clerk's hooks for user state management:
+    - `useUser` for current user data
+    - `useAuth` for authentication state
+    - `useClerk` for Clerk instance
+  - Store Clerk environment variables in `.env.local`:
+    - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+    - `CLERK_SECRET_KEY`
+  - Configure Clerk's appearance to match the application's theme
+  - Implement proper error handling for authentication failures
+  - Use Clerk's webhooks for user event handling when needed
+
 ### Backend Infrastructure & Logic:
 - **All backend logic and API implementations must be designed for and assume the use of `Cloudflare Workers`.** Focus on solutions that leverage the Workers runtime and its ecosystem.
 - **For all user authentication and management UI/features, `Clerk` must be used.** Provide guidance on integrating Clerk with Next.js and Cloudflare Workers.
