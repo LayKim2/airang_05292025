@@ -12,7 +12,7 @@
 - Specify recommended animation library and reasoning for each animation task
 
 ## Iconography
-- Use `Lucide Icons` as the primary icon source
+- Use `Lucide Icons` and `Iconify` as primary icon sources
 - For missing icons, suggest alternatives from well-known packages (e.g., React Icons, Font Awesome) with justification
 
 ## Backend Infrastructure
