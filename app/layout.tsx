@@ -5,6 +5,7 @@ import { ThemeProvider } from './components/theme-provider'
 import { Header } from "./components/home/Header"
 import ClientLayout from "@/app/components/ClientLayout"
 import GoogleAnalytics from './components/GoogleAnalytics'
+import { ClerkProvider } from '@clerk/nextjs'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,18 +25,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <GoogleAnalytics />
-        <ClientLayout>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
-          </ThemeProvider>
-        </ClientLayout>
+        <ClerkProvider>
+          <GoogleAnalytics />
+          <ClientLayout>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Header />
+              {children}
+            </ThemeProvider>
+          </ClientLayout>
+        </ClerkProvider>
       </body>
     </html>
   )

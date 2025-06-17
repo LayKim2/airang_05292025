@@ -191,5 +191,7 @@
       "free": "Free",
       "paid": "Paid"
     }
-  }
+  },
+  "signIn": "Sign In",
+  "signUp": "Sign Up"
 } 

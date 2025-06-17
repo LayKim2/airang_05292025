@@ -8,6 +8,7 @@ import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench } fr
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
@@ -180,20 +181,34 @@ export function Header() {
 
               <div className="hidden sm:flex items-center space-x-4">
                 <LanguageSwitcher />
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" size="sm" className="text-gray-700 hover:text-violet-600">
+                      {t('signIn')}
+                    </Button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
               </div>
               
-              <div className="flex items-center space-x-2">
-                <div className="sm:hidden">
-                  <LanguageSwitcher />
-                </div>
+              <div className="flex items-center space-x-2 sm:hidden">
+                <LanguageSwitcher />
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" size="sm" className="sm:hidden text-gray-200 hover:text-white">
+                      {t('signIn')}
+                    </Button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`sm:hidden z-50 ${
-                    isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
-                      ? "text-gray-700 hover:text-violet-600"
-                      : "text-gray-200 hover:text-white"
-                  }`}
+                  className="sm:hidden z-50 text-gray-200 hover:text-white"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
                   {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
