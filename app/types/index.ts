@@ -41,4 +41,16 @@ export interface Feature {
   title: string
   description: string
   color: string
+}
+
+export interface User {
+  clerk_user_id: string;
+  auth_type: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+  created_at?: string;
+  last_sign_in_at?: string;
+  updated_at?: string;
 } 
