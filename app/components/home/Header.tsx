@@ -183,7 +183,11 @@ export function Header() {
                 <LanguageSwitcher />
                 <SignedOut>
                   <SignInButton mode="modal">
-                    <Button variant="ghost" size="sm" className="text-gray-700 hover:text-violet-600">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
+                    >
                       {t('signIn')}
                     </Button>
                   </SignInButton>
@@ -197,7 +201,11 @@ export function Header() {
                 <LanguageSwitcher />
                 <SignedOut>
                   <SignInButton mode="modal">
-                    <Button variant="ghost" size="sm" className="sm:hidden text-gray-200 hover:text-white">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="sm:hidden bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-3 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
+                    >
                       {t('signIn')}
                     </Button>
                   </SignInButton>

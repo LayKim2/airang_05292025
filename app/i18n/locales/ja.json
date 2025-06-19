@@ -60,8 +60,8 @@
   "communityMoreCreators": "もっと多くのクリエイターに会う",
   "communityTitleAlone": "一人ではない",
   "communityMembers": "メンバー",
-  "modalTitle": "近日公開",
-  "modalDesc": "2025年7月1日にオープン予定です。",
+  "modalTitle": "投稿作成",
+  "modalDesc": "コミュニティに新しい投稿を作成しましょう。",
   "modalHighlight": "今すぐ応募すると、あなたのAIサービスがサイトのメインページで紹介されます！",
   "modalConfirm": "確認",
   "statusOnline": "オンライン",
@@ -191,5 +191,32 @@
       "free": "無料",
       "paid": "有料"
     }
+  },
+  "community": {
+    "searchPlaceholder": "投稿を検索...",
+    "heroTitle": "AIクリエイターコミュニティ",
+    "heroDesc": "AIクリエイターとアイデアを共有し、プロジェクトで協力し、最新のAIトレンドを探求しましょう。",
+    "writeButton": "投稿を書く",
+    "loading": "投稿を読み込み中...",
+    "loadMore": "さらに投稿を表示",
+    "noPostsTitle": "まだ投稿がありません",
+    "noPostsDesc": "最初の投稿を書いてみましょう！",
+    "modalTitle": "投稿作成",
+    "modalDesc": "コミュニティに新しい投稿を作成しましょう。",
+    "form": {
+      "title": "タイトル",
+      "titlePlaceholder": "タイトルを入力してください",
+      "content": "内容",
+      "contentPlaceholder": "内容を入力してください",
+      "category": "カテゴリー",
+      "categoryPlaceholder": "カテゴリーを選択してください",
+      "tags": "タグ",
+      "tagsPlaceholder": "タグを入力してください（カンマ区切り）",
+      "tagsHelp": "複数のタグはカンマ(,)で区切ってください。"
+    }
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "submit": "投稿"
   }
 } 

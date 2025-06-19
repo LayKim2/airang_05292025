@@ -1,152 +1,130 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
-import { Sparkles, Search, Filter, MessageCircle, Heart, Share2, Bookmark, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText } from "lucide-react"
+import { Button } from "@/app/components/ui/button"
+import { Sparkles, Search, Filter, MessageCircle, Heart, Eye, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText, Plus, Clock } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useTranslation } from "@/app/i18n/useTranslation"
+import { postsApi, Post } from "@/app/lib/api"
+import { useUser } from "@clerk/nextjs"
+import PostCreateModal from "@/app/components/community/PostCreateModal"
 
 const categories = [
   { id: "all", name: "All", icon: TrendingUp },
-  { id: "image", name: "Image Generation", icon: ImageIcon },
-  { id: "voice", name: "Voice Conversion", icon: Mic },
-  { id: "text", name: "Text Generation", icon: FileText },
-  { id: "code", name: "Code Generation", icon: Code },
-  { id: "idea", name: "Ideas", icon: Lightbulb },
+  { id: "AI", name: "AI", icon: Sparkles },
+  { id: "Development", name: "Development", icon: Code },
+  { id: "Design", name: "Design", icon: ImageIcon },
+  { id: "Ideas", name: "Ideas", icon: Lightbulb },
+  { id: "Questions", name: "Questions", icon: MessageCircle },
 ]
 
-const hotTopics = [
-  {
-    id: 1,
-    title: "Stable Diffusion 3.0 Release",
-    category: "Image Generation",
-    categoryId: "image",
-    comments: 128,
-    likes: 256
-  },
-  {
-    id: 2,
-    title: "ChatGPT API Usage Tips",
-    category: "Text Generation",
-    categoryId: "text",
-    comments: 95,
-    likes: 189
-  },
-  {
-    id: 3,
-    title: "AI Voice Conversion Quality Improvement",
-    category: "Voice Conversion",
-    categoryId: "voice",
-    comments: 76,
-    likes: 145
-  }
-]
-
-const recommendedCreators = [
-  {
-    id: 1,
-    name: "Kim AI",
-    role: "AI Image Creator",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-    followers: 1234,
-    projects: 15
-  },
-  {
-    id: 2,
-    name: "Lee Coding",
-    role: "AI Developer",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-    followers: 856,
-    projects: 8
-  },
-  {
-    id: 3,
-    name: "Park Voice",
-    role: "AI Voice Creator",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-    followers: 2345,
-    projects: 23
-  }
-]
-
-const posts = [
-  {
-    id: 1,
-    author: "Kim AI",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-    role: "AI Image Creator",
-    content: "Here's my new artwork created with Stable Diffusion. Sharing the prompt!",
-    image: "https://picsum.photos/800/400?random=1",
-    likes: 128,
-    comments: 32,
-    shares: 15,
-    tags: ["Image Generation", "Stable Diffusion", "Prompt"],
-    category: "image"
-  },
-  {
-    id: 2,
-    author: "Lee Coding",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-    role: "AI Developer",
-    content: "Starting a new project using ChatGPT API. Looking for collaborators!",
-    image: "https://picsum.photos/800/400?random=2",
-    likes: 95,
-    comments: 24,
-    shares: 8,
-    tags: ["Project", "ChatGPT", "Collaboration"],
-    category: "code"
-  },
-  {
-    id: 3,
-    author: "Park Voice",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-    role: "AI Voice Creator",
-    content: "Tested a new AI voice conversion model. The results are amazing!",
-    image: "https://picsum.photos/800/400?random=3",
-    likes: 156,
-    comments: 45,
-    shares: 23,
-    tags: ["Voice Conversion", "AI Model", "Test"],
-    category: "voice"
-  }
-]
+// 하드코딩 댓글 수 (임시)
+const hardcodedCommentCounts = [32, 24, 45, 23, 67, 12, 8, 19, 5, 14]
 
 export default function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [chatMessage, setChatMessage] = useState("")
+  const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
   const { t } = useTranslation()
+  const { user, isSignedIn } = useUser()
 
-  const filteredPosts = posts.filter(post => {
-    const matchesCategory = selectedCategory === "all" || post.category === selectedCategory
-    const matchesSearch = searchQuery === "" || 
-      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      post.author.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  // 게시글 목록 조회
+  const fetchPosts = async (page: number = 1, reset: boolean = false) => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const params: any = {
+        page,
+        limit: 10
+      }
+      
+      if (selectedCategory !== "all") {
+        params.category = selectedCategory
+      }
+      
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim()
+      }
 
-  const chatMessages = [
-    {
-      user: "Kim AI",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-      message: "Hello! Have a great day 😊",
-      time: "10:30"
-    },
-    {
-      user: "Lee Coding",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-      message: "Has anyone tried Stable Diffusion 3.0?",
-      time: "10:32"
-    },
-    {
-      user: "Park Voice",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-      message: "Yes, I'm using it. What would you like to know?",
-      time: "10:33"
+      const response = await postsApi.getPosts(params)
+      
+      if (reset) {
+        setPosts(response.posts || [])
+      } else {
+        setPosts(prev => [...prev, ...(response.posts || [])])
+      }
+      
+      setHasMore(response.pagination?.totalPages > page)
+      setCurrentPage(page)
+      
+    } catch (err: any) {
+      setError(err.message || '게시글을 불러오는데 실패했습니다.')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  // 카테고리 변경
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category)
+    setCurrentPage(1)
+    fetchPosts(1, true)
+  }
+
+  // 검색
+  const handleSearch = () => {
+    setCurrentPage(1)
+    fetchPosts(1, true)
+  }
+
+  // 더보기
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      fetchPosts(currentPage + 1, false)
+    }
+  }
+
+  // 초기 로드
+  useEffect(() => {
+    fetchPosts(1, true)
+    // eslint-disable-next-line
+  }, [])
+
+  // 검색어 변경 시 자동 검색 (디바운스)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery !== "") {
+        handleSearch()
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line
+  }, [searchQuery])
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) return '방금 전'
+    if (diffInHours < 24) return `${diffInHours}시간 전`
+    if (diffInHours < 48) return '어제'
+    
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
 
   return (
     <main className="min-h-screen pt-[128px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
@@ -154,7 +132,6 @@ export default function CommunityPage() {
       <section className="relative py-8 md:py-12 lg:py-16">
         {/* Modern Background Elements */}
         <div className="absolute inset-0">
-          {/* Animated Gradient Orbs */}
           <motion.div 
             className="absolute top-32 left-32 w-64 h-64 bg-gradient-to-r from-violet-200/20 to-purple-200/20 rounded-full blur-3xl"
             animate={{
@@ -183,11 +160,7 @@ export default function CommunityPage() {
               ease: "easeInOut"
             }}
           />
-
-          {/* Subtle Grid Pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(124,58,237,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(124,58,237,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
-
-          {/* Radial Gradients */}
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.05),transparent_50%)]" />
           <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.05),transparent_50%)]" />
         </div>
@@ -199,7 +172,7 @@ export default function CommunityPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-4 md:mb-6 lg:mb-8"
           >
-            <motion.div
+<motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
@@ -212,237 +185,217 @@ export default function CommunityPage() {
           </motion.div>
 
           {/* Search and Filter Section */}
-          <div className="max-w-7xl mx-auto mb-12">
-            <div className="flex flex-col md:flex-row gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-4xl mx-auto mb-8"
+          >
+            <div className="flex flex-col lg:flex-row gap-4">
               {/* Search Bar */}
               <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder={t('communitySearchPlaceholder')}
+                  placeholder={t('community.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 />
-                <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
 
               {/* Category Filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+              <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
                 {categories.map((category) => (
                   <button
                     key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-300 ${
+                    onClick={() => handleCategoryChange(category.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
                       selectedCategory === category.id
-                        ? "bg-violet-600 text-white shadow-lg"
-                        : "bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-violet-50"
+                        ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-lg"
+                        : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-violet-50 border border-gray-200"
                     }`}
                   >
                     <category.icon className="w-4 h-4" />
-                    <span>{category.name}</span>
+                    {category.name}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Main Content Grid */}
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Posts */}
-            <div className="lg:col-span-2 space-y-8">
-              {filteredPosts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
+          {/* Post Create Button (모달) */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-end mb-6">
+            {isSignedIn && <PostCreateModal />}
+          </div>
+        </div>
+      </section>
+
+      {/* Posts Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="max-w-4xl mx-auto">
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* Posts Grid */}
+          <div className="space-y-6">
+            {posts.map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
+              >
+                {/* 이미지 */}
+                {post.image_url && (
+                  <div className="w-full h-64 relative bg-gray-100">
+                    <Image
+                      src={post.image_url}
+                      alt={post.title}
+                      fill
+                      className="object-cover object-center rounded-t-2xl"
+                      sizes="(max-width: 768px) 100vw, 700px"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
                   {/* Post Header */}
-                  <div className="p-6 border-b border-gray-100">
-                    <div className="flex items-center space-x-4">
-                      <Image
-                        src={post.avatar}
-                        alt={post.author}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full"
-                        unoptimized
-                      />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+                        {post.users?.avatar_url ? (
+                          <Image src={post.users.avatar_url} alt="avatar" width={40} height={40} className="rounded-full object-cover" />
+                        ) : (
+                          (post.users?.first_name?.[0] || 'U')
+                        )}
+                      </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{post.author}</h3>
-                        <p className="text-sm text-gray-500">{post.role}</p>
+                        <div className="font-semibold text-gray-900">
+                          {post.users?.first_name} {post.users?.last_name}
+                        </div>
+                        <div className="text-xs text-gray-500 flex items-center gap-2">
+                          <span>{post.users?.role || 'Member'}</span>
+                          <span>·</span>
+                          <Clock className="w-3 h-3" />
+                          {formatDate(post.created_at)}
+                        </div>
                       </div>
                     </div>
+                    <Badge variant="outline" className="text-xs">
+                      {post.category}
+                    </Badge>
                   </div>
 
                   {/* Post Content */}
-                  <div className="p-6">
-                    <p className="text-gray-700 mb-4">{post.content}</p>
-                    <Image
-                      src={post.image}
-                      alt="Post content"
-                      width={800}
-                      height={400}
-                      className="w-full h-64 object-cover rounded-xl mb-4"
-                      unoptimized
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          className="bg-violet-100 text-violet-700 border-0"
-                        >
+                  <Link href={`/community/${post.id}`}>
+                    <div className="cursor-pointer">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 hover:text-violet-600 transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3">
+                        {post.content}
+                      </p>
+                    </div>
+                  </Link>
+
+                  {/* Tags */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {post.tags.slice(0, 3).map((tag, tagIndex) => (
+                        <Badge key={tagIndex} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
                       ))}
+                      {post.tags.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{post.tags.length - 3}
+                        </Badge>
+                      )}
                     </div>
-                  </div>
+                  )}
 
                   {/* Post Actions */}
-                  <div className="px-6 py-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-6">
-                        <button className="flex items-center space-x-2 text-gray-500 hover:text-violet-600 transition-colors">
-                          <Heart className="w-5 h-5" />
-                          <span>{post.likes}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-gray-500 hover:text-violet-600 transition-colors">
-                          <MessageCircle className="w-5 h-5" />
-                          <span>{post.comments}</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-gray-500 hover:text-violet-600 transition-colors">
-                          <Share2 className="w-5 h-5" />
-                          <span>{post.shares}</span>
-                        </button>
-                      </div>
-                      <button className="text-gray-500 hover:text-violet-600 transition-colors">
-                        <Bookmark className="w-5 h-5" />
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-6">
+                      <button className="flex items-center gap-2 text-gray-500 hover:text-violet-600 transition-colors">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-sm">{hardcodedCommentCounts[index % hardcodedCommentCounts.length]}</span>
+                      </button>
+                      <button className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors">
+                        <Heart className="w-4 h-4" />
+                        <span className="text-sm">{post.like_count || 0}</span>
                       </button>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Right Column - Sidebar */}
-            <div className="space-y-8">
-              {/* Real-time Chat */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Real-time Chat</h3>
-                <div className="space-y-4">
-                  {/* Chat Messages */}
-                  <div className="h-[300px] overflow-y-auto space-y-4 mb-4">
-                    {chatMessages.map((chat, index) => (
-                      <div key={index} className="flex items-start space-x-3">
-                        <Image
-                          src={chat.avatar}
-                          alt={chat.user}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 rounded-full"
-                          unoptimized
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium text-gray-900">{chat.user}</span>
-                            <span className="text-xs text-gray-500">{chat.time}</span>
-                          </div>
-                          <p className="text-gray-700 text-sm mt-1">{chat.message}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Chat Input */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Type your message..."
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                    />
-                    <button className="p-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors">
-                      <MessageCircle className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hot Topics */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Hot Topics</h3>
-                <div className="space-y-4">
-                  {hotTopics.map((topic) => (
-                    <div key={topic.id} className="flex items-start space-x-4">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                        <p className="text-sm text-gray-500">{topic.category}</p>
-                      </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span>{topic.comments} comments</span>
-                        <span>•</span>
-                        <span>{topic.likes} likes</span>
-                      </div>
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Eye className="w-4 h-4" />
+                      <span className="text-sm">{post.view_count || 0}</span>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Recommended Creators */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommended Creators</h3>
-                <div className="space-y-4">
-                  {recommendedCreators.map((creator) => (
-                    <div key={creator.id} className="flex items-center space-x-4">
-                      <Image
-                        src={creator.avatar}
-                        alt={creator.name}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full"
-                        unoptimized
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{creator.name}</h4>
-                        <p className="text-sm text-gray-500">{creator.role}</p>
-                        <div className="flex items-center space-x-4 mt-1">
-                          <span className="text-sm text-gray-500">{creator.followers} followers</span>
-                          <span className="text-sm text-gray-500">{creator.projects} projects</span>
-                        </div>
-                      </div>
-                      <button className="px-3 py-1 text-sm font-medium text-violet-600 hover:text-violet-700">
-                        Follow
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quickActions')}</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <button className="flex flex-col items-center justify-center p-4 bg-violet-50 rounded-xl hover:bg-violet-100 transition-colors">
-                    <MessageCircle className="w-6 h-6 text-violet-600 mb-2" />
-                    <span className="text-sm font-medium text-violet-600">{t('quickActionChat')}</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
-                    <Users className="w-6 h-6 text-blue-600 mb-2" />
-                    <span className="text-sm font-medium text-blue-600">{t('quickActionCollaboration')}</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center p-4 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors">
-                    <Lightbulb className="w-6 h-6 text-pink-600 mb-2" />
-                    <span className="text-sm font-medium text-pink-600">{t('quickActionQA')}</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors">
-                    <Code className="w-6 h-6 text-orange-600 mb-2" />
-                    <span className="text-sm font-medium text-orange-600">{t('quickActionProject')}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+              <p className="mt-2 text-gray-600">{t('community.loading')}</p>
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mt-8"
+            >
+              <Button
+                onClick={handleLoadMore}
+                variant="outline"
+                className="px-6 py-3 rounded-xl"
+              >
+                {t('community.loadMore')}
+              </Button>
+            </motion.div>
+          )}
+
+          {/* No Posts */}
+          {!loading && posts.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <FileText className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {t('community.noPostsTitle')}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {t('community.noPostsDesc')}
+              </p>
+              {isSignedIn && (
+                <Link href="/community/write">
+                  <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('community.writeButton')}
+                  </Button>
+                </Link>
+              )}
+            </motion.div>
+          )}
         </div>
       </section>
     </main>

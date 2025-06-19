@@ -60,8 +60,8 @@
   "communityMoreCreators": "认识更多创作者",
   "communityTitleAlone": "不再孤单",
   "communityMembers": "成员",
-  "modalTitle": "即将推出",
-  "modalDesc": "计划于2025年7月1日开放。",
+  "modalTitle": "发布帖子",
+  "modalDesc": "在社区发布新帖子吧。",
   "modalHighlight": "立即申请，您的AI服务将在网站主页上展示！",
   "modalConfirm": "确定",
   "statusOnline": "在线",
@@ -191,5 +191,34 @@
       "free": "免费",
       "paid": "付费"
     }
+  },
+  "community": {
+    "searchPlaceholder": "搜索帖子...",
+    "heroTitle": "AI创作者社区",
+    "heroDesc": "与AI创作者们分享想法，协作项目，探索最新AI趋势。",
+    "writeButton": "发表帖子",
+    "loading": "正在加载帖子...",
+    "loadMore": "加载更多帖子",
+    "noPostsTitle": "还没有帖子",
+    "noPostsDesc": "成为第一个发帖的人吧！",
+    "form": {
+      "title": "标题",
+      "titlePlaceholder": "请输入标题",
+      "content": "内容",
+      "contentPlaceholder": "请输入内容",
+      "category": "分类",
+      "categoryPlaceholder": "请选择分类",
+      "tags": "标签",
+      "tagsPlaceholder": "请输入标签（用逗号分隔）",
+      "tagsHelp": "多个标签请用逗号(,)分隔。"
+    },
+    "modalTitle": "发布帖子",
+    "modalDesc": "在社区发布新帖子吧。",
+    "modalHighlight": "立即申请，您的AI服务将在网站主页上展示！",
+    "modalConfirm": "确定"
+  },
+  "common": {
+    "cancel": "取消",
+    "submit": "发布"
   }
 } 

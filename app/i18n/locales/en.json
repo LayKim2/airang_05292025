@@ -60,8 +60,8 @@
   "communityMoreCreators": "Meet More Creators",
   "communityTitleAlone": "Not Alone",
   "communityMembers": "Members",
-  "modalTitle": "Coming Soon",
-  "modalDesc": "Scheduled to open on July 1, 2025.",
+  "modalTitle": "Create Post",
+  "modalDesc": "Write a new post for the community.",
   "modalHighlight": "Apply now to have your AI service featured on the main page!",
   "modalConfirm": "OK",
   "statusOnline": "Online",
@@ -193,5 +193,32 @@
     }
   },
   "signIn": "Sign In",
-  "signUp": "Sign Up"
+  "signUp": "Sign Up",
+  "community": {
+    "searchPlaceholder": "Search posts...",
+    "heroTitle": "AI Creator Community",
+    "heroDesc": "Share ideas, collaborate on projects, and explore the latest AI trends with fellow creators.",
+    "writeButton": "Write a Post",
+    "loading": "Loading posts...",
+    "loadMore": "Load more posts",
+    "noPostsTitle": "No posts yet",
+    "noPostsDesc": "Be the first to write a post!",
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "Enter the title",
+      "content": "Content",
+      "contentPlaceholder": "Enter the content",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "tags": "Tags",
+      "tagsPlaceholder": "Enter tags (comma separated)",
+      "tagsHelp": "Separate multiple tags with commas (,)."
+    },
+    "modalTitle": "Create Post",
+    "modalDesc": "Write a new post for the community."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "submit": "Submit"
+  }
 } 
