@@ -19,6 +19,7 @@ const categories = [
   { id: "Design", name: "Design", icon: ImageIcon },
   { id: "Ideas", name: "Ideas", icon: Lightbulb },
   { id: "Questions", name: "Questions", icon: MessageCircle },
+  { id: "Others", name: "Others", icon: MessageCircle },
 ]
 
 // 하드코딩 댓글 수 (임시)
@@ -246,31 +247,46 @@ export default function CommunityPage() {
           )}
 
           {/* Posts Grid */}
-          <div className="space-y-6">
-            {posts.map((post, index) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
-              >
-                {/* 이미지 */}
-                {post.image_url && (
-                  <div className="w-full h-64 relative bg-gray-100">
-                    <Image
-                      src={post.image_url}
-                      alt={post.title}
-                      fill
-                      className="object-cover object-center rounded-t-2xl"
-                      sizes="(max-width: 768px) 100vw, 700px"
-                    />
+          <div className="space-y-8">
+            {posts.map((post, index) => {
+              // 카테고리 정보 추출
+              const categoryObj = categories.find(c => c.id === post.category);
+              const CategoryIcon = categoryObj?.icon;
+              return (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="relative bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col min-h-[400px]"
+                >
+                  {/* 카테고리/아이콘 강조 */}
+                  <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                    {CategoryIcon && <CategoryIcon className="w-5 h-5 text-violet-500" />}
+                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">
+                      {post.category}
+                    </span>
                   </div>
-                )}
-                <div className="p-6">
-                  {/* Post Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                  {/* 이미지 (있으면 상단에 크게) */}
+                  {post.image_url ? (
+                    <div className="w-full h-56 relative bg-gray-100">
+                      <Image
+                        src={post.image_url}
+                        alt={post.title}
+                        fill
+                        className="object-cover object-center rounded-t-2xl"
+                        sizes="(max-width: 768px) 100vw, 700px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-56 bg-gradient-to-r from-violet-50 to-blue-50 flex items-center justify-center text-5xl text-violet-200">
+                      <FileText className="w-16 h-16" />
+                    </div>
+                  )}
+                  {/* 본문 영역 */}
+                  <div className="flex-1 flex flex-col justify-between p-6 pt-8">
+                    {/* 유저/날짜 한 줄에 정돈 */}
+                    <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-semibold overflow-hidden">
                         {post.users?.avatar_url ? (
                           <Image src={post.users.avatar_url} alt="avatar" width={40} height={40} className="rounded-full object-cover" />
@@ -282,67 +298,56 @@ export default function CommunityPage() {
                         <div className="font-semibold text-gray-900">
                           {post.users?.first_name} {post.users?.last_name}
                         </div>
-                        <div className="text-xs text-gray-500 flex items-center gap-2">
-                          <span>{post.users?.role || 'Member'}</span>
+                        <div className="text-xs text-gray-400 flex items-center gap-2">
+                          <span>{post.users?.role || 'Member'}12313</span>
                           <span>·</span>
                           <Clock className="w-3 h-3" />
                           {formatDate(post.created_at)}
                         </div>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      {post.category}
-                    </Badge>
-                  </div>
-
-                  {/* Post Content */}
-                  <Link href={`/community/${post.id}`}>
-                    <div className="cursor-pointer">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 hover:text-violet-600 transition-colors">
+                    {/* 제목/내용 강조 */}
+                    <Link href={`/community/${post.id}`} className="block group">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-violet-600 transition-colors">
                         {post.title}
                       </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-3">
+                      <p className="text-gray-700 text-base min-h-[120px] mb-4">
                         {post.content}
                       </p>
-                    </div>
-                  </Link>
-
-                  {/* Tags */}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {post.tags.slice(0, 3).map((tag, tagIndex) => (
-                        <Badge key={tagIndex} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {post.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{post.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Post Actions */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-6">
-                      <button className="flex items-center gap-2 text-gray-500 hover:text-violet-600 transition-colors">
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-sm">{hardcodedCommentCounts[index % hardcodedCommentCounts.length]}</span>
-                      </button>
-                      <button className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors">
-                        <Heart className="w-4 h-4" />
-                        <span className="text-sm">{post.like_count || 0}</span>
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Eye className="w-4 h-4" />
-                      <span className="text-sm">{post.view_count || 0}</span>
+                    </Link>
+                    {/* 태그/액션 하단 고정 */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags && post.tags.slice(0, 3).map((tag, tagIndex) => (
+                          <Badge key={tagIndex} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                        {post.tags && post.tags.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{post.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-6">
+                        <button className="flex items-center gap-2 text-gray-500 hover:text-violet-600 transition-colors">
+                          <MessageCircle className="w-4 h-4" />
+                          <span className="text-sm">{hardcodedCommentCounts[index % hardcodedCommentCounts.length]}</span>
+                        </button>
+                        <button className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors">
+                          <Heart className="w-4 h-4" />
+                          <span className="text-sm">{post.like_count || 0}</span>
+                        </button>
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm">{post.view_count || 0}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Loading State */}

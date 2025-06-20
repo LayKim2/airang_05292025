@@ -211,8 +211,9 @@
       "category": "カテゴリー",
       "categoryPlaceholder": "カテゴリーを選択してください",
       "tags": "タグ",
-      "tagsPlaceholder": "タグを入力してください（カンマ区切り）",
-      "tagsHelp": "複数のタグはカンマ(,)で区切ってください。"
+      "tagsPlaceholder": "タグを入力してEnter",
+      "tagsHelp": "複数のタグはカンマ(,)で区切ってください。",
+      "imageUpload": "画像添付"
     }
   },
   "common": {

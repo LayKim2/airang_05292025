@@ -210,7 +210,9 @@
       "categoryPlaceholder": "请选择分类",
       "tags": "标签",
       "tagsPlaceholder": "请输入标签（用逗号分隔）",
-      "tagsHelp": "多个标签请用逗号(,)分隔。"
+      "tagsHelp": "多个标签请用逗号(,)分隔。",
+      "imageUpload": "添加图片",
+      "tagPlaceholder": "输入标签后回车"
     },
     "modalTitle": "发布帖子",
     "modalDesc": "在社区发布新帖子吧。",

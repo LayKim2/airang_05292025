@@ -92,3 +92,64 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* tiptap 에디터 영역 카드 스타일 */
+.tiptap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  outline: none;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(80, 80, 120, 0.06);
+  padding: 1.2rem 1rem;
+  font-size: 1.08rem;
+  color: #222;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.tiptap:focus-within {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 2px #a5b4fc33;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #bdbdbd;
+  pointer-events: none;
+  height: 0;
+  font-size: 1.08rem;
+  font-style: italic;
+}
+.tiptap img {
+  display: block;
+  max-width: 100%;
+  max-height: 300px;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  box-shadow: 0 2px 8px 0 rgba(80, 80, 120, 0.08);
+}
+.tiptap ::selection {
+  background: #a5b4fc33;
+}
+.tiptap::-webkit-scrollbar {
+  width: 8px;
+  background: #f3f4f6;
+}
+.tiptap::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+/* tiptap 에디터 평면(카드X) 스타일 - 카드 효과 제거 */
+.tiptap.tiptap-plain {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

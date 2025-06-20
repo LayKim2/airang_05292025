@@ -212,7 +212,9 @@
       "categoryPlaceholder": "Select a category",
       "tags": "Tags",
       "tagsPlaceholder": "Enter tags (comma separated)",
-      "tagsHelp": "Separate multiple tags with commas (,)."
+      "tagsHelp": "Separate multiple tags with commas (,).",
+      "imageUpload": "Attach Image",
+      "tagPlaceholder": "Enter tags and press Enter"
     },
     "modalTitle": "Create Post",
     "modalDesc": "Write a new post for the community."
