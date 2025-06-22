@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/app/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogClose } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select";
 import { Button } from "@/app/components/ui/button";
 import { useTranslation } from "@/app/i18n/useTranslation";
-import { Plus, Sparkles, Code, Image as ImageIcon, Lightbulb, MessageCircle, Image as ImageUploadIcon } from "lucide-react";
+import { Plus, Share2, BookText, MessageCircleQuestion, Archive, Image as ImageUploadIcon } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -15,16 +15,16 @@ import FontFamily from '@tiptap/extension-font-family';
 import { supabase } from '@/lib/supabase';
 import { useUserProfile } from '@/app/lib/useUserProfile';
 
-const categories = [
-  { id: "AI", label: "AI", icon: Sparkles },
-  { id: "Development", label: "Development", icon: Code },
-  { id: "Design", label: "Design", icon: ImageIcon },
-  { id: "Ideas", label: "Ideas", icon: Lightbulb },
-  { id: "Questions", label: "Questions", icon: MessageCircle },
-];
-
 export default function PostCreateModal() {
   const { t } = useTranslation();
+  
+  const categories = [
+    { id: "PromptSharing", label: t('community.categories.promptSharing'), icon: Share2 },
+    { id: "TipsAndKnowHow", label: t('community.categories.tipsAndKnowHow'), icon: BookText },
+    { id: "QAndAAndFeedback", label: t('community.categories.qAndAAndFeedback'), icon: MessageCircleQuestion },
+    { id: "General", label: t('community.categories.general'), icon: Archive },
+  ];
+
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState(categories[0].id);
   const [tags, setTags] = useState<string[]>([]);
@@ -34,8 +34,7 @@ export default function PostCreateModal() {
 
   // Clerk 인증 유저 정보 연동
   const { user, profile } = useUserProfile();
-  const selectedCategory = categories.find(c => c.id === category);
-
+  
   // tiptap 에디터 인스턴스 생성
   const editor = useEditor({
     extensions: [StarterKit, Image, Link, TextStyle, Color, FontFamily],
@@ -68,7 +67,6 @@ export default function PostCreateModal() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editor) return;
-    // 기존 이미지 모두 제거
     blobImagesRef.current = {};
     const blobUrl = URL.createObjectURL(file);
     editor.chain().focus().setImage({ src: blobUrl }).run();
@@ -78,11 +76,14 @@ export default function PostCreateModal() {
   // Post 등록(Submit) 시 Blob URL 이미지를 Storage에 업로드 후 content 내 URL 교체
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editor) return;
-    let content = editor.getText();
+    if (!editor || editor.isEmpty) {
+      alert(t('community.form.contentPlaceholder'));
+      return;
+    }
+    
     let html = editor.getHTML();
+
     // Blob URL이 있으면 submit 시 Storage에 업로드 후 publicUrl로 교체
-    let imageUrl = null;
     const blobUrls = Object.keys(blobImagesRef.current);
     for (const blobUrl of blobUrls) {
       if (html.includes(blobUrl)) {
@@ -95,21 +96,22 @@ export default function PostCreateModal() {
         const publicUrl = urlData?.publicUrl;
         if (publicUrl) {
           html = html.replaceAll(blobUrl, publicUrl);
-          imageUrl = publicUrl;
         }
       }
     }
-    // posts 테이블에 저장 (content는 getText, image_url은 publicUrl)
+
+    // posts 테이블에 저장
     await supabase.from('posts').insert({
-      content,
+      content: html,
       category,
       tags,
       author_id: profile?.clerk_user_id || user?.id || null,
-      image_url: imageUrl
     });
+
     // 초기화
     editor.commands.clearContent();
     setTagInput("");
+    setTags([]);
     blobImagesRef.current = {};
     setOpen(false);
   };
@@ -138,12 +140,11 @@ export default function PostCreateModal() {
               {profile?.last_name || user?.lastName || ''}
             </div>
             <div className="text-xs text-gray-400 flex gap-2 items-center">
-              {/* 날짜/카테고리 등 필요시 추가 */}
             </div>
           </div>
           {/* 카테고리 선택 드롭다운 */}
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="bg-gray-50 border-gray-200 w-24 text-xs h-8">
+            <SelectTrigger className="bg-gray-50 border-gray-200 w-auto whitespace-nowrap text-xs h-8">
               <SelectValue placeholder={t('community.form.categoryPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -168,7 +169,7 @@ export default function PostCreateModal() {
             </div>
           )}
           {/* EditorContent 영역이 팝업 내에서 최대한 늘어나도록 flex-1 구조 적용 */}
-          <div className="mb-4 flex-1 min-h-0 flex flex-col">
+          <div className="mb-4 flex-1 min-h-0 flex flex-col overflow-y-auto">
             <EditorContent editor={editor} className="tiptap tiptap-plain flex-1 min-h-0 h-auto" />
           </div>
           {/* 태그 칩/입력 영역은 flex-shrink-0으로 고정 */}

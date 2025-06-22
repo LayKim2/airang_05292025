@@ -203,6 +203,12 @@
     "noPostsDesc": "最初の投稿を書いてみましょう！",
     "modalTitle": "投稿作成",
     "modalDesc": "コミュニティに新しい投稿を作成しましょう。",
+    "categories": {
+      "promptSharing": "プロンプト共有",
+      "tipsAndKnowHow": "ヒントとノウハウ",
+      "qAndAAndFeedback": "質問とフィードバック",
+      "general": "一般"
+    },
     "form": {
       "title": "タイトル",
       "titlePlaceholder": "タイトルを入力してください",

@@ -217,7 +217,13 @@
       "tagPlaceholder": "태그를 입력 후 Enter"
     },
     "modalTitle": "게시글 작성",
-    "modalDesc": "커뮤니티에 새로운 글을 작성해보세요."
+    "modalDesc": "커뮤니티에 새로운 글을 작성해보세요.",
+    "categories": {
+      "promptSharing": "프롬프트 공유",
+      "tipsAndKnowHow": "팁 & 노하우",
+      "qAndAAndFeedback": "질문 & 피드백",
+      "general": "일반"
+    }
   },
   "common": {
     "cancel": "취소",

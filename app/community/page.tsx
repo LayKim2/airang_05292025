@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Search, Filter, MessageCircle, Heart, Eye, TrendingUp, Users, Lightbulb, Code, Mic, Image as ImageIcon, FileText, Plus, Clock } from "lucide-react"
+import { Sparkles, Search, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Heart, Eye, Plus, Clock, FileText, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -12,20 +12,20 @@ import { postsApi, Post } from "@/app/lib/api"
 import { useUser } from "@clerk/nextjs"
 import PostCreateModal from "@/app/components/community/PostCreateModal"
 
-const categories = [
-  { id: "all", name: "All", icon: TrendingUp },
-  { id: "AI", name: "AI", icon: Sparkles },
-  { id: "Development", name: "Development", icon: Code },
-  { id: "Design", name: "Design", icon: ImageIcon },
-  { id: "Ideas", name: "Ideas", icon: Lightbulb },
-  { id: "Questions", name: "Questions", icon: MessageCircle },
-  { id: "Others", name: "Others", icon: MessageCircle },
-]
-
-// 하드코딩 댓글 수 (임시)
-const hardcodedCommentCounts = [32, 24, 45, 23, 67, 12, 8, 19, 5, 14]
-
 export default function CommunityPage() {
+  const { t } = useTranslation()
+
+  const categories = [
+    { id: "all", name: t('aiTools.category.all'), icon: TrendingUp },
+    { id: "PromptSharing", name: t('community.categories.promptSharing'), icon: Share2 },
+    { id: "TipsAndKnowHow", name: t('community.categories.tipsAndKnowHow'), icon: BookText },
+    { id: "QAndAAndFeedback", name: t('community.categories.qAndAAndFeedback'), icon: MessageCircleQuestion },
+    { id: "General", name: t('community.categories.general'), icon: Archive },
+  ]
+
+  // 하드코딩 댓글 수 (임시)
+  const hardcodedCommentCounts = [32, 24, 45, 23, 67, 12, 8, 19, 5, 14]
+
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [posts, setPosts] = useState<Post[]>([])
@@ -33,7 +33,6 @@ export default function CommunityPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
-  const { t } = useTranslation()
   const { user, isSignedIn } = useUser()
 
   // 게시글 목록 조회
@@ -76,8 +75,6 @@ export default function CommunityPage() {
   // 카테고리 변경
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
-    setCurrentPage(1)
-    fetchPosts(1, true)
   }
 
   // 검색
@@ -93,11 +90,11 @@ export default function CommunityPage() {
     }
   }
 
-  // 초기 로드
+  // 초기 로드 또는 카테고리/검색어 변경 시 데이터 리프레시
   useEffect(() => {
     fetchPosts(1, true)
     // eslint-disable-next-line
-  }, [])
+  }, [selectedCategory])
 
   // 검색어 변경 시 자동 검색 (디바운스)
   useEffect(() => {
@@ -126,6 +123,12 @@ export default function CommunityPage() {
       day: 'numeric'
     })
   }
+
+  const extractImageUrl = (htmlContent: string) => {
+    if (!htmlContent) return null;
+    const match = htmlContent.match(/<img[^>]+src="([^">]+)"/);
+    return match ? match[1] : null;
+  };
 
   return (
     <main className="min-h-screen pt-[128px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
@@ -252,71 +255,55 @@ export default function CommunityPage() {
               // 카테고리 정보 추출
               const categoryObj = categories.find(c => c.id === post.category);
               const CategoryIcon = categoryObj?.icon;
+
               return (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col min-h-[400px]"
+                  className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
                 >
-                  {/* 카테고리/아이콘 강조 */}
-                  <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                    {CategoryIcon && <CategoryIcon className="w-5 h-5 text-violet-500" />}
-                    <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">
-                      {post.category}
-                    </span>
-                  </div>
-                  {/* 이미지 (있으면 상단에 크게) */}
-                  {post.image_url ? (
-                    <div className="w-full h-56 relative bg-gray-100">
-                      <Image
-                        src={post.image_url}
-                        alt={post.title}
-                        fill
-                        className="object-cover object-center rounded-t-2xl"
-                        sizes="(max-width: 768px) 100vw, 700px"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full h-56 bg-gradient-to-r from-violet-50 to-blue-50 flex items-center justify-center text-5xl text-violet-200">
-                      <FileText className="w-16 h-16" />
-                    </div>
-                  )}
                   {/* 본문 영역 */}
-                  <div className="flex-1 flex flex-col justify-between p-6 pt-8">
-                    {/* 유저/날짜 한 줄에 정돈 */}
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-semibold overflow-hidden">
-                        {post.users?.avatar_url ? (
-                          <Image src={post.users.avatar_url} alt="avatar" width={40} height={40} className="rounded-full object-cover" />
-                        ) : (
-                          (post.users?.first_name?.[0] || 'U')
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          {post.users?.first_name} {post.users?.last_name}
+                  <div className="flex-1 flex flex-col justify-between p-6">
+                    {/* 상단: 유저 정보 & 카테고리 */}
+                    <div className="flex items-start justify-between mb-4">
+                      {/* 유저/날짜 */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+                          {post.users?.avatar_url ? (
+                            <Image src={post.users.avatar_url} alt="avatar" width={40} height={40} className="rounded-full object-cover" />
+                          ) : (
+                            (post.users?.first_name?.[0] || 'U')
+                          )}
                         </div>
-                        <div className="text-xs text-gray-400 flex items-center gap-2">
-                          <span>{post.users?.role || 'Member'}12313</span>
-                          <span>·</span>
-                          <Clock className="w-3 h-3" />
-                          {formatDate(post.created_at)}
+                        <div>
+                          <div className="font-semibold text-gray-900">
+                            {post.users?.first_name} {post.users?.last_name}
+                          </div>
+                          <div className="text-xs text-gray-400 flex items-center gap-2">
+                            <span>{post.users?.role || 'Member'}</span>
+                            <span>·</span>
+                            <Clock className="w-3 h-3" />
+                            {formatDate(post.created_at)}
+                          </div>
                         </div>
                       </div>
+                      {/* 카테고리 */}
+                      <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2">
+                        {CategoryIcon && <CategoryIcon className="w-4 h-4" />}
+                        {categoryObj?.name || post.category}
+                      </span>
                     </div>
-                    {/* 제목/내용 강조 */}
-                    <Link href={`/community/${post.id}`} className="block group">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-violet-600 transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-700 text-base min-h-[120px] mb-4">
-                        {post.content}
-                      </p>
-                    </Link>
+                    
+                    {/* 내용 */}
+                    <div 
+                      className="prose prose-sm max-w-none text-gray-700 mb-4"
+                      dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+
                     {/* 태그/액션 하단 고정 */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                       <div className="flex flex-wrap gap-2">
                         {post.tags && post.tags.slice(0, 3).map((tag, tagIndex) => (
                           <Badge key={tagIndex} variant="secondary" className="text-xs">

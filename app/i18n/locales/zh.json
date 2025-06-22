@@ -217,7 +217,13 @@
     "modalTitle": "发布帖子",
     "modalDesc": "在社区发布新帖子吧。",
     "modalHighlight": "立即申请，您的AI服务将在网站主页上展示！",
-    "modalConfirm": "确定"
+    "modalConfirm": "确定",
+    "categories": {
+      "promptSharing": "提示词分享",
+      "tipsAndKnowHow": "技巧与诀窍",
+      "qAndAAndFeedback": "问答与反馈",
+      "general": "综合"
+    }
   },
   "common": {
     "cancel": "取消",

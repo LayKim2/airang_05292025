@@ -217,7 +217,13 @@
       "tagPlaceholder": "Enter tags and press Enter"
     },
     "modalTitle": "Create Post",
-    "modalDesc": "Write a new post for the community."
+    "modalDesc": "Write a new post for the community.",
+    "categories": {
+      "promptSharing": "Prompt Sharing",
+      "tipsAndKnowHow": "Tips & Know-how",
+      "qAndAAndFeedback": "Q&A & Feedback",
+      "general": "General"
+    }
   },
   "common": {
     "cancel": "Cancel",
