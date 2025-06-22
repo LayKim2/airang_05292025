@@ -223,6 +223,10 @@
       "tipsAndKnowHow": "팁 & 노하우",
       "qAndAAndFeedback": "질문 & 피드백",
       "general": "일반"
+    },
+    "sort": {
+      "latest": "최신순",
+      "popular": "인기순"
     }
   },
   "common": {

@@ -223,6 +223,10 @@
       "tipsAndKnowHow": "技巧与诀窍",
       "qAndAAndFeedback": "问答与反馈",
       "general": "综合"
+    },
+    "sort": {
+      "latest": "最新",
+      "popular": "热门"
     }
   },
   "common": {

@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
+    const sortBy = searchParams.get('sortBy') || 'latest'; // 'latest' or 'popular'
 
     let query = supabase
       .from('posts')
@@ -20,8 +21,14 @@ export async function GET(request: Request) {
           last_name,
           avatar_url
         )
-      `)
-      .order('created_at', { ascending: false });
+      `, { count: 'exact' });
+
+    // 정렬
+    if (sortBy === 'popular') {
+      query = query.order('like_count', { ascending: false });
+    } else {
+      query = query.order('created_at', { ascending: false });
+    }
 
     // 카테고리 필터
     if (category) {
@@ -30,7 +37,7 @@ export async function GET(request: Request) {
 
     // 검색 필터
     if (search) {
-      query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`);
+      query = query.ilike('content', `%${search}%`);
     }
 
     // 페이지네이션
@@ -79,12 +86,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, content, category, tags } = body;
+    const { content, category, tags } = body;
 
     // 입력 검증
-    if (!title || !content || !category) {
+    if (!content || !category) {
       return NextResponse.json(
-        { error: 'Title, content, and category are required' },
+        { error: 'Content and category are required' },
         { status: 400 }
       );
     }
@@ -93,7 +100,6 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('posts')
       .insert({
-        title: title.trim(),
         content: content.trim(),
         category,
         tags: tags || [],

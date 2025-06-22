@@ -223,6 +223,10 @@
       "tipsAndKnowHow": "Tips & Know-how",
       "qAndAAndFeedback": "Q&A & Feedback",
       "general": "General"
+    },
+    "sort": {
+      "latest": "Latest",
+      "popular": "Popular"
     }
   },
   "common": {

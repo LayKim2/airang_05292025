@@ -53,4 +53,11 @@ export interface User {
   created_at?: string;
   last_sign_in_at?: string;
   updated_at?: string;
+}
+
+export type Post = {
+    id: string;
+    content: string;
+    category: string;
+    author_id: string;
 } 

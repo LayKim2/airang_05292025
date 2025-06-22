@@ -49,12 +49,14 @@ export const postsApi = {
     limit?: number;
     category?: string;
     search?: string;
+    sortBy?: string;
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.category) searchParams.append('category', params.category);
     if (params?.search) searchParams.append('search', params.search);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
 
     return apiCall(`/posts?${searchParams.toString()}`);
   },
@@ -66,7 +68,6 @@ export const postsApi = {
 
   // 게시글 작성
   createPost: async (data: {
-    title: string;
     content: string;
     category: string;
     tags?: string[];
@@ -79,7 +80,6 @@ export const postsApi = {
 
   // 게시글 수정
   updatePost: async (id: string, data: {
-    title: string;
     content: string;
     category: string;
     tags?: string[];
@@ -162,7 +162,6 @@ export const uploadApi = {
 // 타입 정의
 export interface Post {
   id: string;
-  title: string;
   content: string;
   category: string;
   tags: string[];

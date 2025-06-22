@@ -209,6 +209,10 @@
       "qAndAAndFeedback": "質問とフィードバック",
       "general": "一般"
     },
+    "sort": {
+      "latest": "新着順",
+      "popular": "人気順"
+    },
     "form": {
       "title": "タイトル",
       "titlePlaceholder": "タイトルを入力してください",

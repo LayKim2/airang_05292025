@@ -9,8 +9,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { postsApi, Post } from "@/app/lib/api"
-import { useUser } from "@clerk/nextjs"
+import { useUser, useClerk } from "@clerk/nextjs"
 import PostCreateModal from "@/app/components/community/PostCreateModal"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
 
 export default function CommunityPage() {
   const { t } = useTranslation()
@@ -23,10 +24,16 @@ export default function CommunityPage() {
     { id: "General", name: t('community.categories.general'), icon: Archive },
   ]
 
+  const sortOptions = [
+    { id: "latest", name: t('community.sort.latest') },
+    { id: "popular", name: t('community.sort.popular') },
+  ]
+
   // 하드코딩 댓글 수 (임시)
   const hardcodedCommentCounts = [32, 24, 45, 23, 67, 12, 8, 19, 5, 14]
 
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [sortBy, setSortBy] = useState("latest")
   const [searchQuery, setSearchQuery] = useState("")
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,6 +41,7 @@ export default function CommunityPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const { user, isSignedIn } = useUser()
+  const { openSignIn } = useClerk()
 
   // 게시글 목록 조회
   const fetchPosts = async (page: number = 1, reset: boolean = false) => {
@@ -43,7 +51,8 @@ export default function CommunityPage() {
       
       const params: any = {
         page,
-        limit: 10
+        limit: 10,
+        sortBy,
       }
       
       if (selectedCategory !== "all") {
@@ -94,7 +103,7 @@ export default function CommunityPage() {
   useEffect(() => {
     fetchPosts(1, true)
     // eslint-disable-next-line
-  }, [selectedCategory])
+  }, [selectedCategory, sortBy])
 
   // 검색어 변경 시 자동 검색 (디바운스)
   useEffect(() => {
@@ -176,7 +185,7 @@ export default function CommunityPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-4 md:mb-6 lg:mb-8"
           >
-<motion.div
+            <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
@@ -195,9 +204,9 @@ export default function CommunityPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-4xl mx-auto mb-8"
           >
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               {/* Search Bar */}
-              <div className="flex-1 relative">
+              <div className="w-full relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
@@ -208,30 +217,45 @@ export default function CommunityPage() {
                 />
               </div>
 
-              {/* Category Filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => handleCategoryChange(category.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
-                      selectedCategory === category.id
-                        ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-lg"
-                        : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-violet-50 border border-gray-200"
-                    }`}
-                  >
-                    <category.icon className="w-4 h-4" />
-                    {category.name}
-                  </button>
-                ))}
+              {/* Filter Row */}
+              <div className="flex gap-4">
+                {/* Sort By Filter */}
+                <div className="w-1/2">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sortOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Category Filter Dropdown */}
+                <div className="w-1/2">
+                  <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center gap-2">
+                            <category.icon className="w-4 h-4" />
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </motion.div>
-
-          {/* Post Create Button (모달) */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-end mb-6">
-            {isSignedIn && <PostCreateModal />}
-          </div>
         </div>
       </section>
 
@@ -267,7 +291,7 @@ export default function CommunityPage() {
                   {/* 본문 영역 */}
                   <div className="flex-1 flex flex-col justify-between p-6">
                     {/* 상단: 유저 정보 & 카테고리 */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex flex-col items-start gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
                       {/* 유저/날짜 */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-semibold overflow-hidden">
@@ -290,7 +314,7 @@ export default function CommunityPage() {
                         </div>
                       </div>
                       {/* 카테고리 */}
-                      <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2">
+                      <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 self-end sm:self-auto">
                         {CategoryIcon && <CategoryIcon className="w-4 h-4" />}
                         {categoryObj?.name || post.category}
                       </span>
@@ -378,18 +402,18 @@ export default function CommunityPage() {
               <p className="text-gray-600 mb-6">
                 {t('community.noPostsDesc')}
               </p>
-              {isSignedIn && (
-                <Link href="/community/write">
-                  <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('community.writeButton')}
-                  </Button>
-                </Link>
-              )}
             </motion.div>
           )}
         </div>
       </section>
+
+      {/* Floating Action Button for Post Creation */}
+      <div 
+        className="fixed bottom-8 right-8 z-50"
+        onClick={() => !isSignedIn && openSignIn()}
+      >
+        <PostCreateModal />
+      </div>
     </main>
   )
 } 

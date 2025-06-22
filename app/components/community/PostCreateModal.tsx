@@ -119,9 +119,11 @@ export default function PostCreateModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-          <Plus className="w-5 h-5 mr-2" />
-          {t('community.writeButton')}
+        <Button
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
+          aria-label="Create new post"
+        >
+          <Plus className="w-6 h-6" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-2xl shadow-2xl h-[80vh] max-h-[80vh] overflow-y-auto">
