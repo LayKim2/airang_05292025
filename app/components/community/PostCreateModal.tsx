@@ -4,7 +4,7 @@ import { Input } from "@/app/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select";
 import { Button } from "@/app/components/ui/button";
 import { useTranslation } from "@/app/i18n/useTranslation";
-import { Plus, Share2, BookText, MessageCircleQuestion, Archive, Image as ImageUploadIcon } from "lucide-react";
+import { Plus, Share2, BookText, MessageCircleQuestion, Archive, Image as ImageUploadIcon, Loader2 } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -15,7 +15,11 @@ import FontFamily from '@tiptap/extension-font-family';
 import { supabase } from '@/lib/supabase';
 import { useUserProfile } from '@/app/lib/useUserProfile';
 
-export default function PostCreateModal() {
+interface PostCreateModalProps {
+  onPostCreated?: () => void;
+}
+
+export default function PostCreateModal({ onPostCreated }: PostCreateModalProps) {
   const { t } = useTranslation();
   
   const categories = [
@@ -29,6 +33,7 @@ export default function PostCreateModal() {
   const [category, setCategory] = useState(categories[0].id);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // Blob 이미지 파일을 저장할 Ref
   const blobImagesRef = useRef<{ [blobUrl: string]: File }>({});
 
@@ -48,14 +53,19 @@ export default function PostCreateModal() {
     autofocus: false,
   });
 
+  const handleAddTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
+      setTagInput("");
+    }
+  };
+
   // 태그 칩 추가/삭제 핸들러
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
-      }
-      setTagInput("");
+      handleAddTag();
     }
     if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
       setTags(tags.slice(0, -1));
@@ -76,44 +86,57 @@ export default function PostCreateModal() {
   // Post 등록(Submit) 시 Blob URL 이미지를 Storage에 업로드 후 content 내 URL 교체
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editor || editor.isEmpty) {
-      alert(t('community.form.contentPlaceholder'));
+    if (!editor || editor.isEmpty || isSubmitting) {
+      if (!isSubmitting) alert(t('community.form.contentPlaceholder'));
       return;
     }
-    
-    let html = editor.getHTML();
 
-    // Blob URL이 있으면 submit 시 Storage에 업로드 후 publicUrl로 교체
-    const blobUrls = Object.keys(blobImagesRef.current);
-    for (const blobUrl of blobUrls) {
-      if (html.includes(blobUrl)) {
-        const file = blobImagesRef.current[blobUrl];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${fileExt}`;
-        const { data, error } = await supabase.storage.from('service-images').upload(fileName, file, { upsert: true });
-        if (error) continue;
-        const { data: urlData } = supabase.storage.from('service-images').getPublicUrl(fileName);
-        const publicUrl = urlData?.publicUrl;
-        if (publicUrl) {
-          html = html.replaceAll(blobUrl, publicUrl);
+    setIsSubmitting(true);
+    try {
+      let html = editor.getHTML();
+
+      // Blob URL이 있으면 submit 시 Storage에 업로드 후 publicUrl로 교체
+      const blobUrls = Object.keys(blobImagesRef.current);
+      for (const blobUrl of blobUrls) {
+        if (html.includes(blobUrl)) {
+          const file = blobImagesRef.current[blobUrl];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('service-images').upload(fileName, file, { upsert: true });
+          if (error) continue;
+          const { data: urlData } = supabase.storage.from('service-images').getPublicUrl(fileName);
+          const publicUrl = urlData?.publicUrl;
+          if (publicUrl) {
+            html = html.replaceAll(blobUrl, publicUrl);
+          }
         }
       }
+
+      // posts 테이블에 저장
+      await supabase.from('posts').insert({
+        content: html,
+        category,
+        tags,
+        author_id: profile?.clerk_user_id || user?.id || null,
+      });
+
+      // 초기화
+      editor.commands.clearContent();
+      setTagInput("");
+      setTags([]);
+      blobImagesRef.current = {};
+      setOpen(false);
+
+      // 부모 컴포넌트에 알림
+      if (onPostCreated) {
+        onPostCreated();
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      // 사용자에게 에러 알림 (예: toast 메시지)
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // posts 테이블에 저장
-    await supabase.from('posts').insert({
-      content: html,
-      category,
-      tags,
-      author_id: profile?.clerk_user_id || user?.id || null,
-    });
-
-    // 초기화
-    editor.commands.clearContent();
-    setTagInput("");
-    setTags([]);
-    blobImagesRef.current = {};
-    setOpen(false);
   };
 
   return (
@@ -185,20 +208,31 @@ export default function PostCreateModal() {
                 </span>
               ))}
             </div>
-            <Input
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={handleTagKeyDown}
-              placeholder={t('community.form.tagPlaceholder')}
-              className="bg-gray-50 border-gray-200 text-xs"
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                placeholder={t('community.form.tagPlaceholder')}
+                className="bg-gray-50 border-gray-200 text-xs flex-1"
+              />
+              <Button type="button" onClick={handleAddTag} variant="outline" size="sm" className="flex-shrink-0">
+                {t('common.add')}
+              </Button>
+            </div>
           </div>
           {/* 하단 버튼 영역도 flex-shrink-0으로 고정 */}
           <div className="flex justify-end gap-2 pt-6 border-t bg-gray-50 -mx-6 px-6 mt-6 flex-shrink-0">
             <DialogClose asChild>
-              <Button type="button" variant="outline">{t('common.cancel')}</Button>
+              <Button type="button" variant="outline" disabled={isSubmitting}>{t('common.cancel')}</Button>
             </DialogClose>
-            <Button type="submit">{t('common.submit')}</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                t('common.submit')
+              )}
+            </Button>
           </div>
         </form>
       </DialogContent>

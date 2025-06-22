@@ -231,6 +231,7 @@
   },
   "common": {
     "cancel": "취소",
-    "submit": "등록"
+    "submit": "등록",
+    "add": "추가"
   }
 } 

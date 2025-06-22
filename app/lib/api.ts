@@ -1,3 +1,5 @@
+import { Post } from '@/app/types'; // Import Post type from the single source of truth
+
 // API 호출을 위한 유틸리티 함수들
 
 // 기본 API 설정
@@ -96,6 +98,13 @@ export const postsApi = {
       method: 'DELETE',
     });
   },
+
+  // 게시글 좋아요 토글
+  togglePostLike: async (id: string) => {
+    return apiCall(`/posts/${id}/like`, {
+      method: 'POST',
+    });
+  },
 };
 
 // 댓글 관련 API
@@ -158,26 +167,6 @@ export const uploadApi = {
     });
   },
 };
-
-// 타입 정의
-export interface Post {
-  id: string;
-  content: string;
-  category: string;
-  tags: string[];
-  author_id: string;
-  image_url?: string;
-  created_at: string;
-  updated_at: string;
-  view_count?: number;
-  like_count?: number;
-  users: {
-    first_name: string;
-    last_name: string;
-    avatar_url: string;
-    role?: string;
-  };
-}
 
 export interface Comment {
   id: string;

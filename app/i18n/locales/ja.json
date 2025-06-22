@@ -228,6 +228,7 @@
   },
   "common": {
     "cancel": "キャンセル",
-    "submit": "投稿"
+    "submit": "登録",
+    "add": "追加"
   }
 } 

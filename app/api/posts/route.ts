@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 // GET: 게시글 목록 조회
 export async function GET(request: Request) {
   try {
+    const { userId } = await auth();
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -20,7 +21,8 @@ export async function GET(request: Request) {
           first_name,
           last_name,
           avatar_url
-        )
+        ),
+        likes!left(user_id)
       `, { count: 'exact' });
 
     // 정렬
@@ -45,7 +47,7 @@ export async function GET(request: Request) {
     const to = from + limit - 1;
     query = query.range(from, to);
 
-    const { data, error, count } = await query;
+    const { data: postsData, error, count } = await query;
 
     if (error) {
       console.error('Posts fetch error:', error);
@@ -55,8 +57,15 @@ export async function GET(request: Request) {
       );
     }
 
+    // Add liked_by_user field
+    const posts = postsData ? postsData.map(post => ({
+      ...post,
+      liked_by_user: userId ? (post.likes as any[]).some(like => like.user_id === userId) : false,
+      likes: undefined // We don't need the full likes array on the client
+    })) : [];
+
     return NextResponse.json({
-      posts: data,
+      posts: posts,
       pagination: {
         page,
         limit,

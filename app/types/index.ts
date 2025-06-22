@@ -56,8 +56,29 @@ export interface User {
 }
 
 export type Post = {
-    id: string;
+    id: number;
+    author_id: string;
     content: string;
     category: string;
-    author_id: string;
+    tags: string[];
+    created_at: string;
+    updated_at: string;
+    like_count: number;
+    is_published: boolean;
+    is_featured: boolean;
+    liked_by_user?: boolean;
+    view_count?: number;
+    users?: {
+      first_name: string | null;
+      last_name: string | null;
+      avatar_url: string | null;
+      role?: string;
+    };
+}
+
+export type Like = {
+    id: number;
+    user_id: string;
+    post_id: number;
+    created_at: string;
 } 

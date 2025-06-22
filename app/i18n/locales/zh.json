@@ -231,6 +231,7 @@
   },
   "common": {
     "cancel": "取消",
-    "submit": "发布"
+    "submit": "提交",
+    "add": "添加"
   }
 } 
