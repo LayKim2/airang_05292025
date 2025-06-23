@@ -143,10 +143,11 @@ export default function PostCreateModal({ onPostCreated }: PostCreateModalProps)
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
+          className="h-14 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 px-6"
           aria-label="Create new post"
         >
           <Plus className="w-6 h-6" />
+          <span className="font-semibold text-lg hidden sm:inline">Post</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-2xl shadow-2xl h-[80vh] max-h-[80vh] overflow-y-auto">

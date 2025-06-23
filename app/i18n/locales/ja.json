@@ -213,6 +213,14 @@
       "latest": "新着順",
       "popular": "人気順"
     },
+    "filter": {
+      "title": "フィルター",
+      "category": "カテゴリー",
+      "sort": "並び替え",
+      "search": "検索",
+      "reset": "すべてリセット",
+      "apply": "適用"
+    },
     "form": {
       "title": "タイトル",
       "titlePlaceholder": "タイトルを入力してください",
@@ -230,5 +238,12 @@
     "cancel": "キャンセル",
     "submit": "登録",
     "add": "追加"
-  }
+  },
+  "matchExpertCardTitle": "AI専門家一覧",
+  "matchExpertCardDesc": "さまざまな分野の専門家を一目で確認し、あなたに合った専門家を見つけましょう。",
+  "matchExpertCardButton": "専門家を見る",
+  "matchRequestCardTitle": "リクエスト投稿登録",
+  "matchRequestCardDesc": "作業・プロジェクト・相談など、自由にリクエスト投稿を登録できます。多くの専門家が応募可能です。",
+  "matchRequestCardButton": "リクエスト登録",
+  "matchExpertFab": "専門家登録"
 } 

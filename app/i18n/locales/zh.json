@@ -227,11 +227,26 @@
     "sort": {
       "latest": "最新",
       "popular": "热门"
+    },
+    "filter": {
+      "title": "筛选",
+      "category": "分类",
+      "sort": "排序",
+      "search": "搜索",
+      "reset": "全部重置",
+      "apply": "应用"
     }
   },
   "common": {
     "cancel": "取消",
     "submit": "提交",
     "add": "添加"
-  }
+  },
+  "matchExpertCardTitle": "AI专家一览",
+  "matchExpertCardDesc": "一目了然地查看各领域专家，找到适合您的专家。",
+  "matchExpertCardButton": "查看专家",
+  "matchRequestCardTitle": "发布请求帖",
+  "matchRequestCardDesc": "可自由发布所需的任务、项目、咨询等请求帖。多位专家可参与。",
+  "matchRequestCardButton": "发布请求",
+  "matchExpertFab": "专家注册"
 } 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Search, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Heart, Eye, Plus, Clock, FileText, MessageCircle } from "lucide-react"
+import { Sparkles, Search, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Heart, Eye, Plus, Clock, FileText, MessageCircle, Filter } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -43,6 +43,10 @@ export default function CommunityPage() {
   const [hasMore, setHasMore] = useState(true)
   const { user, isSignedIn } = useUser()
   const { openSignIn } = useClerk()
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterCategory, setFilterCategory] = useState(selectedCategory)
+  const [filterSort, setFilterSort] = useState(sortBy)
+  const [filterSearch, setFilterSearch] = useState(searchQuery)
 
   // 게시글 목록 조회
   const fetchPosts = async (page: number = 1, reset: boolean = false) => {
@@ -104,19 +108,7 @@ export default function CommunityPage() {
   useEffect(() => {
     fetchPosts(1, true)
     // eslint-disable-next-line
-  }, [selectedCategory, sortBy])
-
-  // 검색어 변경 시 자동 검색 (디바운스)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery !== "") {
-        handleSearch()
-      }
-    }, 500)
-
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line
-  }, [searchQuery])
+  }, [selectedCategory, sortBy, searchQuery])
 
   // 좋아요 토글 핸들러
   const handleLike = async (postId: number) => {
@@ -167,6 +159,24 @@ export default function CommunityPage() {
     if (!htmlContent) return null;
     const match = htmlContent.match(/<img[^>]+src="([^">]+)"/);
     return match ? match[1] : null;
+  };
+
+  // 필터 팝업 열릴 때 임시 상태로 복사
+  const openFilter = () => {
+    setFilterCategory(selectedCategory);
+    setFilterSort(sortBy);
+    setFilterSearch(searchQuery);
+    setFilterOpen(true);
+  };
+
+  // 필터 적용 함수
+  const applyFilter = () => {
+    setSelectedCategory(filterCategory);
+    setSortBy(filterSort);
+    setSearchQuery(filterSearch);
+    setFilterOpen(false);
+    setCurrentPage(1);
+    fetchPosts(1, true);
   };
 
   return (
@@ -236,63 +246,177 @@ export default function CommunityPage() {
               className="max-w-4xl mx-auto mb-8"
             >
               <div className="flex flex-col gap-4">
-                {/* Search Bar */}
-                <div className="w-full relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder={t('community.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                  />
+                {/* Search Bar + Filter Button */}
+                <div className="w-full flex items-center gap-2">
+                  {/* 검색 input + 왼쪽 아이콘 */}
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder={t('community.searchPlaceholder')}
+                      value={filterSearch}
+                      onChange={(e) => setFilterSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          setSearchQuery(filterSearch);
+                        }
+                      }}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    />
+                  </div>
+                  {/* 검색 실행 버튼 (돋보기) */}
+                  <button
+                    type="button"
+                    className="flex items-center justify-center px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
+                    onClick={() => setSearchQuery(filterSearch)}
+                    aria-label={t('community.filter.search')}
+                  >
+                    <Search className="w-5 h-5 text-violet-600" />
+                  </button>
+                  {/* 필터 버튼 */}
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
+                    onClick={openFilter}
+                  >
+                    <Filter className="w-5 h-5 text-violet-600" />
+                    <span className="font-medium text-violet-700">{t('community.filter.title')}</span>
+                  </button>
                 </div>
-
-                {/* Filter Row */}
-                <div className="flex gap-4">
-                  {/* Sort By Filter */}
-                  <div className="w-1/2">
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sortOptions.map((option) => (
-                          <SelectItem key={option.id} value={option.id}>
-                            {option.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                      
-                    </Select>
-                  </div>
-
-                  {/* Category Filter Dropdown */}
-                  <div className="w-1/2">
-                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                      <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            <div className="flex items-center gap-2">
-                              <category.icon className="w-4 h-4" />
-                              {category.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* 적용된 필터 Chip UI */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {/* 카테고리 Chip */}
+                  {selectedCategory !== "all" && (
+                    <span className="inline-flex items-center bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('community.filter.category')}: {categories.find(c => c.id === selectedCategory)?.name || selectedCategory}
+                      <button
+                        className="ml-2 text-violet-400 hover:text-violet-700 focus:outline-none"
+                        onClick={() => {
+                          setSelectedCategory("all");
+                          setCurrentPage(1);
+                          fetchPosts(1, true);
+                        }}
+                        aria-label="카테고리 필터 해제"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 정렬 Chip */}
+                  {sortBy !== "latest" && (
+                    <span className="inline-flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('community.filter.sort')}: {sortOptions.find(o => o.id === sortBy)?.name || sortBy}
+                      <button
+                        className="ml-2 text-blue-400 hover:text-blue-700 focus:outline-none"
+                        onClick={() => {
+                          setSortBy("latest");
+                          setCurrentPage(1);
+                          fetchPosts(1, true);
+                        }}
+                        aria-label="정렬 필터 해제"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 검색어 Chip */}
+                  {searchQuery.trim() !== "" && (
+                    <span className="inline-flex items-center bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('community.filter.search')}: {searchQuery}
+                      <button
+                        className="ml-2 text-gray-400 hover:text-gray-700 focus:outline-none"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setCurrentPage(1);
+                          fetchPosts(1, true);
+                        }}
+                        aria-label="검색어 필터 해제"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 전체 초기화 버튼 */}
+                  {(selectedCategory !== "all" || sortBy !== "latest" || searchQuery.trim() !== "") && (
+                    <button
+                      className="inline-flex items-center bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-300 ml-2"
+                      onClick={() => {
+                        setSelectedCategory("all");
+                        setSortBy("latest");
+                        setSearchQuery("");
+                        setCurrentPage(1);
+                        fetchPosts(1, true);
+                      }}
+                    >
+                      {t('community.filter.reset')}
+                    </button>
+                  )}
                 </div>
               </div>
+              {/* 필터 팝업(모달) */}
+              {filterOpen && (
+                <div className="fixed inset-0 z-[1100] flex items-center justify-center">
+                  {/* 완전한 회색 오버레이, 클릭 방지, 모든 컨텐츠 위에 덮기 */}
+                  <div className="fixed inset-0 bg-gray-900 opacity-60 pointer-events-auto z-[1100]" />
+                  <div className="fixed top-1/2 left-1/2 z-[1110] -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+                    <button
+                      className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                      onClick={() => setFilterOpen(false)}
+                    >
+                      <span className="text-xl">×</span>
+                    </button>
+                    <div className="mb-4 text-lg font-bold text-gray-900">{t('community.filter.title')}</div>
+                    <div className="flex flex-col gap-4">
+                      {/* Sort By Filter */}
+                      <div>
+                        <div className="mb-1 text-sm font-medium text-gray-700">{t('community.filter.sort')}</div>
+                        <Select value={filterSort} onValueChange={setFilterSort}>
+                          <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {sortOptions.map((option) => (
+                              <SelectItem key={option.id} value={option.id}>
+                                {option.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {/* Category Filter Dropdown */}
+                      <div>
+                        <div className="mb-1 text-sm font-medium text-gray-700">{t('community.filter.category')}</div>
+                        <Select value={filterCategory} onValueChange={setFilterCategory}>
+                          <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                <div className="flex items-center gap-2">
+                                  <category.icon className="w-4 h-4" />
+                                  {category.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                      <Button onClick={applyFilter} variant="default" className="px-6 py-2 rounded-xl">
+                        {t('community.filter.apply')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         </section>
 
         {/* Posts Section */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-0">
           <div className="max-w-4xl mx-auto">
             {/* Error Message */}
             {error && (
@@ -459,7 +583,7 @@ export default function CommunityPage() {
 
         {/* Floating Action Button for Post Creation */}
         <div 
-          className="fixed bottom-8 right-8 z-50"
+          className="fixed bottom-8 right-8 z-0"
           onClick={() => !isSignedIn && openSignIn()}
         >
           <PostCreateModal onPostCreated={() => fetchPosts(1, true)} />

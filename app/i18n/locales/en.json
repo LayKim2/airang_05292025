@@ -227,11 +227,26 @@
     "sort": {
       "latest": "Latest",
       "popular": "Popular"
+    },
+    "filter": {
+      "title": "Filter",
+      "category": "Category",
+      "sort": "Sort",
+      "search": "Search",
+      "reset": "Reset All",
+      "apply": "Apply"
     }
   },
   "common": {
     "cancel": "Cancel",
     "submit": "Submit",
     "add": "Add"
-  }
+  },
+  "matchExpertCardTitle": "Browse AI Experts",
+  "matchExpertCardDesc": "See experts from various fields at a glance and find the right one for your needs.",
+  "matchExpertCardButton": "Browse Experts",
+  "matchRequestCardTitle": "Register Request Post",
+  "matchRequestCardDesc": "Freely register your requests for tasks, projects, consultations, and more. Various experts can apply.",
+  "matchRequestCardButton": "Register Request",
+  "matchExpertFab": "Expert"
 } 

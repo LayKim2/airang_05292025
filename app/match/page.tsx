@@ -1,8 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
-import { Sparkles, Search, Filter, ArrowRight, Users, UserCheck, Plus } from "lucide-react"
+import { Sparkles, Search, Filter, ArrowRight, UserCheck, Users, Plus } from "lucide-react"
 import { useTranslation } from "@/app/i18n/useTranslation"
 
 const categories = [
@@ -47,6 +48,10 @@ const orb2Animation = {
 export default function MatchPage() {
   const { t } = useTranslation();
 
+  // 검색 상태 관리
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <main className="min-h-screen pt-[112px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
@@ -85,8 +90,38 @@ export default function MatchPage() {
             </motion.div>
           </motion.div>
 
+          {/* Search Section */}
+          <div className="max-w-3xl mx-auto mb-12">
+            <div className="flex items-center gap-2 w-full">
+              {/* 검색 input + 왼쪽 아이콘 */}
+              <div className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder={t('matchSearchPlaceholder')}
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') setSearchQuery(searchInput);
+                  }}
+                  className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
+                />
+              </div>
+              {/* 검색 실행 버튼 (돋보기) */}
+              <button
+                type="button"
+                className="flex items-center justify-center px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
+                onClick={() => setSearchQuery(searchInput)}
+                aria-label={t('community.filter.search')}
+              >
+                <Search className="w-5 h-5 text-violet-600" />
+              </button>
+            </div>
+          </div>
+
           {/* Match Type Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
+            {/* 전문가 조회 카드 */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -98,16 +133,17 @@ export default function MatchPage() {
                 <div className="flex items-center justify-center w-16 h-16 bg-violet-100 rounded-xl mb-6 mx-auto">
                   <Users className="w-8 h-8 text-violet-600" />
                 </div>
-                <h3 className="text-xl font-bold text-center mb-4">{t('matchTeamProject')}</h3>
+                <h3 className="text-xl font-bold text-center mb-4">{t('matchExpertCardTitle')}</h3>
                 <p className="text-gray-600 text-center mb-6 flex-grow">
-                  {t('matchTeamProjectDesc')}
+                  {t('matchExpertCardDesc')}
                 </p>
                 <button className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors">
-                  {t('matchFindTeam')}
+                  {t('matchExpertCardButton')}
                 </button>
               </div>
             </motion.div>
 
+            {/* 오른쪽: 요청글 등록 카드 */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -119,65 +155,28 @@ export default function MatchPage() {
                 <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-xl mb-6 mx-auto">
                   <UserCheck className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-center mb-4">{t('matchExpert')}</h3>
+                <h3 className="text-xl font-bold text-center mb-4">{t('matchRequestCardTitle')}</h3>
                 <p className="text-gray-600 text-center mb-6 flex-grow">
-                  {t('matchExpertDesc')}
+                  {t('matchRequestCardDesc')}
                 </p>
                 <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-                  {t('matchFindExpert')}
+                  {t('matchRequestCardButton')}
                 </button>
               </div>
             </motion.div>
           </div>
 
-          {/* Search Section */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder={t('matchSearchPlaceholder')}
-                className="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
-              />
-              <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {categories.map((category, index) => (
-              <motion.button
-                key={category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-gray-700 hover:text-violet-600 font-medium"
-              >
-                {t(`matchCategory${index}`)}
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Filter Section */}
-          <div className="flex justify-center gap-4 mb-12">
-            <button className="flex items-center space-x-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-              <Filter className="w-5 h-5 text-gray-700" />
-              <span className="text-gray-700 font-medium">{t('matchFilter')}</span>
-            </button>
-            <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">{t('matchNewProject')}</span>
-            </button>
-          </div>
-
-          {/* Match Results Placeholder */}
-          <div className="text-center text-gray-600">
-            <p className="mb-4">{t('matchNoResults')}</p>
-            <button className="inline-flex items-center space-x-2 text-violet-600 hover:text-violet-700 font-medium transition-colors">
-              <span>{t('matchRegisterProject')}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
         </div>
+
+        {/* 요청글 등록 FAB 버튼 */}
+        <button
+          className="fixed bottom-8 right-8 z-50 flex items-center gap-2 sm:px-6 sm:py-3 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-xl hover:scale-105 transition-all duration-300 font-semibold sm:text-lg text-base"
+          style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
+          aria-label="전문가 등록"
+        >
+          <Plus className="sm:w-6 sm:h-6 w-5 h-5" />
+          <span className="sm:inline inline">{t('matchExpertFab')}</span>
+        </button>
       </section>
     </main>
   )
