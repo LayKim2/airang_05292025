@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench } from "lucide-react"
+import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -193,7 +193,11 @@ export function Header() {
                   </SignInButton>
                 </SignedOut>
                 <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton afterSignOutUrl="/">
+                    <UserButton.MenuItems>
+                      <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
+                    </UserButton.MenuItems>
+                  </UserButton>
                 </SignedIn>
               </div>
               
@@ -211,7 +215,11 @@ export function Header() {
                   </SignInButton>
                 </SignedOut>
                 <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton afterSignOutUrl="/">
+                    <UserButton.MenuItems>
+                      <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
+                    </UserButton.MenuItems>
+                  </UserButton>
                 </SignedIn>
                 <Button 
                   variant="ghost" 
