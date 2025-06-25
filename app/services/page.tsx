@@ -5,8 +5,14 @@ import Image from "next/image"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 import { Card, CardContent } from "@/app/components/ui/card"
-import { Brain, ChevronRight, Heart, Eye, MessageCircle, Search } from "lucide-react"
+import { Brain, ChevronRight, Heart, Eye, MessageCircle, Search, Plus, ArrowLeft, X, Filter, Image as ImageIcon, FileText, Video, Globe, Users, Mic, Box, Zap, Sparkles, Grid } from "lucide-react"
 import { useTranslation } from "@/app/i18n/useTranslation"
+import { useState, useEffect } from "react"
+import { Modal } from "@/app/components/ui/modal"
+import { useRouter } from "next/navigation"
+import { Input } from "@/app/components/ui/input"
+import { Textarea } from "@/app/components/ui/textarea"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -60,90 +66,103 @@ const float2 = {
 
 export default function ServicesPage() {
   const { t } = useTranslation()
+  const router = useRouter()
 
+  // 카테고리 옵션 (아이콘 매핑 추가)
   const categories = [
-    { name: "All", count: 42, category: "all" },
-    { name: "Image Generation", count: 15, category: "image" },
-    { name: "Text Generation", count: 12, category: "text" },
-    { name: "Voice Conversion", count: 8, category: "voice" },
-    { name: "Code Generation", count: 5, category: "code" },
-    { name: "Data Analysis", count: 2, category: "data" }
+    { id: "all", name: t("categoryAll"), icon: <Grid className="w-4 h-4" /> },
+    { id: "image", name: t("categoryImage"), icon: <ImageIcon className="w-4 h-4" /> },
+    { id: "text", name: t("categoryText"), icon: <FileText className="w-4 h-4" /> },
+    { id: "video", name: t("categoryVideo"), icon: <Video className="w-4 h-4" /> },
+    { id: "webapp", name: t("categoryWebApp"), icon: <Globe className="w-4 h-4" /> },
+    { id: "social", name: t("categorySocial"), icon: <Users className="w-4 h-4" /> },
+    { id: "voice", name: t("categoryVoice"), icon: <Mic className="w-4 h-4" /> },
+    { id: "3d", name: t("category3D"), icon: <Box className="w-4 h-4" /> },
+    { id: "automation", name: t("categoryAutomation"), icon: <Zap className="w-4 h-4" /> },
+    { id: "etc", name: t("categoryEtc"), icon: <Sparkles className="w-4 h-4" /> },
   ]
 
-  const services = [
-    {
-      id: 1,
-      title: "AI Image Generator",
-      description: "An AI service that generates high-quality images from text prompts. Supports various styles and resolutions.",
-      image: "/images/services/image-generator.svg",
-      tags: ["Image Generation", "AI", "Design"],
-      author: "AIrang",
-      likes: 128,
-      views: 1200,
-      comments: 32,
-      category: "image"
-    },
-    {
-      id: 2,
-      title: "AI Code Assistant",
-      description: "An AI coding helper that assists with code writing and debugging. Provides real-time code suggestions and optimization.",
-      image: "/images/services/code-assistant.svg",
-      tags: ["Code Generation", "Development", "AI"],
-      author: "AIrang",
-      likes: 256,
-      views: 2100,
-      comments: 45,
-      category: "code"
-    },
-    {
-      id: 3,
-      title: "AI Voice Converter",
-      description: "A service that converts text into natural-sounding speech. Supports various voices and languages.",
-      image: "/images/services/voice-converter.svg",
-      tags: ["Voice Conversion", "AI", "Content"],
-      author: "AIrang",
-      likes: 189,
-      views: 1500,
-      comments: 28,
-      category: "voice"
-    },
-    {
-      id: 4,
-      title: "AI Document Summarizer",
-      description: "An AI service that automatically summarizes long documents. Quickly grasp key content.",
-      image: "/images/services/document-summarizer.svg",
-      tags: ["Text Generation", "AI", "Productivity"],
-      author: "AIrang",
-      likes: 145,
-      views: 1800,
-      comments: 36,
-      category: "text"
-    },
-    {
-      id: 5,
-      title: "AI Data Analysis Tool",
-      description: "An AI tool that automatically analyzes complex data and provides insights.",
-      image: "/images/services/data-analysis.svg",
-      tags: ["Data Analysis", "AI", "Business"],
-      author: "AIrang",
-      likes: 167,
-      views: 1400,
-      comments: 24,
-      category: "data"
-    },
-    {
-      id: 6,
-      title: "AI Translation Service",
-      description: "An AI translator that provides accurate real-time translation. Supports over 100 languages.",
-      image: "/images/services/translator.svg",
-      tags: ["Text Generation", "AI", "Translation"],
-      author: "AIrang",
-      likes: 198,
-      views: 2300,
-      comments: 42,
-      category: "text"
-    }
+  // 서비스 리스트 상태 및 로딩/에러
+  const [services, setServices] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // 정렬 옵션 (예시)
+  const sortOptions = [
+    { id: "latest", name: t('sortLatest') },
+    { id: "popular", name: t('sortPopular') },
   ]
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [sortBy, setSortBy] = useState("latest")
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterCategory, setFilterCategory] = useState("all")
+  const [filterSort, setFilterSort] = useState(sortBy)
+  const [filterSearch, setFilterSearch] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  // 필터 팝업 열릴 때 임시 상태로 복사
+  const openFilter = () => {
+    setFilterCategory(selectedCategory)
+    setFilterSort(sortBy)
+    setFilterSearch(searchQuery)
+    setFilterOpen(true)
+  }
+  // 필터 적용 함수
+  const applyFilter = () => {
+    setSelectedCategory(filterCategory)
+    setSortBy(filterSort)
+    setSearchQuery(filterSearch)
+    setFilterOpen(false)
+  }
+
+  // 서비스 리스트 fetch
+  useEffect(() => {
+    const fetchServices = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const params = new URLSearchParams()
+        if (selectedCategory && selectedCategory !== "all") params.append("category", selectedCategory)
+        if (searchQuery) params.append("search", searchQuery)
+        if (sortBy) params.append("sortBy", sortBy)
+        const res = await fetch(`/api/services?${params.toString()}`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || "서비스 목록을 불러오지 못했습니다.")
+        setServices(data.services || [])
+      } catch (e: any) {
+        setError(e.message || "서비스 목록을 불러오지 못했습니다.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchServices()
+  }, [selectedCategory, searchQuery, sortBy])
+
+  // --- 카테고리별 연한 배경색/텍스트색 매핑 ---
+  const categoryBgMap: Record<string, string> = {
+    image: 'bg-blue-50',
+    text: 'bg-yellow-50',
+    video: 'bg-pink-50',
+    webapp: 'bg-green-50',
+    social: 'bg-indigo-50',
+    voice: 'bg-purple-50',
+    '3d': 'bg-orange-50',
+    automation: 'bg-teal-50',
+    etc: 'bg-gray-50',
+    all: 'bg-gray-100',
+  }
+  const categoryTextMap: Record<string, string> = {
+    image: 'text-blue-700',
+    text: 'text-yellow-800',
+    video: 'text-pink-700',
+    webapp: 'text-green-700',
+    social: 'text-indigo-700',
+    voice: 'text-purple-700',
+    '3d': 'text-orange-700',
+    automation: 'text-teal-700',
+    etc: 'text-gray-700',
+    all: 'text-gray-700',
+  }
 
   return (
     <main className="min-h-screen pt-[128px] sm:pt-16">
@@ -187,145 +206,316 @@ export default function ServicesPage() {
 
             {/* Search and Filter Section */}
             <div className="space-y-6">
-              {/* Search Bar */}
+              {/* Search Bar + Filter Button */}
               <div className="max-w-2xl mx-auto">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder={t('servicesSearchPlaceholder')}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-300"
-                  />
+                <div className="w-full flex items-center gap-2">
+                  {/* 검색 input + 왼쪽 아이콘 */}
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder={t('servicesSearchPlaceholder')}
+                      value={filterSearch}
+                      onChange={e => setFilterSearch(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          setSearchQuery(filterSearch)
+                        }
+                      }}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    />
+                  </div>
+                  {/* 검색 실행 버튼 (돋보기) */}
+                  <button
+                    type="button"
+                    className="flex items-center justify-center px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
+                    onClick={() => setSearchQuery(filterSearch)}
+                    aria-label={t('servicesSearchPlaceholder')}
+                  >
+                    <Search className="w-5 h-5 text-violet-600" />
+                  </button>
+                  {/* 필터 버튼 */}
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
+                    onClick={openFilter}
+                  >
+                    <Filter className="w-5 h-5 text-violet-600" />
+                    <span className="font-medium text-violet-700">{t('filterLabel')}</span>
+                  </button>
                 </div>
-              </div>
-
-              {/* Category Filter */}
-              <div className="max-w-7xl mx-auto">
-                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide justify-center">
-                  {categories.map((category) => (
+                {/* 적용된 필터 Chip UI */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {/* 카테고리 Chip */}
+                  {selectedCategory !== "all" && (
+                    <span className="inline-flex items-center bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('categoryLabel')}: {categories.find(c => c.id === selectedCategory)?.name || selectedCategory}
+                      <button
+                        className="ml-2 text-violet-400 hover:text-violet-700 focus:outline-none"
+                        onClick={() => {
+                          setSelectedCategory("all")
+                        }}
+                        aria-label="category filter reset"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 정렬 Chip */}
+                  {sortBy !== "latest" && (
+                    <span className="inline-flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('sortLabel')}: {sortOptions.find(o => o.id === sortBy)?.name || sortBy}
+                      <button
+                        className="ml-2 text-blue-400 hover:text-blue-700 focus:outline-none"
+                        onClick={() => {
+                          setSortBy("latest")
+                        }}
+                        aria-label="sort filter reset"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 검색어 Chip */}
+                  {searchQuery.trim() !== "" && (
+                    <span className="inline-flex items-center bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {t('searchKeyword')}: {searchQuery}
+                      <button
+                        className="ml-2 text-gray-400 hover:text-gray-700 focus:outline-none"
+                        onClick={() => {
+                          setSearchQuery("")
+                        }}
+                        aria-label="search filter reset"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {/* 전체 초기화 버튼 */}
+                  {(selectedCategory !== "all" || sortBy !== "latest" || searchQuery.trim() !== "") && (
                     <button
-                      key={category.name}
-                      className="flex-shrink-0 group relative px-4 py-2.5 text-sm font-medium bg-white rounded-lg border border-gray-200 hover:border-violet-500 hover:bg-violet-50 text-gray-700 hover:text-violet-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                      className="inline-flex items-center bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-300 ml-2"
+                      onClick={() => {
+                        setSelectedCategory("all")
+                        setSortBy("latest")
+                        setSearchQuery("")
+                      }}
                     >
-                      {category.name}
-                      <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-violet-100 text-violet-700 group-hover:bg-violet-200 transition-colors duration-200">
-                        {category.count}
-                      </span>
+                      {t('reset')}
                     </button>
-                  ))}
+                  )}
                 </div>
+                {/* 필터 팝업(모달) */}
+                {filterOpen && (
+                  <div className="fixed inset-0 z-[1100] flex items-center justify-center">
+                    {/* 완전한 회색 오버레이, 클릭 방지, 모든 컨텐츠 위에 덮기 */}
+                    <div className="fixed inset-0 bg-gray-900 opacity-60 pointer-events-auto z-[1100]" />
+                    <div className="fixed top-1/2 left-1/2 z-[1110] -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+                      <button
+                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                        onClick={() => setFilterOpen(false)}
+                      >
+                        <span className="text-xl">×</span>
+                      </button>
+                      <div className="mb-4 text-lg font-bold text-gray-900">{t('filterLabel')}</div>
+                      <div className="flex flex-col gap-4">
+                        {/* Sort By Filter */}
+                        <div>
+                          <div className="mb-1 text-sm font-medium text-gray-700">{t('sortLabel')}</div>
+                          <Select value={filterSort} onValueChange={setFilterSort}>
+                            <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                              <SelectValue placeholder={t('sortLabel')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {sortOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {/* Category Filter Dropdown */}
+                        <div>
+                          <div className="mb-1 text-sm font-medium text-gray-700">{t('categoryLabel')}</div>
+                          <Select value={filterCategory} onValueChange={setFilterCategory}>
+                            <SelectTrigger className="w-full h-[46px] bg-white/80 backdrop-blur-sm border-gray-200 rounded-xl truncate">
+                              <SelectValue placeholder={t('categoryLabel')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end mt-6">
+                        <Button onClick={applyFilter} variant="default" className="px-6 py-2 rounded-xl">
+                          {t('apply')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
 
+          {/* 로딩/에러/빈 상태 처리 */}
+          {loading && (
+            <div className="text-center py-12 text-gray-500">{t('loading')}</div>
+          )}
+          {error && (
+            <div className="text-center py-12 text-red-500">{error}</div>
+          )}
+          {!loading && !error && services.length === 0 && (
+            <div className="text-center py-12 text-gray-400">{t('noServices')}</div>
+          )}
+
           {/* Service Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
-              <Card key={service.id} className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 border-0 shadow-lg overflow-hidden rounded-2xl sm:rounded-3xl bg-white">
-                <motion.div
-                  className="relative overflow-hidden"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Image
-                    src={service.image}
-                    alt={service.title}
-                    width={400}
-                    height={240}
-                    className="w-full h-48 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    quality={75}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-                  />
+              <motion.div
+                key={service.id}
+              >
+                <Card className="group cursor-pointer transition-all duration-500 hover:shadow-lg hover:-translate-y-1 border-0 shadow-md overflow-hidden rounded-2xl sm:rounded-3xl bg-white">
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={service.image_url || ""}
+                      alt={service.title}
+                      width={400}
+                      height={240}
+                      className="w-full h-48 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      quality={75}
+                    />
+                    <div
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+                    />
 
-                  <Badge className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-white/95 text-gray-700 border-0 font-semibold text-xs sm:text-sm">
-                    {t('aiService')}
-                  </Badge>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileHover={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute bottom-3 sm:bottom-4 left-3 sm:right-4 right-3 sm:right-4"
-                  >
-                    <Button className="w-full bg-white/90 text-gray-900 hover:bg-white font-semibold text-sm sm:text-base">
-                      {t('viewDetails')}
-                    </Button>
-                  </motion.div>
-                </motion.div>
-
-                <CardContent className="p-4 sm:p-6 lg:p-8">
-                  <div className="space-y-4 sm:space-y-6">
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-violet-600 transition-colors">
-                        {service.title}
-                      </h3>
-                      <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                        {service.description}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {service.tags.map((tag, tagIndex) => (
-                        <motion.div
-                          key={tagIndex}
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: tagIndex * 0.1 }}
-                        >
-                          <Badge
-                            variant="secondary"
-                            className="bg-gray-100 text-gray-600 hover:bg-violet-100 hover:text-violet-700 transition-colors font-medium text-xs sm:text-sm"
-                          >
-                            {tag}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
-                      <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                        <span>by</span>
-                        <span className="font-semibold text-gray-700">{service.author}</span>
-                      </div>
-
-                      <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className="flex items-center space-x-1"
-                        >
-                          <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="font-medium">{service.likes}</span>
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className="flex items-center space-x-1"
-                        >
-                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="font-medium">{service.views}</span>
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className="flex items-center space-x-1"
-                        >
-                          <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="font-medium">{service.comments}</span>
-                        </motion.div>
-                      </div>
-                    </div>
+                    <Badge className={`absolute top-3 sm:top-4 right-3 sm:right-4 ${categoryBgMap[service.category] || 'bg-gray-50'} ${categoryTextMap[service.category] || 'text-gray-700'} border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300`}>
+                    {(() => {
+                      const cat = categories.find(c => c.id === service.category)
+                      if (!cat) return null
+                      return (
+                        <span className="flex items-center gap-2">
+                          {/* 카테고리 아이콘과 이름을 한 줄에 배치, 아이콘 크기 강조 */}
+                          <span className="text-base">{cat.icon}</span>
+                          <span className="font-semibold">{cat.name}</span>
+                        </span>
+                      )
+                    })()}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <CardContent className="p-4 sm:p-6 lg:p-8">
+                    <div className="space-y-4 sm:space-y-6">
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-violet-600 transition-colors">
+                          {service.title}
+                        </h3>
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                          {service.description}
+                        </p>
+                      </div>
+
+                      {/* --- 태그 부분 완전히 제거, ai_tools만 세련되게 표시 --- */}
+                      {Array.isArray(service.ai_tools) && service.ai_tools.length > 0 && (
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="inline-flex items-center text-xs text-violet-500 font-semibold mr-1">
+                            <Sparkles className="w-4 h-4 mr-1" />AI Tools
+                          </span>
+                          {service.ai_tools.map((tool: string, toolIdx: number) => (
+                            <span
+                              key={toolIdx}
+                              className="inline-flex items-center bg-white/80 border border-violet-100 text-violet-700 font-medium px-2.5 py-1 rounded-full shadow-sm hover:bg-violet-50 transition-colors text-xs gap-1"
+                            >
+                              <Zap className="w-3 h-3 mr-1 text-violet-400" />
+                              {tool}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
+                        <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                          <span>by</span>
+                          <span className="font-semibold text-gray-700 flex items-center gap-2">
+                            {service.users?.avatar_url && (
+                              <Image
+                                src={service.users.avatar_url}
+                                alt={(service.users?.first_name || '') + (service.users?.last_name ? ' ' + service.users.last_name : '')}
+                                width={24}
+                                height={24}
+                                className="rounded-full object-cover border border-gray-200"
+                              />
+                            )}
+                            {service.users?.first_name || ''}{service.users?.last_name ? ' ' + service.users.last_name : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="flex items-center space-x-1"
+                          >
+                            <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="font-medium">{service.likes}</span>
+                          </motion.div>
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="flex items-center space-x-1"
+                          >
+                            <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="font-medium">{service.views}</span>
+                          </motion.div>
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="flex items-center space-x-1"
+                          >
+                            <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="font-medium">{service.comments}</span>
+                          </motion.div>
+                        </div>
+                      </div>
+
+                      {/* --- demo_url이 있으면 하단에 '체험하기' 버튼 추가 (완전히 새 창에서 열기) --- */}
+                      {service.demo_url && (
+                        <div className="w-full mt-4">
+                          <Button
+                            className="w-full bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-semibold text-base py-3"
+                            onClick={() => {
+                              let url = service.demo_url;
+                              if (url && !/^https?:\/\//i.test(url)) {
+                                url = 'https://' + url;
+                              }
+                              window.open(url, '_blank', 'noopener,noreferrer,width=1200,height=800');
+                            }}
+                          >
+                            {t('tryDemo')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
+      {/* 플로팅 액션 버튼 - AI 서비스 등록 (페이지 이동) */}
+      <button
+        className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-xl hover:scale-105 transition-all duration-300"
+        style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
+        aria-label={t('serviceRegisterTitle')}
+        onClick={() => router.push('/services/register')}
+      >
+        <Plus className="w-8 h-8" />
+      </button>
     </main>
   )
 }
