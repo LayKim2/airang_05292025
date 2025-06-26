@@ -23,7 +23,7 @@ export async function POST(
     try {
         // 1. Check if the user has already liked the post
         const { data: existingLike, error: likeError } = await supabase
-            .from("likes")
+            .from("post_likes")
             .select("id")
             .eq("post_id", numericPostId)
             .eq("user_id", userId)
@@ -36,9 +36,9 @@ export async function POST(
 
         if (existingLike) {
             // 2a. User has liked the post, so unlike it.
-            // First, delete the record from the 'likes' table.
+            // First, delete the record from the 'post_likes' table.
             const { error: deleteError } = await supabase
-                .from("likes")
+                .from("post_likes")
                 .delete()
                 .eq("id", existingLike.id);
 
@@ -57,9 +57,9 @@ export async function POST(
 
         } else {
             // 2b. User has not liked the post, so like it.
-            // First, insert a record into the 'likes' table.
+            // First, insert a record into the 'post_likes' table.
             const { error: insertError } = await supabase
-                .from("likes")
+                .from("post_likes")
                 .insert({ post_id: numericPostId, user_id: userId });
 
             if (insertError) {

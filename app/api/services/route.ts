@@ -47,6 +47,13 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get('search') || ''
   const sortBy = searchParams.get('sortBy') || 'latest'
 
+  // 로그인 사용자 정보 가져오기
+  let userId: string | null = null;
+  try {
+    const authResult = await auth();
+    userId = authResult?.userId || null;
+  } catch {}
+
   let query = supabase.from('services').select(`
     *,
     users:users!services_author_id_fkey (
@@ -77,5 +84,36 @@ export async function GET(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-  return NextResponse.json({ services: data })
+
+  // 각 서비스에 대해 liked_by_user 필드와 like_count를 service_likes 테이블 기준으로 동기화
+  let services = data || [];
+  if (services.length > 0) {
+    // 모든 서비스 id 추출
+    const ids = services.map((s: any) => s.id);
+    // 사용자가 좋아요 누른 서비스 id 조회
+    let likedSet = new Set();
+    if (userId) {
+      const { data: likedRows } = await supabase
+        .from('service_likes')
+        .select('service_id')
+        .in('service_id', ids)
+        .eq('user_id', userId);
+      likedSet = new Set((likedRows || []).map((row: any) => row.service_id));
+    }
+    // 각 서비스별 like_count 동기화 (group 사용 불가, 개별 count)
+    const likeCountMap = new Map();
+    for (const id of ids) {
+      const { count } = await supabase
+        .from('service_likes')
+        .select('id', { count: 'exact', head: true })
+        .eq('service_id', id);
+      likeCountMap.set(id, count || 0);
+    }
+    services = services.map((s: any) => ({
+      ...s,
+      liked_by_user: userId ? likedSet.has(s.id) : false,
+      like_count: likeCountMap.get(s.id) || 0,
+    }));
+  }
+  return NextResponse.json({ services })
 } 

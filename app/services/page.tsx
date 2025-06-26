@@ -128,7 +128,8 @@ export default function ServicesPage() {
         const res = await fetch(`/api/services?${params.toString()}`)
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || "서비스 목록을 불러오지 못했습니다.")
-        setServices(data.services || [])
+        // like_count를 likes로 매핑
+        setServices((data.services || []).map((s: any) => ({ ...s, likes: s.like_count ?? 0 })))
       } catch (e: any) {
         setError(e.message || "서비스 목록을 불러오지 못했습니다.")
       } finally {
@@ -163,6 +164,35 @@ export default function ServicesPage() {
     etc: 'text-gray-700',
     all: 'text-gray-700',
   }
+
+  // [서비스 좋아요 토글 함수] (CommunityPage와 동일한 Optimistic UI)
+  const handleToggleLike = async (serviceId: number) => {
+    const originalServices = [...services];
+    // Optimistic UI update
+    setServices(currentServices =>
+      currentServices.map(s => {
+        if (s.id === serviceId) {
+          const wasLiked = s.liked_by_user;
+          return {
+            ...s,
+            liked_by_user: !wasLiked,
+            like_count: wasLiked
+              ? (s.like_count || 1) - 1
+              : (s.like_count || 0) + 1,
+          };
+        }
+        return s;
+      })
+    );
+    try {
+      await fetch(`/api/services/${serviceId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (error) {
+      setServices(originalServices);
+    }
+  };
 
   return (
     <main className="min-h-screen pt-[128px] sm:pt-16">
@@ -460,10 +490,13 @@ export default function ServicesPage() {
                         <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
                           <motion.div
                             whileHover={{ scale: 1.1 }}
-                            className="flex items-center space-x-1"
+                            className="flex items-center space-x-1 cursor-pointer"
+                            onClick={() => handleToggleLike(service.id)}
                           >
-                            <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="font-medium">{service.likes}</span>
+                            <Heart
+                              className={`w-3 h-3 sm:w-4 sm:h-4 transition-colors ${service.liked_by_user ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-500'}`}
+                            />
+                            <span className="font-medium">{service.like_count || 0}</span>
                           </motion.div>
                           <motion.div
                             whileHover={{ scale: 1.1 }}

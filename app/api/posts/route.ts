@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           last_name,
           avatar_url
         ),
-        likes!left(user_id)
+        post_likes!left(user_id)
       `, { count: 'exact' });
 
     // 정렬
@@ -60,8 +60,8 @@ export async function GET(request: Request) {
     // Add liked_by_user field
     const posts = postsData ? postsData.map(post => ({
       ...post,
-      liked_by_user: userId ? (post.likes as any[]).some(like => like.user_id === userId) : false,
-      likes: undefined // We don't need the full likes array on the client
+      liked_by_user: userId ? (post.post_likes as any[]).some(like => like.user_id === userId) : false, // post_likes 기준
+      post_likes: undefined // We don't need the full likes array on the client
     })) : [];
 
     return NextResponse.json({

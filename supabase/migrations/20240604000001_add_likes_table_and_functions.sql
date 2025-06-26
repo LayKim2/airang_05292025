@@ -55,7 +55,7 @@ CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
 CREATE INDEX idx_posts_tags ON posts USING GIN(tags);
 
 -- 3. Create the 'likes' table
-CREATE TABLE likes (
+CREATE TABLE post_likes (
   id BIGSERIAL PRIMARY KEY,
   user_id VARCHAR(255) NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
   post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
@@ -107,3 +107,23 @@ CREATE INDEX idx_services_category ON services(category);
 CREATE INDEX idx_services_created_at ON services(created_at DESC);
 CREATE INDEX idx_services_tags ON services USING GIN(tags);
 CREATE INDEX idx_services_ai_tools ON services USING GIN(ai_tools);
+
+
+CREATE TABLE service_likes (
+  id BIGSERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  service_id BIGINT NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  -- Prevent duplicate likes from the same user on the same service
+  UNIQUE(user_id, service_id)
+);
+
+-- Add comments to the service_likes table
+COMMENT ON TABLE public.service_likes IS 'Stores a record of which user liked which service.';
+COMMENT ON COLUMN public.service_likes.user_id IS 'The ID of the user who liked the service, referencing the Clerk user ID.';
+COMMENT ON COLUMN public.service_likes.service_id IS 'The ID of the service that was liked.';
+
+-- Create indexes for service_likes table
+CREATE INDEX idx_service_likes_user_id ON service_likes(user_id);
+CREATE INDEX idx_service_likes_service_id ON service_likes(service_id);
+CREATE INDEX idx_service_likes_created_at ON service_likes(created_at DESC);
