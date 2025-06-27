@@ -375,7 +375,7 @@ export default function ServicesPage() {
                             <SelectContent>
                               {categories.map((category) => (
                                 <SelectItem key={category.id} value={category.id}>
-                                  {category.name}
+                                  <span className="flex items-center gap-2">{category.icon}{category.name}</span>
                                 </SelectItem>
                               ))}
                             </SelectContent>

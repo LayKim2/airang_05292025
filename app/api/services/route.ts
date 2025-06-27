@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get('category') || 'all'
   const search = searchParams.get('search') || ''
   const sortBy = searchParams.get('sortBy') || 'latest'
+  const authorId = searchParams.get('author_id')
 
   // 로그인 사용자 정보 가져오기
   let userId: string | null = null;
@@ -62,6 +63,11 @@ export async function GET(req: NextRequest) {
       avatar_url
     )
   `)
+
+  // author_id 필터
+  if (authorId) {
+    query = query.eq('author_id', authorId)
+  }
 
   // 카테고리 필터
   if (category && category !== 'all') {

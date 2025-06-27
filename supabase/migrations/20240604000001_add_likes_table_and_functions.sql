@@ -127,3 +127,44 @@ COMMENT ON COLUMN public.service_likes.service_id IS 'The ID of the service that
 CREATE INDEX idx_service_likes_user_id ON service_likes(user_id);
 CREATE INDEX idx_service_likes_service_id ON service_likes(service_id);
 CREATE INDEX idx_service_likes_created_at ON service_likes(created_at DESC);
+
+-- 5. Create the 'expert_applications' table (전문가 신청 폼)
+CREATE TABLE expert_applications (
+  id BIGSERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL, -- 닉네임 or 이름 (구글 연동)
+  job_title VARCHAR(100) NOT NULL, -- 직무
+  ai_category VARCHAR(100) NOT NULL, -- 전문분야 (AI category)
+  phone VARCHAR(30) NULL, -- 휴대폰 번호
+  phone_verified BOOLEAN DEFAULT false, -- 휴대폰 인증 여부
+  bio VARCHAR(200), -- 한줄 소개
+  ai_tools TEXT[], -- 사용하는 AI 도구 (기술 스택)
+  portfolio_url TEXT, -- 포트폴리오 URL
+  github_url TEXT, -- GitHub URL
+  linkedin_url TEXT, -- LinkedIn URL
+  etc_url TEXT, -- 기타 URL
+  status VARCHAR(30) DEFAULT 'pending', -- 신청 상태 (pending/approved/rejected)
+  reviewed_at TIMESTAMPTZ, -- 승인/거절 처리 시각
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add comments to the expert_applications table and columns
+COMMENT ON TABLE public.expert_applications IS 'Stores applications for expert registration.';
+COMMENT ON COLUMN public.expert_applications.user_id IS 'Reference to the user who applied.';
+COMMENT ON COLUMN public.expert_applications.name IS 'User nickname or name (from Google/Clerk).';
+COMMENT ON COLUMN public.expert_applications.job_title IS 'Current job title.';
+COMMENT ON COLUMN public.expert_applications.ai_category IS 'Expertise category (AI service category).';
+COMMENT ON COLUMN public.expert_applications.phone IS 'Phone number.';
+COMMENT ON COLUMN public.expert_applications.phone_verified IS 'Whether the phone number is verified.';
+COMMENT ON COLUMN public.expert_applications.bio IS 'Short introduction.';
+COMMENT ON COLUMN public.expert_applications.ai_tools IS 'Array of AI tools/tech stack.';
+COMMENT ON COLUMN public.expert_applications.portfolio_url IS 'Portfolio URL.';
+COMMENT ON COLUMN public.expert_applications.github_url IS 'GitHub URL.';
+COMMENT ON COLUMN public.expert_applications.linkedin_url IS 'LinkedIn URL.';
+COMMENT ON COLUMN public.expert_applications.status IS 'Application status (pending/approved/rejected).';
+COMMENT ON COLUMN public.expert_applications.reviewed_at IS 'Datetime when application was reviewed.';
+
+-- Create index for fast lookup by user_id and status
+CREATE INDEX idx_expert_applications_user_id ON expert_applications(user_id);
+CREATE INDEX idx_expert_applications_status ON expert_applications(status);
