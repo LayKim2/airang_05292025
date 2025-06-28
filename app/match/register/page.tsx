@@ -126,7 +126,7 @@ export default function ExpertRegisterPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[180px] sm:pt-32 py-12">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 py-12">
       {/* [MCP] 전문가 등록 폼 - 상단 타이틀 */}
       <div className="w-full max-w-2xl mx-auto flex items-center mb-8">
         <button

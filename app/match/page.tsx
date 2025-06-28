@@ -121,11 +121,12 @@ export default function MatchPage() {
     }
     // 2. 서비스 등록 여부 체크 (supabase 직접 호출)
     try {
-      // [MCP] supabase 직접 호출로 서비스 등록 여부 확인
+      // [MCP] 서비스 등록 여부: 1개만 limit(1)로 빠르게 조회
       const { data, error } = await supabase
         .from('services')
         .select('id')
-        .eq('author_id', user?.id);
+        .eq('author_id', user?.id)
+        .limit(1);
       // [AI 서비스 미등록 시에만 안내 모달 노출]
       if (!Array.isArray(data) || data.length === 0) {
         setShowAlert(false); // 기존 팝업 닫기
@@ -145,7 +146,7 @@ export default function MatchPage() {
   const handleComingSoon = () => setShowComingSoon(true);
 
   return (
-    <main className="min-h-screen pt-[112px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-14 sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* 전문가 등록 알림 팝업 (canRegisterExpert가 true일 때만, null(로딩중)일 때는 렌더링 안함) */}
       {canRegisterExpert === true && showAlert && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30">

@@ -84,16 +84,19 @@ export default function ServiceRegisterPage() {
     if (userLoading) return
     if (!user?.id) { setError(t('loginRequired')); return }
     if (!title || !description || !category) { setError(t('requiredFieldsError')); return }
+    if (aiTools.length === 0) { setError('AI Tools는 최소 1개 입력해야 합니다.'); return }
+    if (aiTools.length > 5) { setError('AI Tools는 최대 5개까지만 입력할 수 있습니다.'); return }
     setLoading(true)
     try {
       let imageUrl = ''
       if (image) {
         imageUrl = await uploadImage(image)
       }
-      const res = await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      // [MCP] supabase 직접 호출로 서비스 등록
+      const { data, error: insertError } = await supabase
+        .from('services')
+        .insert({
+          author_id: user.id,
           title,
           description,
           category,
@@ -101,9 +104,9 @@ export default function ServiceRegisterPage() {
           demo_url: demoUrl,
           ai_tools: aiTools,
         })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || t('registerFailed'))
+        .select()
+        .single()
+      if (insertError) throw new Error(insertError.message || t('registerFailed'))
       // Success: redirect to service list
       router.push('/services')
     } catch (e: any) {
@@ -114,7 +117,7 @@ export default function ServiceRegisterPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[180px] sm:pt-32 py-12">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 py-12">
       {/* Top navigation */}
       <div className="w-full max-w-2xl mx-auto flex items-center mb-8">
         <h1 className="flex-1 text-center text-2xl font-bold text-gray-900">{t("serviceRegisterTitle")}</h1>
@@ -185,7 +188,7 @@ export default function ServiceRegisterPage() {
         </div>
         {/* Used AI tools/models */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t("aiToolsLabel")}</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t("aiToolsLabel")} (최대 5개, 필수)</label>
           <div className="flex gap-2 mb-2">
             <Input
               value={aiToolsInput}
@@ -195,7 +198,7 @@ export default function ServiceRegisterPage() {
               maxLength={40}
               className="flex-1"
             />
-            <Button type="button" onClick={handleAddAiTool} disabled={!aiToolsInput || aiTools.length >= 10} variant="secondary">
+            <Button type="button" onClick={handleAddAiTool} disabled={!aiToolsInput || aiTools.length >= 5} variant="secondary">
               <Plus className="w-4 h-4" />
             </Button>
           </div>

@@ -15,11 +15,14 @@ import FontFamily from '@tiptap/extension-font-family';
 import { supabase } from '@/lib/supabase';
 import { useUserProfile } from '@/app/lib/useUserProfile';
 
+// [MCP] 외부에서 open, onOpenChange로 모달 상태 제어
 interface PostCreateModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onPostCreated?: () => void;
 }
 
-export default function PostCreateModal({ onPostCreated }: PostCreateModalProps) {
+export default function PostCreateModal({ open, onOpenChange, onPostCreated }: PostCreateModalProps) {
   const { t } = useTranslation();
   
   const categories = [
@@ -29,7 +32,6 @@ export default function PostCreateModal({ onPostCreated }: PostCreateModalProps)
     { id: "General", label: t('community.categories.general'), icon: Archive },
   ];
 
-  const [open, setOpen] = useState(false);
   const [category, setCategory] = useState(categories[0].id);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -125,7 +127,7 @@ export default function PostCreateModal({ onPostCreated }: PostCreateModalProps)
       setTagInput("");
       setTags([]);
       blobImagesRef.current = {};
-      setOpen(false);
+      if (onOpenChange) onOpenChange(false);
 
       // 부모 컴포넌트에 알림
       if (onPostCreated) {
@@ -140,16 +142,8 @@ export default function PostCreateModal({ onPostCreated }: PostCreateModalProps)
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          className="h-14 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 px-6"
-          aria-label="Create new post"
-        >
-          <Plus className="w-6 h-6" />
-          <span className="font-semibold text-lg hidden sm:inline">Post</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* [MCP] 외부에서 버튼 제어, DialogTrigger 제거 */}
       <DialogContent className="max-w-lg w-full p-0 overflow-hidden rounded-2xl shadow-2xl h-[80vh] max-h-[80vh] overflow-y-auto">
         {/* 접근성: DialogTitle을 visually hidden으로 추가 */}
         <DialogTitle className="sr-only">{t('community.modalTitle')}</DialogTitle>

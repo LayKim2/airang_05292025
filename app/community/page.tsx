@@ -6,13 +6,13 @@ import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
 import { Sparkles, Search, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Heart, Eye, Plus, Clock, FileText, MessageCircle, Filter } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { postsApi } from "@/app/lib/api"
 import { Post } from "@/app/types"
 import { useUser, useClerk } from "@clerk/nextjs"
 import PostCreateModal from "@/app/components/community/PostCreateModal"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
+import { supabase } from "@/lib/supabase"
 
 export default function CommunityPage() {
   const { t } = useTranslation()
@@ -47,40 +47,62 @@ export default function CommunityPage() {
   const [filterCategory, setFilterCategory] = useState(selectedCategory)
   const [filterSort, setFilterSort] = useState(sortBy)
   const [filterSearch, setFilterSearch] = useState(searchQuery)
+  const [postModalOpen, setPostModalOpen] = useState(false)
 
-  // 게시글 목록 조회
+  // [MCP] 게시글 목록 조회 - Supabase 직접 호출 (API Route 미사용)
   const fetchPosts = async (page: number = 1, reset: boolean = false) => {
     try {
       setLoading(true)
       setError(null)
-      
-      const params: any = {
-        page,
-        limit: 10,
-        sortBy,
+
+      // [MCP] 쿼리 파라미터 준비
+      const limit = 10
+      const from = (page - 1) * limit
+      const to = from + limit - 1
+
+      // [MCP] posts + 작성자(users) + 좋아요(post_likes) join (post_likes는 전체 컬럼)
+      let query = supabase
+        .from('posts')
+        .select(`*, users:author_id(*), post_likes(*)`, { count: 'exact' })
+        .range(from, to)
+
+      // [MCP] 정렬 옵션
+      query = query.order('created_at', { ascending: false })
+      // [MCP] 카테고리 필터
+      if (selectedCategory !== 'all') {
+        query = query.eq('category', selectedCategory)
       }
-      
-      if (selectedCategory !== "all") {
-        params.category = selectedCategory
-      }
-      
+      // [MCP] 검색 필터 (본문 기준)
       if (searchQuery.trim()) {
-        params.search = searchQuery.trim()
+        query = query.ilike('content', `%${searchQuery.trim()}%`)
       }
 
-      const response = await postsApi.getPosts(params)
-      
-      if (reset) {
-        setPosts(response.posts || [])
-      } else {
-        setPosts(prev => [...prev, ...(response.posts || [])])
+      const { data, error, count } = await query
+      if (error) throw new Error(error.message || t('community.errorFetch'))
+
+      // [MCP] 현재 로그인 유저 id (Clerk)
+      const userId = user?.id
+      // [MCP] 각 post별로 liked_by_user, like_count 계산
+      let postsWithLike = (data || []).map((post: any) => ({
+        ...post,
+        liked_by_user: userId ? Array.isArray(post.post_likes) && post.post_likes.some((like: any) => like.user_id === userId) : false,
+        like_count: Array.isArray(post.post_likes) ? post.post_likes.length : 0,
+        users: post.users,
+      }))
+      // [MCP] 인기순 정렬은 프론트에서 like_count 내림차순
+      if (sortBy === 'popular') {
+        postsWithLike = postsWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
       }
-      
-      setHasMore(response.pagination?.totalPages > page)
+
+      if (reset) {
+        setPosts(postsWithLike)
+      } else {
+        setPosts(prev => [...prev, ...postsWithLike])
+      }
+      setHasMore((count || 0) > page * limit)
       setCurrentPage(page)
-      
     } catch (err: any) {
-      setError(err.message || '게시글을 불러오는데 실패했습니다.')
+      setError(err.message || t('community.errorFetch'))
     } finally {
       setLoading(false)
     }
@@ -179,8 +201,22 @@ export default function CommunityPage() {
     fetchPosts(1, true);
   };
 
+  // [MCP] content 내 이미지에 rounded-xl 클래스 자동 추가 함수 ( 모서리 둥글게 )
+  function formatContentWithRoundedImages(content: string): string {
+    if (!content) return '';
+    // <img ...> 태그에 class="rounded-xl ..." 추가 (이미 class 있으면 병합)
+    return content.replace(/<img([^>]*?)class=["']([^"'>]*)["']([^>]*)>/gi, (match, before, cls, after) => {
+      // 이미 rounded-xl이 있으면 중복 추가 방지
+      if (cls.includes('rounded-xl')) return match;
+      return `<img${before}class="rounded-xl ${cls}"${after}>`;
+    }).replace(/<img((?!class=)[^>])*?>/gi, (match, before) => {
+      // class 속성이 없는 img 태그에 추가
+      return match.replace('<img', '<img class="rounded-xl"');
+    });
+  }
+
   return (
-    <main className="min-h-screen pt-[128px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-14 sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="relative">
         {/* Modern Background Elements */}
         <div className="absolute inset-0">
@@ -280,7 +316,6 @@ export default function CommunityPage() {
                     onClick={openFilter}
                   >
                     <Filter className="w-5 h-5 text-violet-600" />
-                    <span className="font-medium text-violet-700">{t('community.filter.title')}</span>
                   </button>
                 </div>
                 {/* 적용된 필터 Chip UI */}
@@ -477,9 +512,10 @@ export default function CommunityPage() {
                       </div>
                       
                       {/* 내용 */}
+                      {/* [MCP] 이미지가 포함된 content는 img에 rounded-xl 적용 */}
                       <div 
                         className="prose prose-sm max-w-none text-gray-700 mb-4"
-                        dangerouslySetInnerHTML={{ __html: post.content }}
+                        dangerouslySetInnerHTML={{ __html: formatContentWithRoundedImages(post.content) }}
                       />
 
                       {/* 태그/액션 하단 고정 */}
@@ -581,13 +617,28 @@ export default function CommunityPage() {
           </div>
         </section>
 
-        {/* Floating Action Button for Post Creation */}
-        <div 
-          className="fixed bottom-8 right-8 z-0"
-          onClick={() => !isSignedIn && openSignIn()}
+        {/* [MCP] 플로팅 버튼: 로그인 안 했으면 Clerk 로그인, 했으면 Post 작성 모달 */}
+        <button
+          className="fixed bottom-8 right-8 z-0 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-xl hover:scale-105 transition-all duration-300"
+          aria-label={t('community.createPost')}
+          onClick={() => {
+            if (!isSignedIn) {
+              openSignIn();
+            } else {
+              setPostModalOpen(true);
+            }
+          }}
         >
-          <PostCreateModal onPostCreated={() => fetchPosts(1, true)} />
-        </div>
+          <Plus className="w-8 h-8" />
+        </button>
+        <PostCreateModal
+          open={postModalOpen}
+          onOpenChange={setPostModalOpen}
+          onPostCreated={() => {
+            setPostModalOpen(false);
+            fetchPosts(1, true);
+          }}
+        />
       </div>
     </main>
   )

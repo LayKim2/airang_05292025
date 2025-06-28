@@ -8,11 +8,11 @@ import { Card, CardContent } from "@/app/components/ui/card"
 import { Brain, ChevronRight, Heart, Eye, MessageCircle, Search, Plus, ArrowLeft, X, Filter, Image as ImageIcon, FileText, Video, Globe, Users, Mic, Box, Zap, Sparkles, Grid } from "lucide-react"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { useState, useEffect } from "react"
-import { Modal } from "@/app/components/ui/modal"
 import { useRouter } from "next/navigation"
-import { Input } from "@/app/components/ui/input"
-import { Textarea } from "@/app/components/ui/textarea"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
+import { supabase } from '@/lib/supabase'
+import { useUserProfile } from '@/app/lib/useUserProfile'
+import { useClerk } from '@clerk/nextjs'
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -67,6 +67,8 @@ const float2 = {
 export default function ServicesPage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const { user, loading: userLoading } = useUserProfile()
+  const { openSignIn } = useClerk(); // [MCP] Clerk 로그인 모달
 
   // 카테고리 옵션 (아이콘 매핑 추가)
   const categories = [
@@ -121,15 +123,58 @@ export default function ServicesPage() {
       setLoading(true)
       setError(null)
       try {
-        const params = new URLSearchParams()
-        if (selectedCategory && selectedCategory !== "all") params.append("category", selectedCategory)
-        if (searchQuery) params.append("search", searchQuery)
-        if (sortBy) params.append("sortBy", sortBy)
-        const res = await fetch(`/api/services?${params.toString()}`)
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || "서비스 목록을 불러오지 못했습니다.")
-        // like_count를 likes로 매핑
-        setServices((data.services || []).map((s: any) => ({ ...s, likes: s.like_count ?? 0 })))
+        // [MCP] 작성자(users) 정보까지 join해서 가져오기
+        let query = supabase.from('services').select('*, users:author_id(*)')
+        if (selectedCategory && selectedCategory !== "all") query = query.eq('category', selectedCategory)
+        if (searchQuery) query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+        if (sortBy) {
+          if (sortBy === 'latest') {
+            query = query.order('created_at', { ascending: false })
+          } // 인기순은 프론트에서 정렬
+        }
+        const { data: servicesData, error } = await query;
+        if (error) throw new Error(error.message || "서비스 목록을 불러오지 못했습니다.")
+        // [MCP] 각 서비스별로 좋아요 개수와 liked_by_user 상태를 service_likes에서 직접 집계
+        const serviceIds = (servicesData || []).map((s: any) => s.id)
+        let likesMap: Record<number, number> = {}
+        let likedMap: Record<number, boolean> = {}
+        if (serviceIds.length > 0) {
+          // [MCP] 전체 좋아요 개수 집계 (group 메서드 대신 count(*) 쿼리)
+          const { data: likesCountData, error: likesCountError } = await supabase
+            .from('service_likes')
+            .select('service_id', { count: 'exact', head: false })
+            .in('service_id', serviceIds)
+          if (likesCountError) throw new Error(likesCountError.message)
+          if (Array.isArray(likesCountData)) {
+            // service_id별로 count 집계
+            likesCountData.forEach((row: any) => {
+              likesMap[row.service_id] = (likesMap[row.service_id] || 0) + 1
+            })
+          }
+          // [MCP] 현재 유저가 좋아요를 눌렀는지 체크
+          if (user?.id) {
+            const { data: likedRows } = await supabase
+              .from('service_likes')
+              .select('service_id')
+              .eq('user_id', user.id)
+              .in('service_id', serviceIds)
+            if (Array.isArray(likedRows)) {
+              likedRows.forEach((row: any) => {
+                likedMap[row.service_id] = true
+              })
+            }
+          }
+        }
+        let servicesWithLike = (servicesData || []).map((s: any) => ({
+          ...s,
+          like_count: likesMap[s.id] || 0,
+          liked_by_user: likedMap[s.id] || false,
+        }))
+        // [MCP] 인기순 정렬은 프론트에서 like_count 내림차순
+        if (sortBy === 'popular') {
+          servicesWithLike = servicesWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
+        }
+        setServices(servicesWithLike)
       } catch (e: any) {
         setError(e.message || "서비스 목록을 불러오지 못했습니다.")
       } finally {
@@ -137,7 +182,8 @@ export default function ServicesPage() {
       }
     }
     fetchServices()
-  }, [selectedCategory, searchQuery, sortBy])
+    // user.id가 바뀌면 liked_by_user도 다시 체크
+  }, [selectedCategory, searchQuery, sortBy, user?.id])
 
   // --- 카테고리별 연한 배경색/텍스트색 매핑 ---
   const categoryBgMap: Record<string, string> = {
@@ -167,6 +213,11 @@ export default function ServicesPage() {
 
   // [서비스 좋아요 토글 함수] (CommunityPage와 동일한 Optimistic UI)
   const handleToggleLike = async (serviceId: number) => {
+    if (!user) {
+      // [MCP] 로그인 안 했으면 Clerk 로그인 팝업
+      openSignIn();
+      return;
+    }
     const originalServices = [...services];
     // Optimistic UI update
     setServices(currentServices =>
@@ -185,17 +236,30 @@ export default function ServicesPage() {
       })
     );
     try {
-      await fetch(`/api/services/${serviceId}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // [MCP] supabase 직접 호출로 좋아요 토글 처리
+      const target = services.find(s => s.id === serviceId);
+      if (target?.liked_by_user) {
+        // 이미 좋아요 → 취소
+        const { data: likeRow } = await supabase
+          .from('service_likes')
+          .select('id')
+          .eq('service_id', serviceId)
+          .eq('user_id', user.id)
+          .single();
+        if (likeRow) {
+          await supabase.from('service_likes').delete().eq('id', likeRow.id);
+        }
+      } else {
+        // 좋아요 추가
+        await supabase.from('service_likes').insert({ service_id: serviceId, user_id: user.id });
+      }
     } catch (error) {
       setServices(originalServices);
     }
   };
 
   return (
-    <main className="min-h-screen pt-[128px] sm:pt-16">
+    <main className="min-h-screen pt-14 sm:pt-16">
       {/* Hero Section */}
       <section className="relative py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white">
         {/* Modern Background Elements */}
@@ -271,7 +335,6 @@ export default function ServicesPage() {
                     onClick={openFilter}
                   >
                     <Filter className="w-5 h-5 text-violet-600" />
-                    <span className="font-medium text-violet-700">{t('filterLabel')}</span>
                   </button>
                 </div>
                 {/* 적용된 필터 Chip UI */}
@@ -401,32 +464,35 @@ export default function ServicesPage() {
           {error && (
             <div className="text-center py-12 text-red-500">{error}</div>
           )}
-          {!loading && !error && services.length === 0 && (
-            <div className="text-center py-12 text-gray-400">{t('noServices')}</div>
-          )}
 
           {/* Service Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
             {services.map((service) => (
               <motion.div
                 key={service.id}
+                className="mb-4 sm:mb-0"
               >
-                <Card className="group cursor-pointer transition-all duration-500 hover:shadow-lg hover:-translate-y-1 border-0 shadow-md overflow-hidden rounded-2xl sm:rounded-3xl bg-white">
+                <Card className="group cursor-pointer transition-all duration-500 hover:shadow-xl hover:-translate-y-1 shadow-lg border border-gray-200 rounded-2xl sm:rounded-3xl bg-white">
                   <div className="relative overflow-hidden">
-                    <Image
-                      src={service.image_url || ""}
-                      alt={service.title}
-                      width={400}
-                      height={240}
-                      className="w-full h-48 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      quality={75}
-                    />
-                    <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-                    />
-
+                    {/* [MCP] 이미지를 더 크게, 텍스트 영역은 전체적으로 사이즈 축소 */}
+                    {service.image_url ? (
+                      <Image
+                        src={service.image_url}
+                        alt={service.title}
+                        width={400}
+                        height={320}
+                        className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        quality={75}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-64 sm:h-80 bg-violet-50">
+                        <Sparkles className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
+                      </div>
+                    )}
+                    {/* [MCP] 아주 연한 그늘(gradient overlay, from-black/5) 효과 최소한으로 추가 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
                     <Badge className={`absolute top-3 sm:top-4 right-3 sm:right-4 ${categoryBgMap[service.category] || 'bg-gray-50'} ${categoryTextMap[service.category] || 'text-gray-700'} border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300`}>
                     {(() => {
                       const cat = categories.find(c => c.id === service.category)
@@ -442,34 +508,36 @@ export default function ServicesPage() {
                     </Badge>
                   </div>
 
-                  <CardContent className="p-4 sm:p-6 lg:p-8">
-                    <div className="space-y-4 sm:space-y-6">
+                  <CardContent className="p-3 sm:p-4 lg:p-5 text-sm sm:text-base lg:text-base">
+                    <div className="space-y-3 sm:space-y-4 lg:space-y-5">
                       <div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-violet-600 transition-colors">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-violet-600 transition-colors truncate whitespace-nowrap overflow-hidden max-w-full">
                           {service.title}
                         </h3>
-                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed truncate whitespace-nowrap overflow-hidden max-w-full">
                           {service.description}
                         </p>
                       </div>
 
-                      {/* --- 태그 부분 완전히 제거, ai_tools만 세련되게 표시 --- */}
-                      {Array.isArray(service.ai_tools) && service.ai_tools.length > 0 && (
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className="inline-flex items-center text-xs text-violet-500 font-semibold mr-1">
-                            <Sparkles className="w-4 h-4 mr-1" />AI Tools
-                          </span>
-                          {service.ai_tools.map((tool: string, toolIdx: number) => (
-                            <span
-                              key={toolIdx}
-                              className="inline-flex items-center bg-white/80 border border-violet-100 text-violet-700 font-medium px-2.5 py-1 rounded-full shadow-sm hover:bg-violet-50 transition-colors text-xs gap-1"
-                            >
-                              <Zap className="w-3 h-3 mr-1 text-violet-400" />
-                              {tool}
+                      {/* [MCP] ai_tools 영역은 항상 렌더링, min-h로 높이 고정 */}
+                      <div className="flex items-center gap-2 mt-2 flex-wrap min-h-[28px]">
+                        {Array.isArray(service.ai_tools) && service.ai_tools.length > 0 ? (
+                          <>
+                            <span className="inline-flex items-center text-xs text-violet-500 font-semibold mr-1">
+                              <Sparkles className="w-4 h-4 mr-1" />AI Tools
                             </span>
-                          ))}
-                        </div>
-                      )}
+                            {service.ai_tools.map((tool: string, toolIdx: number) => (
+                              <span
+                                key={toolIdx}
+                                className="inline-flex items-center bg-white/80 border border-violet-100 text-violet-700 font-medium px-2.5 py-1 rounded-full shadow-sm hover:bg-violet-50 transition-colors text-xs gap-1"
+                              >
+                                <Zap className="w-3 h-3 mr-1 text-violet-400" />
+                                {tool}
+                              </span>
+                            ))}
+                          </>
+                        ) : null}
+                      </div>
 
                       <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
                         <div className="flex items-center space-x-2 text-gray-500 text-sm">
@@ -515,23 +583,23 @@ export default function ServicesPage() {
                         </div>
                       </div>
 
-                      {/* --- demo_url이 있으면 하단에 '체험하기' 버튼 추가 (완전히 새 창에서 열기) --- */}
-                      {service.demo_url && (
-                        <div className="w-full mt-4">
-                          <Button
-                            className="w-full bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-semibold text-base py-3"
-                            onClick={() => {
-                              let url = service.demo_url;
-                              if (url && !/^https?:\/\//i.test(url)) {
-                                url = 'https://' + url;
-                              }
-                              window.open(url, '_blank', 'noopener,noreferrer,width=1200,height=800');
-                            }}
-                          >
-                            {t('tryDemo')}
-                          </Button>
-                        </div>
-                      )}
+                      {/* [MCP] 데모 URL 버튼은 항상 보이고, 값이 없으면 disabled */}
+                      <div className="w-full mt-4">
+                        <Button
+                          className="w-full bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-semibold text-base py-3"
+                          onClick={() => {
+                            if (!service.demo_url) return;
+                            let url = service.demo_url;
+                            if (url && !/^https?:\/\//i.test(url)) {
+                              url = 'https://' + url;
+                            }
+                            window.open(url, '_blank', 'noopener,noreferrer,width=1200,height=800');
+                          }}
+                          disabled={!service.demo_url} // [MCP] 데모 URL 없으면 비활성화
+                        >
+                          {t('tryDemo')}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -545,7 +613,14 @@ export default function ServicesPage() {
         className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-xl hover:scale-105 transition-all duration-300"
         style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
         aria-label={t('serviceRegisterTitle')}
-        onClick={() => router.push('/services/register')}
+        onClick={() => {
+          // [MCP] 로그인 안 했으면 Clerk 로그인 팝업, 했으면 기존대로 이동
+          if (!user) {
+            openSignIn(); // Clerk 로그인 모달
+          } else {
+            router.push('/services/register');
+          }
+        }}
       >
         <Plus className="w-8 h-8" />
       </button>

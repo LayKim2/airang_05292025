@@ -8,7 +8,7 @@ import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, Use
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs"
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
@@ -19,6 +19,7 @@ export function Header() {
   const [isAnimating, setIsAnimating] = useState(true)
   const pathname = usePathname()
   const { t } = useTranslation();
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -39,251 +40,228 @@ export function Header() {
   const isAIToolsPage = pathname === "/ai-tools"
   const isMatchPage = pathname === "/match"
   const isCommunityPage = pathname === "/community"
-  const isLandingPage = pathname === "/landing"
+  const isMyPage = pathname === "/mypage";
 
-  const menuItems = [
+  // [MCP] 메뉴 항목: 데스크탑/모바일 분기용, 마이페이지는 모바일에서만 노출
+  const baseMenuItems = [
     { name: "AI Services", path: "/services", icon: <Grid className="w-5 h-5 mb-0.5" /> },
     { name: "Community", path: "/community", icon: <Users className="w-5 h-5 mb-0.5" /> },
     { name: "Match", path: "/match", icon: <HeartHandshake className="w-5 h-5 mb-0.5" /> },
     { name: "AI Tools", path: "/ai-tools", icon: <Wrench className="w-5 h-5 mb-0.5" /> }
   ];
+  // [MCP] 마이페이지 메뉴 별도 분리
+  const myPageMenu = { name: "My Page", path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isLandingPage 
-          ? "bg-transparent" 
-          : isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50 
-            ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100" 
+        isMyPage
+          ? "bg-white border-b border-gray-100 shadow"
+          : isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+            ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100"
             : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 py-2 sm:py-4">
+      <div className={isMyPage ? "w-full px-4 sm:px-6 py-2 sm:py-4" : "container mx-auto px-4 sm:px-6 py-2 sm:py-4"}>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-3 sm:space-x-4">
-            {isLandingPage ? (
-              <div className="flex items-center space-x-3 sm:space-x-4 group">
-                <div className="relative group">
-                  <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                    <Sparkles className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
+            <Link href="/" className="flex items-center space-x-3 sm:space-x-4 group">
+              <div className="relative group">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Sparkles className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <div>
-                  <AnimatePresence>
-                    {isAnimating && (
-                      <motion.h1 
-                        className="text-xl sm:text-3xl font-black text-white"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <motion.span 
-                          className="bg-clip-text text-transparent"
-                          animate={{
-                            backgroundImage: [
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                              "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
-                              "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                            ]
-                          }}
-                          transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        >
-                          AIrang
-                        </motion.span>
-                      </motion.h1>
-                    )}
-                  </AnimatePresence>
-                  <p className="text-xs sm:text-sm font-medium text-gray-300">
-                    {t('headerCommunity')}
-                  </p>
-                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
               </div>
-            ) : (
-              <Link href="/" className="flex items-center space-x-3 sm:space-x-4 group">
-                <div className="relative group">
-                  <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                    <Sparkles className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
-                </div>
-                <div>
-                  <AnimatePresence>
-                    {isAnimating && (
-                      <motion.h1 
-                        className="text-xl sm:text-3xl font-black"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
+              <div>
+                <AnimatePresence>
+                  {isAnimating && (
+                    <motion.h1 
+                      className="text-xl sm:text-3xl font-black"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <motion.span 
+                        className="bg-clip-text text-transparent"
+                        animate={{
+                          backgroundImage: [
+                            "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
+                            "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
+                            "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
+                            "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
+                          ]
+                        }}
+                        transition={{
+                          duration: 5,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
                       >
-                        <motion.span 
-                          className="bg-clip-text text-transparent"
-                          animate={{
-                            backgroundImage: [
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                              "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
-                              "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                            ]
-                          }}
-                          transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        >
-                          AIrang
-                        </motion.span>
-                      </motion.h1>
-                    )}
-                  </AnimatePresence>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">
-                    {t('headerCommunity')}
-                  </p>
-                </div>
-              </Link>
-            )}
+                        AIrang
+                      </motion.span>
+                    </motion.h1>
+                  )}
+                </AnimatePresence>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">
+                  {t('headerCommunity')}
+                </p>
+              </div>
+            </Link>
           </div>
-
-          {!isLandingPage && (
-            <>
-              <nav className="hidden lg:flex items-center space-x-8">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.path}
-                    className={`transition-colors font-semibold relative group ${
-                      isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
-                        ? "text-gray-700 hover:text-violet-600"
-                        : "text-gray-200 hover:text-white"
-                    } ${
-                      pathname === item.path
-                        ? isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
-                          ? "text-violet-600"
-                          : "text-white"
-                        : ""
-                    }`}
-                  >
-                    {item.name}
-                    <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-violet-600 to-blue-600 transition-all duration-300 ${
-                      pathname === item.path ? "w-full" : "w-0 group-hover:w-full"
-                    }`} />
-                  </Link>
-                ))}
-              </nav>
-
-              <div className="hidden sm:flex items-center space-x-4">
-                <LanguageSwitcher />
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
-                    >
-                      {t('signIn')}
-                    </Button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/">
-                    <UserButton.MenuItems>
-                      <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
-                    </UserButton.MenuItems>
-                  </UserButton>
-                </SignedIn>
-              </div>
-              
-              <div className="flex items-center space-x-2 sm:hidden">
-                <LanguageSwitcher />
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="sm:hidden bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-3 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
-                    >
-                      {t('signIn')}
-                    </Button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/">
-                    <UserButton.MenuItems>
-                      <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
-                    </UserButton.MenuItems>
-                  </UserButton>
-                </SignedIn>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="sm:hidden z-50 text-gray-200 hover:text-white"
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+          {/* [MCP] 데스크탑 nav는 마이페이지에서만 숨김, 모바일 메뉴(햄버거/하단탭)는 항상 노출 */}
+          {(!isMyPage) && (
+            <nav className="hidden lg:flex items-center space-x-8 flex-1 justify-center">
+              {/* [MCP] 데스크탑 메뉴: 마이페이지 제외 */}
+              {baseMenuItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  className={`transition-colors font-semibold relative group ${
+                    isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                      ? "text-gray-700 hover:text-violet-600"
+                      : "text-gray-200 hover:text-white"
+                  } ${
+                    pathname === item.path
+                      ? isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                        ? "text-violet-600"
+                        : "text-white"
+                      : ""
+                  }`}
                 >
-                  {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  {item.name}
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-violet-600 to-blue-600 transition-all duration-300 ${
+                    pathname === item.path ? "w-full" : "w-0 group-hover:w-full"
+                  }`} />
+                </Link>
+              ))}
+            </nav>
+          )}
+          <div className="hidden sm:flex items-center space-x-4">
+            <LanguageSwitcher />
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
+                >
+                  {t('signIn')}
                 </Button>
-              </div>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/">
+                <UserButton.MenuItems>
+                  <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
+                </UserButton.MenuItems>
+              </UserButton>
+            </SignedIn>
+          </div>
+          {/* [MCP] 모바일 메뉴(햄버거/하단탭)는 항상 노출 */}
+          <div className="flex items-center space-x-2 sm:hidden">
+            <LanguageSwitcher />
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="sm:hidden bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium px-3 py-2 rounded-lg shadow-sm hover:from-violet-600 hover:to-blue-600 hover:shadow-md hover:scale-105 transition-all duration-200 border-none"
+                >
+                  {t('signIn')}
+                </Button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/">
+                <UserButton.MenuItems>
+                  <UserButton.Link label="My Page" href="/mypage" labelIcon={<User className="w-4 h-4" />} />
+                </UserButton.MenuItems>
+              </UserButton>
+            </SignedIn>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="sm:hidden z-50 text-gray-200"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {/* [MCP] 햄버거 메뉴: 항상 Menu 아이콘만 보이고, 색상도 항상 text-gray-200으로 고정 */}
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
+          {isMenuOpen && (
+            <>
+              {/* [MCP] 오버레이: 클릭 시 메뉴 닫힘, 더 진한 gray */}
+              <div className="fixed inset-0 z-40 bg-gray-900/80" onClick={() => setIsMenuOpen(false)} />
+              {/* [MCP] 왼쪽에서 슬라이드 인되는 드로어 메뉴 */}
+              <motion.aside
+                initial={{ x: -320, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -320, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="fixed top-0 left-0 bottom-0 w-72 max-w-full bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col p-6 gap-8"
+                style={{ height: '100dvh' }}
+              >
+                {/* [MCP] 드로어 상단 X(닫기) 버튼 */}
+                <button
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 focus:outline-none"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X className="w-7 h-7" />
+                </button>
+                {/* [MCP] 프로필/이름/역할 뱃지 */}
+                <div className="flex items-center gap-2 mb-6 mt-2">
+                  <User className="w-6 h-6 text-blue-500" />
+                  <span className="text-lg font-bold text-gray-800">{user?.fullName || user?.username || "Profile"}</span>
+                  {user && (
+                    <span className="ml-2 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500 to-blue-500 text-white">Expert</span>
+                  )}
+                </div>
+                {/* [MCP] 메뉴 리스트: 메인 메뉴/마이페이지 2개 카테고리로 구분 */}
+                <nav className="flex-1 flex flex-col gap-6">
+                  <div>
+                    <div className="text-xs font-bold text-gray-400 mb-2 px-2">메인 메뉴</div>
+                    <div className="flex flex-col gap-1">
+                      {baseMenuItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.path}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-gray-700 hover:bg-blue-50 ${pathname === item.path ? 'bg-blue-100 text-blue-700' : ''}`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.icon}
+                          <span>{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-gray-400 mb-2 px-2">마이페이지</div>
+                    <Link
+                      key={myPageMenu.name}
+                      href={myPageMenu.path}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-gray-700 hover:bg-blue-50 ${pathname === myPageMenu.path ? 'bg-blue-100 text-blue-700' : ''}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {myPageMenu.icon}
+                      <span>마이페이지</span>
+                    </Link>
+                  </div>
+                </nav>
+                {/* [MCP] 데모 역할 토글 (마이페이지 aside 참고, 실제 역할 상태 연동은 추후 구현) */}
+                <div className="mt-auto bg-white/80 border border-blue-100 rounded-xl shadow-sm p-4">
+                  <p className="text-sm text-blue-700 mb-3 font-medium">데모용 역할 변경:</p>
+                  <div className="flex gap-2">
+                    <button className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md border border-blue-200 bg-white text-blue-500 hover:bg-blue-50">Creator</button>
+                    <button className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md border border-blue-200 bg-blue-500 text-white scale-105 ring-2 ring-blue-300">Expert</button>
+                  </div>
+                </div>
+              </motion.aside>
             </>
           )}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {!isLandingPage && isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.2 }}
-          className="lg:hidden fixed inset-0 top-[72px] bg-white/95 backdrop-blur-xl z-40"
-        >
-          <div className="container mx-auto px-4 py-4">
-            <nav className="flex flex-col space-y-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.icon}
-                  <span className="text-gray-700 font-semibold">{item.name}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Mobile Bottom Navigation */}
-      {!isLandingPage && (
-        <nav className="lg:hidden w-full px-0 pt-1 pb-2 sticky top-[56px] z-40">
-          <div className="flex w-full px-2">
-            <div className="flex w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-lg py-2 px-1 gap-1">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`flex flex-col items-center justify-center flex-1 min-w-0 px-0 py-1.5 rounded-xl transition-all duration-200 font-semibold text-xs gap-0.5
-                    ${pathname === item.path ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300" : "bg-white/60 text-gray-700 hover:bg-violet-50"
-                    }`}
-                  style={{ boxShadow: pathname === item.path ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
-                >
-                  {item.icon}
-                  <span>{item.name.replace('AI ', '')}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </nav>
-      )}
     </header>
   )
 } 
