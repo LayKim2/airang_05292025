@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { Input } from "@/app/components/ui/input"
 import { Textarea } from "@/app/components/ui/textarea"
@@ -8,7 +8,7 @@ import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
 import { ArrowLeft, Plus, X } from "lucide-react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useUserProfile } from "@/app/lib/useUserProfile"
 
@@ -17,6 +17,8 @@ export default function ServiceRegisterPage() {
   const { t } = useTranslation()
   const router = useRouter()
   const { user, loading: userLoading } = useUserProfile()
+  const searchParams = useSearchParams()
+  const serviceId = searchParams.get('id')
 
   // Category options
   const categories = [
@@ -42,6 +44,35 @@ export default function ServiceRegisterPage() {
   const [aiToolsInput, setAiToolsInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fetching, setFetching] = useState(false)
+
+  // [MCP] 수정 모드: 서비스 데이터 fetch 및 form state set
+  useEffect(() => {
+    if (!serviceId) return;
+
+    const fetchServiceData = async () => {
+      setFetching(true);
+      try {
+        const { data, error } = await supabase.from('services').select('*').eq('id', serviceId).single();
+        if (error || !data) {
+          setError('서비스 정보를 불러오지 못했습니다.');
+          return;
+        }
+        setTitle(data.title || '');
+        setDescription(data.description || '');
+        setCategory(data.category || '');
+        setDemoUrl(data.demo_url || '');
+        setAiTools(Array.isArray(data.ai_tools) ? data.ai_tools : []);
+        setImagePreview(data.image_url || null);
+      } catch (err) {
+        setError('서비스 정보를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchServiceData();
+  }, [serviceId]);
 
   // Image upload preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +109,7 @@ export default function ServiceRegisterPage() {
     return publicUrlData?.publicUrl || ''
   }
 
-  // Register button click handler (API route usage)
+  // [MCP] 등록/수정 핸들러
   const handleRegister = async () => {
     setError(null)
     if (userLoading) return
@@ -88,27 +119,43 @@ export default function ServiceRegisterPage() {
     if (aiTools.length > 5) { setError('AI Tools는 최대 5개까지만 입력할 수 있습니다.'); return }
     setLoading(true)
     try {
-      let imageUrl = ''
+      let imageUrl = imagePreview || ''
       if (image) {
         imageUrl = await uploadImage(image)
       }
-      // [MCP] supabase 직접 호출로 서비스 등록
-      const { data, error: insertError } = await supabase
-        .from('services')
-        .insert({
-          author_id: user.id,
-          title,
-          description,
-          category,
-          image_url: imageUrl,
-          demo_url: demoUrl,
-          ai_tools: aiTools,
-        })
-        .select()
-        .single()
-      if (insertError) throw new Error(insertError.message || t('registerFailed'))
-      // Success: redirect to service list
-      router.push('/services')
+      if (serviceId) {
+        // [MCP] 수정 모드: update
+        const { error: updateError } = await supabase
+          .from('services')
+          .update({
+            title,
+            description,
+            category,
+            image_url: imageUrl,
+            demo_url: demoUrl,
+            ai_tools: aiTools,
+          })
+          .eq('id', serviceId)
+        if (updateError) throw new Error(updateError.message || '서비스 수정에 실패했습니다.')
+        router.push('/services')
+      } else {
+        // [MCP] 신규 등록
+        const { data, error: insertError } = await supabase
+          .from('services')
+          .insert({
+            author_id: user.id,
+            title,
+            description,
+            category,
+            image_url: imageUrl,
+            demo_url: demoUrl,
+            ai_tools: aiTools,
+          })
+          .select()
+          .single()
+        if (insertError) throw new Error(insertError.message || t('registerFailed'))
+        router.push('/services')
+      }
     } catch (e: any) {
       setError(e.message || t('registerError'))
     } finally {
@@ -120,10 +167,13 @@ export default function ServiceRegisterPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 py-12">
       {/* Top navigation */}
       <div className="w-full max-w-2xl mx-auto flex items-center mb-8">
-        <h1 className="flex-1 text-center text-2xl font-bold text-gray-900">{t("serviceRegisterTitle")}</h1>
+        {/* [MCP] 수정/등록 모드에 따라 타이틀 변경 */}
+        <h1 className="flex-1 text-center text-2xl font-bold text-gray-900">{serviceId ? 'AI 서비스 수정' : t("serviceRegisterTitle")}</h1>
       </div>
 
       <form className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 space-y-8 border border-gray-100">
+        {/* [MCP] 수정 모드 로딩 */}
+        {fetching && <div className="text-center text-gray-500 py-8">서비스 정보를 불러오는 중...</div>}
         {/* Service name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">{t("serviceName")}</label>
@@ -215,8 +265,8 @@ export default function ServiceRegisterPage() {
         </div>
         {/* Register button */}
         <div className="flex justify-end">
-          <Button type="button" onClick={handleRegister} disabled={loading || userLoading} className="bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold px-8 py-3 rounded-xl">
-            {loading ? t("registering") : t("register")}
+          <Button type="button" onClick={handleRegister} disabled={loading || userLoading || fetching} className="bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold px-8 py-3 rounded-xl">
+            {loading ? t("registering") : (serviceId ? '수정' : t("register"))}
           </Button>
         </div>
         {error && <div className="text-red-500 text-sm text-right mt-2">{error}</div>}

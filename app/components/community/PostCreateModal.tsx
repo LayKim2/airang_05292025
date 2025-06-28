@@ -15,14 +15,31 @@ import FontFamily from '@tiptap/extension-font-family';
 import { supabase } from '@/lib/supabase';
 import { useUserProfile } from '@/app/lib/useUserProfile';
 
-// [MCP] 외부에서 open, onOpenChange로 모달 상태 제어
+// [MCP] create/edit 겸용 모달을 위한 prop 확장
 interface PostCreateModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onPostCreated?: () => void;
+  // [MCP] edit 모드용 prop
+  mode?: 'create' | 'edit';
+  postId?: number;
+  initialContent?: string;
+  initialCategory?: string;
+  initialTags?: string[];
+  onPostUpdated?: () => void;
 }
 
-export default function PostCreateModal({ open, onOpenChange, onPostCreated }: PostCreateModalProps) {
+export default function PostCreateModal({
+  open,
+  onOpenChange,
+  onPostCreated,
+  mode = 'create',
+  postId,
+  initialContent = '',
+  initialCategory,
+  initialTags = [],
+  onPostUpdated,
+}: PostCreateModalProps) {
   const { t } = useTranslation();
   
   const categories = [
@@ -32,8 +49,9 @@ export default function PostCreateModal({ open, onOpenChange, onPostCreated }: P
     { id: "General", label: t('community.categories.general'), icon: Archive },
   ];
 
-  const [category, setCategory] = useState(categories[0].id);
-  const [tags, setTags] = useState<string[]>([]);
+  // [MCP] edit 모드일 때 초기값 적용
+  const [category, setCategory] = useState(initialCategory || categories[0].id);
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [tagInput, setTagInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Blob 이미지 파일을 저장할 Ref
@@ -42,10 +60,10 @@ export default function PostCreateModal({ open, onOpenChange, onPostCreated }: P
   // Clerk 인증 유저 정보 연동
   const { user, profile } = useUserProfile();
   
-  // tiptap 에디터 인스턴스 생성
+  // [MCP] edit 모드일 때 초기 content 적용
   const editor = useEditor({
     extensions: [StarterKit, Image, Link, TextStyle, Color, FontFamily],
-    content: '',
+    content: initialContent,
     editorProps: {
       attributes: {
         class: 'w-full bg-gray-50 border-0 text-lg resize-none focus:ring-0 min-h-[120px] placeholder:text-gray-400 rounded-xl p-3',
@@ -85,7 +103,7 @@ export default function PostCreateModal({ open, onOpenChange, onPostCreated }: P
     blobImagesRef.current[blobUrl] = file;
   };
 
-  // Post 등록(Submit) 시 Blob URL 이미지를 Storage에 업로드 후 content 내 URL 교체
+  // [MCP] Post 등록/수정(Submit) 시 Blob URL 이미지를 Storage에 업로드 후 content 내 URL 교체
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editor || editor.isEmpty || isSubmitting) {
@@ -114,27 +132,33 @@ export default function PostCreateModal({ open, onOpenChange, onPostCreated }: P
         }
       }
 
-      // posts 테이블에 저장
-      await supabase.from('posts').insert({
-        content: html,
-        category,
-        tags,
-        author_id: profile?.clerk_user_id || user?.id || null,
-      });
-
-      // 초기화
-      editor.commands.clearContent();
-      setTagInput("");
-      setTags([]);
-      blobImagesRef.current = {};
-      if (onOpenChange) onOpenChange(false);
-
-      // 부모 컴포넌트에 알림
-      if (onPostCreated) {
-        onPostCreated();
+      if (mode === 'edit' && postId) {
+        // [MCP] edit 모드: update 쿼리
+        await supabase.from('posts').update({
+          content: html,
+          category,
+          tags,
+        }).eq('id', postId);
+        if (onOpenChange) onOpenChange(false);
+        if (onPostUpdated) onPostUpdated();
+      } else {
+        // [MCP] create 모드: insert 쿼리
+        await supabase.from('posts').insert({
+          content: html,
+          category,
+          tags,
+          author_id: profile?.clerk_user_id || user?.id || null,
+        });
+        // 초기화
+        editor.commands.clearContent();
+        setTagInput("");
+        setTags([]);
+        blobImagesRef.current = {};
+        if (onOpenChange) onOpenChange(false);
+        if (onPostCreated) onPostCreated();
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating/updating post:", error);
       // 사용자에게 에러 알림 (예: toast 메시지)
     } finally {
       setIsSubmitting(false);
