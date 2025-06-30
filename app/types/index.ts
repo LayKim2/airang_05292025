@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react"
+import React from "react"
 
 export interface Service {
   id: number
@@ -31,9 +32,6 @@ export interface CommunityMember {
 export interface Category {
   id: string
   name: string
-  icon: LucideIcon
-  count: number
-  color: string
 }
 
 export interface Feature {
