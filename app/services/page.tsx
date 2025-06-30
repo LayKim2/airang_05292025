@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, easeInOut } from "framer-motion"
 import Image from "next/image"
 import { Badge } from "@/app/components/ui/badge"
 import { Button } from "@/app/components/ui/button"
@@ -25,7 +25,7 @@ const orbAnimation = {
   transition: {
     duration: 16, // 기존 8에서 16으로 늘림
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: easeInOut,
   }
 }
 const orb2Animation = {
@@ -38,7 +38,7 @@ const orb2Animation = {
   transition: {
     duration: 20, // 기존 10에서 20으로 늘림
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: easeInOut,
   }
 }
 const float1 = {
@@ -49,7 +49,7 @@ const float1 = {
   transition: {
     duration: 20, // 기존 10에서 20으로 늘림
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: easeInOut,
   }
 }
 const float2 = {
@@ -60,7 +60,7 @@ const float2 = {
   transition: {
     duration: 24, // 기존 12에서 24로 늘림
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: easeInOut,
   }
 }
 

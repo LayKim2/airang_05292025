@@ -3,7 +3,7 @@
 import { Button } from "@/app/components/ui/button"
 import { Users, UserPlus } from "lucide-react"
 import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
-import { motion } from "framer-motion"
+import { motion, easeInOut } from "framer-motion"
 import { useRouter } from 'next/navigation'
 import { useTranslation } from "@/app/i18n/useTranslation"
 
@@ -26,7 +26,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 16, // 기존 8에서 16으로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const orb2Animation = {
@@ -39,7 +39,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 20, // 기존 10에서 20으로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const float1 = {
@@ -50,7 +50,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 20, // 기존 10에서 20으로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const float2 = {
@@ -61,7 +61,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 24, // 기존 12에서 24로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
 
