@@ -77,7 +77,7 @@
   "servicesGalleryDesc": "AIrangコミュニティメンバーがAI技術を活用して開発した様々なサービスを探索し、インスピレーションを得ましょう。",
   "siteTitle": "AIrang - AIクリエイターコミュニティ",
   "siteDescription": "AI技術で作られた革新的なサービスを発見しましょう",
-  "headerMatch": "AI専門家マッチング",
+  "headerMatch": "マッチング/グループ",
   "matchTeamProject": "チームプロジェクト",
   "matchTeamProjectDesc": "AIプロジェクトを一緒に進めるチームメンバーを見つけましょう。開発者、デザイナー、プランナーなど、様々な役割のメンバーと協力できます。",
   "matchFindTeam": "チームプロジェクトを探す",
@@ -302,5 +302,14 @@
   "expertRegisterButton": "専門家登録",
   "expertRegisterSuccess": "専門家申請が完了しました！審査後に承認されます。",
   "expertRegisterError": "専門家登録に失敗しました",
-  "expertRegisterUrlPlaceholder": "URLを入力"
+  "expertRegisterUrlPlaceholder": "URLを入力",
+  "header": {
+    "aiServices": "AIサービス",
+    "community": "コミュニティ",
+    "match": "マッチング/グループ",
+    "aiTools": "AIツール"
+  },
+  "matchGroupCardTitle": "AIクリエイターグループ",
+  "matchGroupCardDesc": "同じAIツールを使うクリエイターとグループを作成・参加しましょう。",
+  "matchGroupCardButton": "グループ作成/参加"
 } 

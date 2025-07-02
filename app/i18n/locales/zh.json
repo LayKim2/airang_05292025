@@ -77,7 +77,7 @@
   "servicesGalleryDesc": "探索AIrang社区成员使用AI技术开发的各种服务，获取灵感。",
   "siteTitle": "AIrang - AI创作者社区",
   "siteDescription": "发现由AI技术驱动的创新服务",
-  "headerMatch": "AI专家匹配",
+  "headerMatch": "匹配/小组",
   "matchTeamProject": "团队项目",
   "matchTeamProjectDesc": "寻找一起进行AI项目的团队成员。与开发者、设计师、策划者等不同角色的成员合作。",
   "matchFindTeam": "寻找团队项目",
@@ -305,5 +305,14 @@
   "expertRegisterButton": "专家注册",
   "expertRegisterSuccess": "专家申请已提交！审核通过后将被批准。",
   "expertRegisterError": "专家注册失败",
-  "expertRegisterUrlPlaceholder": "请输入URL"
+  "expertRegisterUrlPlaceholder": "请输入URL",
+  "header": {
+    "aiServices": "AI服务",
+    "community": "社区",
+    "match": "匹配/小组",
+    "aiTools": "AI工具"
+  },
+  "matchGroupCardTitle": "AI创作者小组",
+  "matchGroupCardDesc": "与使用相似AI工具的创作者一起创建或加入小组。",
+  "matchGroupCardButton": "创建/查找小组"
 } 

@@ -79,4 +79,12 @@ export type Like = {
     user_id: string;
     post_id: number;
     created_at: string;
-} 
+}
+
+// [AI 모임] 1차 카테고리(워크샵/실습 제외, 기본값)
+export const GROUP_CATEGORIES: Category[] = [
+  { id: 'study', name: '스터디' },
+  { id: 'networking', name: '네트워킹' },
+  { id: 'meetup', name: '밋업/세미나' },
+  { id: 'free', name: '자유모임' },
+]; 

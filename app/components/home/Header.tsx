@@ -43,11 +43,12 @@ export function Header() {
   const isMyPage = pathname === "/mypage";
 
   // [MCP] 메뉴 항목: 데스크탑/모바일 분기용, 마이페이지는 모바일에서만 노출
+  // [다국어] 메뉴 이름은 i18n 번역 키 사용
   const baseMenuItems = [
-    { name: "AI Services", path: "/services", icon: <Grid className="w-5 h-5 mb-0.5" /> },
-    { name: "Community", path: "/community", icon: <Users className="w-5 h-5 mb-0.5" /> },
-    { name: "Match", path: "/match", icon: <HeartHandshake className="w-5 h-5 mb-0.5" /> },
-    { name: "AI Tools", path: "/ai-tools", icon: <Wrench className="w-5 h-5 mb-0.5" /> }
+    { name: t('header.aiServices'), path: "/services", icon: <Grid className="w-5 h-5 mb-0.5" /> },
+    { name: t('header.match'), path: "/match", icon: <HeartHandshake className="w-5 h-5 mb-0.5" /> },
+    { name: t('header.community'), path: "/community", icon: <Users className="w-5 h-5 mb-0.5" /> },
+    { name: t('header.aiTools'), path: "/ai-tools", icon: <Wrench className="w-5 h-5 mb-0.5" /> }
   ];
   // [MCP] 마이페이지 메뉴 별도 분리
   const myPageMenu = { name: "My Page", path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> };

@@ -168,3 +168,37 @@ COMMENT ON COLUMN public.expert_applications.reviewed_at IS 'Datetime when appli
 -- Create index for fast lookup by user_id and status
 CREATE INDEX idx_expert_applications_user_id ON expert_applications(user_id);
 CREATE INDEX idx_expert_applications_status ON expert_applications(status);
+
+-- 6. Create the 'groups' table (AI 크리에이터 모임)
+CREATE TABLE groups (
+  id BIGSERIAL PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  title VARCHAR(100) NOT NULL, -- 모임명
+  category VARCHAR(100) NOT NULL, -- 카테고리
+  ai_tools TEXT[] DEFAULT '{}', -- 관련 AI 도구/모델
+  deadline DATE, -- 모집 마감일
+  recruit_count INTEGER, -- 모집 인원
+  description TEXT, -- 상세 소개(HTML)
+  image_url TEXT, -- 대표 이미지
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add comments to the groups table and columns
+COMMENT ON TABLE public.groups IS 'Stores AI creator group (모임) information.';
+COMMENT ON COLUMN public.groups.user_id IS 'Reference to the user who created the group.';
+COMMENT ON COLUMN public.groups.title IS 'Group title (모임명)';
+COMMENT ON COLUMN public.groups.category IS 'Group category';
+COMMENT ON COLUMN public.groups.ai_tools IS 'Array of related AI tools/models';
+COMMENT ON COLUMN public.groups.deadline IS 'Recruitment deadline';
+COMMENT ON COLUMN public.groups.recruit_count IS 'Number of people to recruit';
+COMMENT ON COLUMN public.groups.description IS 'Detailed group description (HTML)';
+COMMENT ON COLUMN public.groups.image_url IS 'Main image URL';
+COMMENT ON COLUMN public.groups.created_at IS 'Creation timestamp';
+COMMENT ON COLUMN public.groups.updated_at IS 'Last update timestamp';
+
+-- Create indexes for groups table (performance optimization)
+CREATE INDEX idx_groups_category ON groups(category);
+CREATE INDEX idx_groups_created_at ON groups(created_at DESC);
+CREATE INDEX idx_groups_user_id ON groups(user_id);
+CREATE INDEX idx_groups_ai_tools ON groups USING GIN(ai_tools);

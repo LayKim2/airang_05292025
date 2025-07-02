@@ -77,7 +77,7 @@
   "servicesGalleryDesc": "Explore and get inspired by various services developed by AIrang community members using AI technology.",
   "siteTitle": "AIrang - AI Creator Community",
   "siteDescription": "Discover innovative services powered by AI technology",
-  "headerMatch": "AI Expert Match",
+  "headerMatch": "Match & Group",
   "matchTeamProject": "Team Project",
   "matchTeamProjectDesc": "Find team members to work on AI projects together. Collaborate with developers, designers, planners, and more.",
   "matchFindTeam": "Find Team Project",
@@ -243,10 +243,10 @@
     "submit": "Submit",
     "add": "Add"
   },
-  "matchExpertCardTitle": "Browse AI Experts",
+  "matchExpertCardTitle": "AI Experts",
   "matchExpertCardDesc": "See experts from various fields at a glance and find the right one for your needs.",
   "matchExpertCardButton": "Browse Experts",
-  "matchRequestCardTitle": "Register Request Post",
+  "matchRequestCardTitle": "Request Post",
   "matchRequestCardDesc": "Freely register your requests for tasks, projects, consultations, and more. Various experts can apply.",
   "matchRequestCardButton": "Register Request",
   "matchExpertFab": "Expert",
@@ -305,5 +305,14 @@
   "expertRegisterButton": "Register as Expert",
   "expertRegisterSuccess": "Your expert application has been submitted! It will be reviewed and approved.",
   "expertRegisterError": "Expert registration failed",
-  "expertRegisterUrlPlaceholder": "Enter URL"
+  "expertRegisterUrlPlaceholder": "Enter URL",
+  "header": {
+    "aiServices": "AI Services",
+    "community": "Community",
+    "match": "Match & Group",
+    "aiTools": "AI Tools"
+  },
+  "matchGroupCardTitle": "AI Creator Groups",
+  "matchGroupCardDesc": "Create or join groups with creators using similar AI tools.",
+  "matchGroupCardButton": "Create/Find Group"
 } 

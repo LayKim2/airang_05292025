@@ -5,21 +5,10 @@ import { motion } from "framer-motion"
 import { Badge } from "@/app/components/ui/badge"
 import { Sparkles, Search, Filter, ArrowRight, UserCheck, Users, Plus } from "lucide-react"
 import { useTranslation } from "@/app/i18n/useTranslation"
-import { Dialog } from "@/app/components/ui/dialog"
 import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { supabase } from '@/lib/supabase'
 
-const categories = [
-  "전체",
-  "이미지 생성",
-  "텍스트 생성",
-  "음성 변환",
-  "코드 생성",
-  "데이터 분석",
-  "번역",
-  "기타"
-]
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -32,7 +21,7 @@ const orbAnimation = {
   transition: {
     duration: 16,
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: 'linear' as const
   }
 }
 const orb2Animation = {
@@ -45,7 +34,7 @@ const orb2Animation = {
   transition: {
     duration: 20,
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: 'linear' as const
   }
 }
 
@@ -144,6 +133,15 @@ export default function MatchPage() {
 
   // [서비스 준비중 알림 핸들러]
   const handleComingSoon = () => setShowComingSoon(true);
+
+  // [MCP] AI 크리에이터 모임 버튼 핸들러: 로그인 안 했으면 Clerk 로그인 팝업
+  const handleGroupButton = () => {
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
+    router.push("/match/groups");
+  };
 
   return (
     <main className="min-h-screen pt-14 sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
@@ -308,8 +306,33 @@ export default function MatchPage() {
           </div>
 
           {/* Match Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
-            {/* 전문가 조회 카드 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
+
+            {/* [카드1] AI 크리에이터 모임 카드 */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              className="relative group h-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-300 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
+                <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-xl mb-6 mx-auto">
+                  <Users className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold text-center mb-4">{t('matchGroupCardTitle')}</h3>
+                <p className="text-gray-600 text-center mb-6 flex-grow">
+                  {t('matchGroupCardDesc')}
+                </p>
+                <button className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+                  onClick={handleGroupButton}
+                >
+                  {t('matchGroupCardButton')}
+                </button>
+              </div>
+            </motion.div>
+
+            {/* [카드2] 전문가 조회 카드 */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -333,9 +356,9 @@ export default function MatchPage() {
               </div>
             </motion.div>
 
-            {/* 오른쪽: 요청글 등록 카드 */}
+            {/* [카드3] 요청글 등록 카드 */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 0 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
               className="relative group h-full"
