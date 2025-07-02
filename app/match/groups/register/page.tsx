@@ -81,6 +81,22 @@ export default function GroupRegisterPage() {
     }
     // 대표이미지 업로드(실제 서비스에서는 storage 업로드 필요, 여기선 임시로 File URL)
     let image_url = imageUrl;
+    if (image) {
+      try {
+        const fileExt = image.name.split('.').pop();
+        const filePath = `groups/${profile.clerk_user_id}/${Date.now()}.${fileExt}`;
+        const { data, error: uploadError } = await supabase.storage.from('service-images').upload(filePath, image, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+        if (uploadError) throw new Error('이미지 업로드 실패: ' + uploadError.message);
+        const { data: publicUrlData } = supabase.storage.from('service-images').getPublicUrl(filePath);
+        image_url = publicUrlData?.publicUrl || '';
+      } catch (err: any) {
+        alert(err.message);
+        return;
+      }
+    }
     // deadline 포맷 변환
     let deadlineStr = deadline ? deadline.toISOString().slice(0, 10) : null;
     const { error } = await supabase.from('groups').insert({

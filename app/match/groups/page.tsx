@@ -2,61 +2,33 @@
 // AI 크리에이터 모임(그룹) 리스트/등록/모집 메인 페이지
 // 추후 카드형 리스트, 필터, 등록 버튼 등 UI 추가 예정
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles, Users, Bookmark, Eye, Plus, Search } from "lucide-react";
 import { GROUP_CATEGORIES } from "@/app/types";
 import { useRouter } from "next/navigation";
-
-// [데모] 모임 리스트 최소 데이터 구조
-const demoGroups = [
-  {
-    id: 1,
-    title: "AI 서비스 기획 스터디",
-    category: "스터디",
-    tags: ["AI", "기획", "스터디"],
-    status: "모집중",
-    deadline: "2025.07.15",
-    description: "AI 서비스 기획에 관심 있는 분들과 함께하는 스터디 모임입니다.",
-    leader: "홍길동",
-    techStack: ["Python", "Figma"],
-    views: 24,
-    bookmarks: 3,
-  },
-  {
-    id: 2,
-    title: "AI 개발 프로젝트 팀원 모집",
-    category: "프로젝트",
-    tags: ["AI", "개발", "프로젝트"],
-    status: "모집중",
-    deadline: "2025.07.20",
-    description: "AI 기반 서비스 개발에 함께할 팀원을 찾습니다.",
-    leader: "김개발",
-    techStack: ["React", "Node.js", "AWS"],
-    views: 41,
-    bookmarks: 7,
-  },
-  {
-    id: 3,
-    title: "AI 논문 리뷰 모임",
-    category: "스터디",
-    tags: ["AI", "논문", "리뷰"],
-    status: "모집완료",
-    deadline: "2025.07.10",
-    description: "최신 AI 논문을 함께 읽고 토론하는 모임입니다.",
-    leader: "이리더",
-    techStack: ["Python"],
-    views: 12,
-    bookmarks: 1,
-  },
-];
+import { supabase } from "@/lib/supabase";
 
 export default function GroupsPage() {
+  const [groups, setGroups] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("전체");
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('groups').select('*');
+      if (!error && data) {
+        setGroups(data);
+      }
+      setLoading(false);
+    };
+    fetchGroups();
+  }, []);
 
   // [필터/검색 적용된 리스트]
-  const filteredGroups = demoGroups.filter(
+  const filteredGroups = groups.filter(
     (g) =>
       (filter === "전체" || g.category === filter) &&
       (search === "" || g.title.includes(search) || g.description.includes(search))
@@ -103,11 +75,23 @@ export default function GroupsPage() {
 
         {/* 모임 리스트 카드형 UI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {filteredGroups.length === 0 ? (
+          {loading ? (
+            <div className="col-span-full text-center text-gray-400 py-16 text-lg">로딩 중...</div>
+          ) : filteredGroups.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-16 text-lg">검색 결과가 없습니다.</div>
           ) : (
             filteredGroups.map(group => (
               <div key={group.id} className="relative rounded-3xl bg-white shadow-xl border border-gray-100 hover:shadow-2xl transition-all p-8 flex flex-col gap-4 group min-h-[320px]">
+                {/* 대표 이미지 썸네일 */}
+                {group.image_url ? (
+                  <div className="w-full mb-2">
+                    <img src={group.image_url} alt="대표 이미지" className="w-full max-h-48 object-cover rounded-xl border bg-gray-100" />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center w-full max-h-48 h-48 bg-violet-50 mb-2 rounded-xl border bg-gray-100">
+                    <Sparkles className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
+                  </div>
+                )}
                 {/* 모집상태/카테고리/마감일 */}
                 <div className="flex gap-2 items-center mb-1">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${group.status === '모집중' ? 'bg-violet-100 text-violet-700' : 'bg-gray-200 text-gray-500'}`}>{group.status}</span>
@@ -118,17 +102,17 @@ export default function GroupsPage() {
                 <h2 className="text-xl font-bold text-gray-900 truncate group-hover:text-violet-700 transition-colors">{group.title}</h2>
                 {/* 태그 */}
                 <div className="flex flex-wrap gap-2 mb-1">
-                  {group.tags.map(tag => (
+                  {group.tags && group.tags.map((tag: any) => (
                     <span key={tag} className="px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-500 font-medium">#{tag}</span>
                   ))}
                 </div>
                 {/* 설명 */}
-                <p className="text-base text-gray-600 line-clamp-2 mb-2">{group.description}</p>
+                <div className="text-base text-gray-600 line-clamp-2 mb-2" dangerouslySetInnerHTML={{ __html: group.description }} />
                 {/* 리더/기술스택 */}
                 <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                   <Users className="w-4 h-4 mr-1 text-violet-400" /> {group.leader}
                   <span className="mx-2">·</span>
-                  {group.techStack.map(tech => (
+                  {group.techStack && group.techStack.map((tech: any) => (
                     <span key={tech} className="px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-100 to-blue-100 text-violet-700 font-semibold mr-1">{tech}</span>
                   ))}
                 </div>
