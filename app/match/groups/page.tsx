@@ -132,8 +132,8 @@ export default function GroupsPage() {
                 </div>
                 {/* 대표 이미지 썸네일 */}
                 {group.image_url ? (
-                  <div className="w-full mb-2">
-                    <img src={group.image_url} alt="대표 이미지" className="w-full max-h-48 object-cover rounded-xl border bg-gray-100" />
+                  <div className="w-full max-h-48 h-48 mb-2">
+                    <img src={group.image_url} alt="대표 이미지" className="w-full h-48 max-h-48 object-cover rounded-xl border bg-gray-100" />
                   </div>
                 ) : (
                   <div className="flex items-center justify-center w-full max-h-48 h-48 bg-violet-50 mb-2 rounded-xl border bg-gray-100">
@@ -147,17 +147,14 @@ export default function GroupsPage() {
                     <Bookmark className="w-6 h-6 text-gray-300 hover:text-violet-500 transition-colors" />
                   </button>
                 </div>
-                {/* 태그 */}
-                <div className="flex flex-wrap gap-2 mb-1">
-                  {group.tags && group.tags.map((tag: any) => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-500 font-medium">#{tag}</span>
-                  ))}
-                </div>
                 {/* 현재 인원/모집인원: 미니멀 pill, Users 아이콘 작게, 예: 3/5 */}
-                <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                  <span className="ml-auto flex items-center px-3 py-1 text-sm font-bold rounded-full bg-blue-50 text-blue-700 shadow border border-blue-100">
+                <div className="flex items-center gap-2 text-xs text-gray-400 mb-1 w-full">
+                  <span className="truncate flex-1 overflow-hidden whitespace-nowrap">
+                    {group.description ? group.description.replace(/<[^>]+>/g, '').slice(0, 40) + (group.description.replace(/<[^>]+>/g, '').length > 40 ? '...' : '') : ''}
+                  </span>
+                  <span className="flex items-center px-3 py-1 text-sm font-bold rounded-full bg-blue-50 text-blue-700 shadow border border-blue-100 ml-2">
                     <Users className="w-4 h-4 mr-1 text-blue-400" />
-                    {group.current_count}/{group.recruit_count || '-'}
+                    {group.member_count ?? group.current_count}/{group.recruit_count || '-'}
                   </span>
                 </div>
                 {/* AI Tools: services와 동일한 태그 뱃지 디자인, 별도 flex-row로 분리 */}

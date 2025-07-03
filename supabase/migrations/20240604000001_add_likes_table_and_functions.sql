@@ -183,7 +183,11 @@ CREATE TABLE groups (
   status VARCHAR(30) DEFAULT 'recruiting', -- 모집 상태 (recruiting/recruited)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  current_count INTEGER NOT NULL DEFAULT 1
+  current_count INTEGER NOT NULL DEFAULT 1,
+  location TEXT,
+  location_type VARCHAR(30),
+  cost INTEGER,
+  currency VARCHAR(10)
 );
 
 -- Add comments to the groups table and columns
@@ -199,6 +203,8 @@ COMMENT ON COLUMN public.groups.image_url IS 'Main image URL';
 COMMENT ON COLUMN public.groups.created_at IS 'Creation timestamp';
 COMMENT ON COLUMN public.groups.updated_at IS 'Last update timestamp';
 COMMENT ON COLUMN public.groups.current_count IS 'Current number of people in the group';
+COMMENT ON COLUMN public.groups.location IS 'Location of the group activity';
+COMMENT ON COLUMN public.groups.location_type IS 'Type of location for the group activity';
 
 -- Create indexes for groups table (performance optimization)
 CREATE INDEX idx_groups_category ON groups(category);

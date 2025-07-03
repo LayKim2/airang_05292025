@@ -10,20 +10,31 @@ import Image from '@tiptap/extension-image';
 import Underline from '@tiptap/extension-underline';
 import { supabase } from '@/lib/supabase';
 import { useUserProfile } from '@/app/lib/useUserProfile';
+import { useRouter } from "next/navigation";
 
 // [AI 모임 등록] 실제 서비스/리스트에 맞는 필드로 확장
 export default function GroupRegisterPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(GROUP_CATEGORIES[0].id);
-  const [status, setStatus] = useState("recruiting");
-  const [deadline, setDeadline] = useState<Date|null>(null);
   const [description, setDescription] = useState("");
-  const [recruitCount, setRecruitCount] = useState("");
+  const [recruitCount, setRecruitCount] = useState("10");
   const [image, setImage] = useState<File|null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [aiTools, setAiTools] = useState<string[]>([]);
   const [aiToolInput, setAiToolInput] = useState("");
   const { profile } = useUserProfile();
+  const [cost, setCost] = useState("0");
+  const [currency, setCurrency] = useState("KRW");
+  const [location, setLocation] = useState("");
+  const [locationType, setLocationType] = useState("offline"); // offline, online, both
+  const router = useRouter();
+
+  // deadline의 초기값: 현재 달의 마지막 날
+  const getDefaultDeadline = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  };
+  const [deadline, setDeadline] = useState<Date|null>(getDefaultDeadline());
 
   // 태그/스택/포지션 추가/삭제
   const handleAddAiTool = () => { if (aiToolInput && !aiTools.includes(aiToolInput)) { setAiTools([...aiTools, aiToolInput]); setAiToolInput(""); } };
@@ -110,8 +121,12 @@ export default function GroupRegisterPage() {
       image_url,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      status,
+      status: 'recruiting',
       current_count: 1,
+      cost: cost ? Number(cost) : null,
+      currency,
+      location,
+      location_type: locationType,
     }).select('id'); // id 반환
     if (groupInsertError) {
       alert('등록에 실패했습니다: ' + groupInsertError.message);
@@ -126,6 +141,7 @@ export default function GroupRegisterPage() {
         });
       }
       alert('모임이 성공적으로 등록되었습니다!');
+      router.push('/match/groups');
       // 폼 초기화
       setTitle("");
       setCategory(GROUP_CATEGORIES[0].id);
@@ -136,6 +152,10 @@ export default function GroupRegisterPage() {
       setImage(null);
       setImageUrl("");
       if (editor) editor.commands.clearContent();
+      setCost("");
+      setCurrency("KRW");
+      setLocation("");
+      setLocationType("offline");
     }
   };
 
@@ -165,46 +185,68 @@ export default function GroupRegisterPage() {
         <div className="px-8 border-b border-gray-100 pb-6 flex flex-col gap-2">
           <label className="text-base font-semibold">모임명</label>
           <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-            className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="모임명을 입력하세요" />
+            className={`h-12 px-4 bg-gray-50 border rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all ${!title ? 'border-red-500' : 'border-gray-200'}`} placeholder="모임명을 입력하세요" />
         </div>
-        {/* 카테고리/상태/모집인원/마감일 */}
+        {/* 카테고리/모집인원/마감일 */}
         <div className="px-8 border-b border-gray-100 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold">카테고리</label>
             <select value={category} onChange={e => setCategory(e.target.value)}
-              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all">
+              className={`h-12 px-4 bg-gray-50 border rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all ${!category ? 'border-red-500' : 'border-gray-200'}`}>
               {GROUP_CATEGORIES.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-base font-semibold">모집 상태</label>
-            <select value={status} onChange={e => setStatus(e.target.value)}
-              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all">
-              <option value="recruiting">모집중</option>
-              <option value="recruited">모집완료</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
             <label className="text-base font-semibold">모집 인원</label>
             <input type="number" min={1} value={recruitCount} onChange={e => setRecruitCount(e.target.value)}
-              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="예: 5" />
+              className={`h-12 px-4 bg-gray-50 border rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all ${!recruitCount ? 'border-red-500' : 'border-gray-200'}`} placeholder="예: 5" />
           </div>
-          {/* 모집 마감일: calendar UI 적용 */}
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold">모집 마감일</label>
             <DatePicker
               selected={deadline}
               onChange={(date: Date | null) => setDeadline(date)}
               dateFormat="yyyy-MM-dd"
-              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all w-full"
-              placeholderText="마감일을 선택하세요"
-              calendarClassName="rounded-xl border border-gray-200 shadow-lg"
-              popperPlacement="bottom"
-              minDate={new Date()}
-              showPopperArrow={false}
+              className={`h-12 px-4 bg-gray-50 border rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all ${!deadline ? 'border-red-500' : 'border-gray-200'}`}
+              placeholderText="마감일 선택"
             />
+          </div>
+          {/* 비용/화폐단위 입력란 */}
+          <div className="grid grid-cols-3 gap-2 md:col-span-1">
+            <div className="flex flex-col col-span-2">
+              <label className="text-base font-semibold">비용</label>
+              <input type="number" min={0} value={cost} onChange={e => setCost(e.target.value)}
+                className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="예: 10000" />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-base font-semibold">화폐</label>
+              <select value={currency} onChange={e => setCurrency(e.target.value)}
+                className="h-12 px-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all">
+                <option value="KRW">₩</option>
+                <option value="USD">$</option>
+                <option value="JPY">¥</option>
+                <option value="CNY">¥</option>
+                <option value="EUR">€</option>
+              </select>
+            </div>
+          </div>
+          {/* 장소 유형 선택 */}
+          <div className="flex flex-col gap-2 col-span-2">
+            <label className="text-base font-semibold">장소 유형</label>
+            <select value={locationType} onChange={e => setLocationType(e.target.value)}
+              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all">
+              <option value="offline">오프라인</option>
+              <option value="online">온라인</option>
+              <option value="both">온/오프라인</option>
+            </select>
+          </div>
+          {/* 장소 입력란 */}
+          <div className="flex flex-col gap-2 col-span-2">
+            <label className="text-base font-semibold">장소</label>
+            <input type="text" value={location} onChange={e => setLocation(e.target.value)}
+              className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="예: 서울 강남구, 온라인 등" />
           </div>
         </div>
         {/* 태그/AI 도구/모델 */}
@@ -241,6 +283,8 @@ export default function GroupRegisterPage() {
             </div>
           )}
           <EditorContent editor={editor} />
+          {/* 상세소개가 비어있으면 빨간 테두리 */}
+          {!description && <div className="mt-1 text-xs text-red-500">상세 소개는 필수입니다.</div>}
         </div>
         {/* 등록 버튼 */}
         <div className="flex justify-end px-8">
