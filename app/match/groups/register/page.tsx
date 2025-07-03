@@ -15,7 +15,7 @@ import { useUserProfile } from '@/app/lib/useUserProfile';
 export default function GroupRegisterPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(GROUP_CATEGORIES[0].id);
-  const [status, setStatus] = useState("모집중");
+  const [status, setStatus] = useState("recruiting");
   const [deadline, setDeadline] = useState<Date|null>(null);
   const [description, setDescription] = useState("");
   const [recruitCount, setRecruitCount] = useState("");
@@ -99,7 +99,7 @@ export default function GroupRegisterPage() {
     }
     // deadline 포맷 변환
     let deadlineStr = deadline ? deadline.toISOString().slice(0, 10) : null;
-    const { error } = await supabase.from('groups').insert({
+    const { data: groupInsertData, error: groupInsertError } = await supabase.from('groups').insert({
       user_id: profile.clerk_user_id,
       title,
       category,
@@ -110,10 +110,21 @@ export default function GroupRegisterPage() {
       image_url,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    });
-    if (error) {
-      alert('등록에 실패했습니다: ' + error.message);
+      status,
+      current_count: 1,
+    }).select('id'); // id 반환
+    if (groupInsertError) {
+      alert('등록에 실패했습니다: ' + groupInsertError.message);
     } else {
+      // group_members에 leader로 본인 추가
+      const groupId = groupInsertData && groupInsertData[0]?.id;
+      if (groupId) {
+        await supabase.from('group_members').insert({
+          group_id: groupId,
+          user_id: profile.clerk_user_id,
+          role: 'leader',
+        });
+      }
       alert('모임이 성공적으로 등록되었습니다!');
       // 폼 초기화
       setTitle("");
@@ -171,8 +182,8 @@ export default function GroupRegisterPage() {
             <label className="text-base font-semibold">모집 상태</label>
             <select value={status} onChange={e => setStatus(e.target.value)}
               className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all">
-              <option>모집중</option>
-              <option>모집완료</option>
+              <option value="recruiting">모집중</option>
+              <option value="recruited">모집완료</option>
             </select>
           </div>
           <div className="flex flex-col gap-2">

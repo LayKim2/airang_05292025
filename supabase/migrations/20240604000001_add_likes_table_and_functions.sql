@@ -179,9 +179,11 @@ CREATE TABLE groups (
   deadline DATE, -- 모집 마감일
   recruit_count INTEGER, -- 모집 인원
   description TEXT, -- 상세 소개(HTML)
-  image_url TEXT, -- 대표 이미지
+  image_url TEXT, -- 대표 이미지,
+  status VARCHAR(30) DEFAULT 'recruiting', -- 모집 상태 (recruiting/recruited)
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  current_count INTEGER NOT NULL DEFAULT 1
 );
 
 -- Add comments to the groups table and columns
@@ -196,9 +198,30 @@ COMMENT ON COLUMN public.groups.description IS 'Detailed group description (HTML
 COMMENT ON COLUMN public.groups.image_url IS 'Main image URL';
 COMMENT ON COLUMN public.groups.created_at IS 'Creation timestamp';
 COMMENT ON COLUMN public.groups.updated_at IS 'Last update timestamp';
+COMMENT ON COLUMN public.groups.current_count IS 'Current number of people in the group';
 
 -- Create indexes for groups table (performance optimization)
 CREATE INDEX idx_groups_category ON groups(category);
 CREATE INDEX idx_groups_created_at ON groups(created_at DESC);
 CREATE INDEX idx_groups_user_id ON groups(user_id);
 CREATE INDEX idx_groups_ai_tools ON groups USING GIN(ai_tools);
+CREATE INDEX idx_groups_status ON groups(status);
+
+-- [MCP] 그룹 참여자 테이블 (group_members)
+CREATE TABLE group_members (
+  id BIGSERIAL PRIMARY KEY,
+  group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  role VARCHAR(30) DEFAULT 'member', -- member/leader 등 역할 구분
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(group_id, user_id)
+);
+
+COMMENT ON TABLE public.group_members IS 'Stores group membership (참여자) information for each group.';
+COMMENT ON COLUMN public.group_members.group_id IS 'Reference to the group.';
+COMMENT ON COLUMN public.group_members.user_id IS 'Reference to the user who joined the group.';
+COMMENT ON COLUMN public.group_members.role IS 'Role in the group (leader/member).';
+COMMENT ON COLUMN public.group_members.created_at IS 'Join timestamp.';
+
+CREATE INDEX idx_group_members_group_id ON group_members(group_id);
+CREATE INDEX idx_group_members_user_id ON group_members(user_id);
