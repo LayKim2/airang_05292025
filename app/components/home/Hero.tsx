@@ -1,19 +1,90 @@
 "use client"
 
 import { Button } from "@/app/components/ui/button"
-import { Users, UserPlus } from "lucide-react"
-import { ServiceCarousel } from "@/app/components/home/ServiceCarousel"
-import { motion } from "framer-motion"
+import { Users, UserPlus, ChevronRight, Heart, Eye, MessageCircle, TrendingUp } from "lucide-react"
+import { motion, easeInOut } from "framer-motion"
 import { useRouter } from 'next/navigation'
 import { useTranslation } from "@/app/i18n/useTranslation"
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { Badge } from "@/app/components/ui/badge"
+import { AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import { categories, categoryIconMap, categoryBgMap, categoryTextMap } from "@/app/data/categories"
+import React from "react"
 
-interface HeroProps {
-  services: any[] // TODO: Add proper type
-}
-
-export function Hero({ services }: HeroProps) {
+export function Hero() {
   const router = useRouter();
   const { t } = useTranslation();
+  // MCP: 실제 서비스 테이블 데이터 상태
+  const [services, setServices] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  // Carousel state
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [direction, setDirection] = useState(0)
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const { data, error } = await supabase.from('services').select('*, users:author_id(*)')
+        if (error) throw error
+        setServices(data || [])
+      } catch (e: any) {
+        setError(e.message || '서비스 데이터를 불러오지 못했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchServices()
+  }, [])
+
+  useEffect(() => {
+    if (!isAutoPlaying || services.length === 0) return;
+    const interval = setInterval(() => {
+      setDirection(1)
+      setCurrentIndex((prev) => (prev + 1) % services.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [services.length, isAutoPlaying])
+
+  const nextSlide = () => {
+    setDirection(1)
+    setCurrentIndex((prev) => (prev + 1) % services.length)
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 10000)
+  }
+
+  const prevSlide = () => {
+    setDirection(-1)
+    setCurrentIndex((prev) => (prev - 1 + services.length) % services.length)
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 10000)
+  }
+
+  const currentService = services[currentIndex]
+  const category = currentService ? categories.find(cat => cat.id === currentService.category) : undefined;
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 600 : -600,
+      opacity: 0,
+      scale: 0.95
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 600 : -600,
+      opacity: 0,
+      scale: 0.95
+    })
+  }
 
   // 애니메이션 config 재사용
   const orbAnimation = {
@@ -24,9 +95,9 @@ export function Hero({ services }: HeroProps) {
       y: [0, -20, 0],
     },
     transition: {
-      duration: 16, // 기존 8에서 16으로 늘림
+      duration: 16, 
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const orb2Animation = {
@@ -37,9 +108,9 @@ export function Hero({ services }: HeroProps) {
       y: [0, 20, 0],
     },
     transition: {
-      duration: 20, // 기존 10에서 20으로 늘림
+      duration: 20, 
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const float1 = {
@@ -50,7 +121,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 20, // 기존 10에서 20으로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
   const float2 = {
@@ -61,7 +132,7 @@ export function Hero({ services }: HeroProps) {
     transition: {
       duration: 24, // 기존 12에서 24로 늘림
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: easeInOut,
     }
   }
 
@@ -108,7 +179,172 @@ export function Hero({ services }: HeroProps) {
               <h2 className="text-3xl font-bold text-white mb-2">{t('heroServiceTitle')}</h2>
               <p className="text-gray-300">{t('heroServiceDesc')}</p>
             </motion.div>
-            <ServiceCarousel services={services} />
+            {services.length > 0 && (
+              <div className="relative max-w-lg lg:max-w-xl mx-auto">
+                <AnimatePresence initial={false} custom={direction} mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 200, damping: 25 },
+                      opacity: { duration: 0.2 }
+                    }}
+                    className="relative bg-gray-800/80 backdrop-blur-md rounded-3xl shadow-xl border border-white/10 overflow-hidden group"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.35}
+                    whileDrag={{ scale: 0.96, boxShadow: "0 8px 32px 0 rgba(80, 80, 160, 0.18)" }}
+                    onDragEnd={(event, info) => {
+                      if (info.offset.x < -80) {
+                        nextSlide();
+                      } else if (info.offset.x > 80) {
+                        prevSlide();
+                      }
+                    }}
+                  >
+                    <div className="relative overflow-hidden">
+                      {currentService ? (
+                        <Image
+                          src={currentService.image_url || "/placeholder.svg"}
+                          alt={currentService.title}
+                          width={600}
+                          height={360}
+                          className="w-full h-64 lg:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-64 lg:h-80 bg-gray-200" />
+                      )}
+                      {category && (
+                        <Badge className={
+                          `absolute top-3 sm:top-4 right-3 sm:right-4 ${categoryBgMap[category.id] || 'bg-gray-50'} ${categoryTextMap[category.id] || 'text-gray-700'} border-0 font-semibold text-xs sm:text-sm border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300 z-10`
+                        }>
+                          {categoryIconMap[category.id] && React.createElement(categoryIconMap[category.id], { className: "w-3 h-3" })}
+                          <span className="font-semibold">{category.name}</span>
+                        </Badge>
+                      )}
+                      {/* Navigation Buttons */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={prevSlide}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-gray-800/80 hover:bg-gray-800 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-5 h-5 rotate-180" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={nextSlide}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-gray-800/80 hover:bg-gray-800 shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </Button>
+                    </div>
+                    <div className="p-8">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-3">
+                            {currentService.title}
+                          </h3>
+                          <p className="text-gray-300 leading-relaxed">
+                            {currentService.description}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.isArray(currentService.ai_tools) && currentService.ai_tools.length > 0 &&
+                            currentService.ai_tools.map((tool: string, toolIndex: number) => (
+                              <Badge key={toolIndex} variant="secondary" className="bg-white/10 text-gray-200 text-sm font-medium">
+                                {tool}
+                              </Badge>
+                            ))
+                          }
+                        </div>
+                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                          {/* 서비스 작성자 정보: 프로필 이미지, 이름, by 텍스트를 modern하게 표시 */}
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-gray-400">by</span>
+                            <span className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                              {currentService.users?.avatar_url && (
+                                <Image
+                                  src={currentService.users.avatar_url}
+                                  alt={(currentService.users?.first_name || '') + (currentService.users?.last_name ? ' ' + currentService.users.last_name : '')}
+                                  width={28}
+                                  height={28}
+                                  className="rounded-full object-cover border border-gray-200 shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg bg-white dark:bg-gray-800"
+                                />
+                              )}
+                              <span className="ml-1">
+                                <span className="text-white dark:text-gray-100">
+                                  {currentService.users?.first_name || ''}{currentService.users?.last_name ? ' ' + currentService.users.last_name : ''}
+                                </span>
+                              </span>
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-4 text-gray-400">
+                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
+                              <Heart className="w-4 h-4" />
+                              <span className="font-medium text-sm">{currentService.likes}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
+                              <Eye className="w-4 h-4" />
+                              <span className="font-medium text-sm">{currentService.views}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
+                              <MessageCircle className="w-4 h-4" />
+                              <span className="font-medium text-sm">{currentService.comments}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {/* [MCP] 데모 URL 버튼: 서비스 데모 체험 */}
+                        <div className="w-full mt-4">
+                          <Button
+                            className="w-full bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-semibold text-base py-3"
+                            onClick={() => {
+                              if (!currentService.demo_url) return;
+                              let url = currentService.demo_url;
+                              if (url && !/^https?:\/\//i.test(url)) {
+                                url = 'https://' + url;
+                              }
+                              window.open(url, '_blank', 'noopener,noreferrer,width=1200,height=800');
+                            }}
+                            disabled={!currentService.demo_url}
+                          >
+                            {t('tryDemo')}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+                {/* Dots Indicator */}
+                <div className="flex justify-center space-x-2 mt-6">
+                  {services.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setDirection(index > currentIndex ? 1 : -1)
+                        setCurrentIndex(index)
+                        setIsAutoPlaying(false)
+                        setTimeout(() => setIsAutoPlaying(true), 10000)
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentIndex ? "bg-violet-500 w-8" : "bg-gray-600 hover:bg-gray-500"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {/* Service Counter */}
+                <div className="text-center mt-4">
+                  <span className="text-sm text-gray-400">
+                    {currentIndex + 1} / {services.length}
+                  </span>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Right Content - Text Content */}

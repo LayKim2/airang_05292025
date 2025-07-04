@@ -140,6 +140,11 @@
   - Consider database optimization as data grows
   - Plan for potential migration to more robust solutions if needed
 
+# Localization & Static Text
+- When adding fixed/static text to the project, always implement it so that it supports language switching (i18n) according to the current language setting.
+- All user-facing static text must be managed through the project's i18n system (e.g., translation files), not hardcoded in components.
+- The project must support all four languages: Korean, English, Japanese, and Chinese (as translation JSON files for all four exist in the project). All static text must be translated and available in these four languages.
+
 # --- Deprecated/Commented Backend Rules ---
 # - All backend logic and API implementations must be designed for and assume the use of `Cloudflare Workers`. Focus on solutions that leverage the Workers runtime and its ecosystem.
 # - For all user authentication and management UI/features, `Clerk` must be used. Provide guidance on integrating Clerk with Next.js and Cloudflare Workers.

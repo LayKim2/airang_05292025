@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react"
+import React from "react"
 
 export interface Service {
   id: number
@@ -31,9 +32,6 @@ export interface CommunityMember {
 export interface Category {
   id: string
   name: string
-  icon: LucideIcon
-  count: number
-  color: string
 }
 
 export interface Feature {
@@ -53,4 +51,40 @@ export interface User {
   created_at?: string;
   last_sign_in_at?: string;
   updated_at?: string;
-} 
+}
+
+export type Post = {
+    id: number;
+    author_id: string;
+    content: string;
+    category: string;
+    tags: string[];
+    created_at: string;
+    updated_at: string;
+    like_count: number;
+    is_published: boolean;
+    is_featured: boolean;
+    liked_by_user?: boolean;
+    view_count?: number;
+    users?: {
+      first_name: string | null;
+      last_name: string | null;
+      avatar_url: string | null;
+      role?: string;
+    };
+}
+
+export type Like = {
+    id: number;
+    user_id: string;
+    post_id: number;
+    created_at: string;
+}
+
+// [AI 모임] 1차 카테고리(워크샵/실습 제외, 기본값)
+export const GROUP_CATEGORIES: Category[] = [
+  { id: 'study', name: '스터디' },
+  { id: 'networking', name: '네트워킹' },
+  { id: 'meetup', name: '밋업/세미나' },
+  { id: 'free', name: '자유모임' },
+]; 
