@@ -36,6 +36,8 @@
   "heroDescLong": "AIサービスを作りたいクリエイターが集まり、アイデアを共有し、プロジェクトを通じて共に成長するコミュニティです。",
   "heroCommunityBtn": "コミュニティに参加",
   "heroMatchBtn": "チームと専門家のマッチング",
+  "heroGroupsBtn": "AIグループを見る",
+  "heroServicesBtn": "AIサービスをもっと見る",
   "formName": "お名前",
   "formEmail": "メールアドレス",
   "formServiceDescription": "サービス説明",
@@ -311,7 +313,9 @@
     "aiServices": "AIサービス",
     "community": "コミュニティ",
     "match": "マッチング/グループ",
-    "aiTools": "AIツール"
+    "aiTools": "AIツール",
+    "myPage": "マイページ",
+    "mainMenu": "メインメニュー"
   },
   "matchGroupCardTitle": "AIクリエイターグループ",
   "matchGroupCardDesc": "同じAIツールを使うクリエイターとグループを作成・参加しましょう。",

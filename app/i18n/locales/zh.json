@@ -36,6 +36,8 @@
   "heroDescLong": "这是一个想要开发AI服务的创作者聚集在一起，分享想法，通过项目共同成长的社区。",
   "heroCommunityBtn": "加入社区",
   "heroMatchBtn": "团队与专家匹配",
+  "heroGroupsBtn": "浏览AI小组",
+  "heroServicesBtn": "更多AI服务",
   "formName": "姓名",
   "formEmail": "电子邮箱",
   "formServiceDescription": "服务描述",
@@ -313,7 +315,9 @@
     "aiServices": "AI服务",
     "community": "社区",
     "match": "匹配/小组",
-    "aiTools": "AI工具"
+    "aiTools": "AI工具",
+    "myPage": "我的页面",
+    "mainMenu": "主菜单"
   },
   "matchGroupCardTitle": "AI创作者小组",
   "matchGroupCardDesc": "与使用相似AI工具的创作者一起创建或加入小组。",

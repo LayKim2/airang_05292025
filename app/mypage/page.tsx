@@ -489,7 +489,7 @@ const MyPage = () => {
 
   return (
     // [MYPAGE][MCP] 전체 배경 그라데이션, 카드 soft shadow+border+hover, 사이드 메뉴 blur/투명도 등으로 세련된 느낌 강화
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-20">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-[104px] sm:pt-20">
       {/* [MCP] 왼쪽 고정 사이드 메뉴: blur/투명도 효과 추가, 모바일에서는 숨김 */}
       <aside className="hidden sm:flex w-80 bg-white/90 backdrop-blur-md shadow-xl flex-col p-6 gap-8 border-r border-gray-100 min-h-screen">
         {/* [MCP] 마이페이지 타이틀+아이콘 */}

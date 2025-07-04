@@ -260,7 +260,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <main className="min-h-screen pt-14 sm:pt-16">
+    <main className="min-h-screen pt-[104px] sm:pt-16">
       {/* Hero Section */}
       <section className="relative py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white">
         {/* Modern Background Elements */}

@@ -92,7 +92,7 @@ export default function GroupsPage() {
   );
 
   return (
-    <main className="min-h-screen pt-14 sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[104px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h1

@@ -187,7 +187,7 @@ export default function GroupRegisterPage() {
   };
 
   return (
-    <main className="mt-16 min-h-screen pt-14 sm:pt-16 bg-gray-100">
+    <main className="pt-[104px] sm:pt-16 min-h-screen bg-gray-100">
       <form className="w-full max-w-3xl mx-auto bg-white border border-gray-200 shadow-sm px-0 sm:px-8 py-10 flex flex-col gap-8" onSubmit={handleSubmit}>
         {/* 타이틀 */}
         <h1 className="text-2xl font-bold text-gray-900 mb-2 px-8">{t('groups.register.title')}</h1>
