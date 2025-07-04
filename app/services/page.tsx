@@ -13,6 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { supabase } from '@/lib/supabase'
 import { useUserProfile } from '@/app/lib/useUserProfile'
 import { useClerk } from '@clerk/nextjs'
+import SiteLoader from "@/app/components/ui/SiteLoader";
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -458,9 +459,7 @@ export default function ServicesPage() {
           </motion.div>
 
           {/* 로딩/에러/빈 상태 처리 */}
-          {loading && (
-            <div className="text-center py-12 text-gray-500">{t('loading')}</div>
-          )}
+          {loading && <SiteLoader text={t('loading')} />}
           {error && (
             <div className="text-center py-12 text-red-500">{error}</div>
           )}

@@ -176,7 +176,8 @@ CREATE TABLE groups (
   title VARCHAR(100) NOT NULL, -- 모임명
   category VARCHAR(100) NOT NULL, -- 카테고리
   ai_tools TEXT[] DEFAULT '{}', -- 관련 AI 도구/모델
-  deadline DATE, -- 모집 마감일
+  meeting_type VARCHAR(30), -- 모임 유형 (one_time/recurring)
+  meeting_date DATE, -- 모임 일자/시작일
   recruit_count INTEGER, -- 모집 인원
   description TEXT, -- 상세 소개(HTML)
   image_url TEXT, -- 대표 이미지,
@@ -196,7 +197,8 @@ COMMENT ON COLUMN public.groups.user_id IS 'Reference to the user who created th
 COMMENT ON COLUMN public.groups.title IS 'Group title (모임명)';
 COMMENT ON COLUMN public.groups.category IS 'Group category';
 COMMENT ON COLUMN public.groups.ai_tools IS 'Array of related AI tools/models';
-COMMENT ON COLUMN public.groups.deadline IS 'Recruitment deadline';
+COMMENT ON COLUMN public.groups.meeting_type IS 'Group meeting type (one_time/recurring)';
+COMMENT ON COLUMN public.groups.meeting_date IS 'Group meeting date (일회성: 모임일자, 정기: 시작일)';
 COMMENT ON COLUMN public.groups.recruit_count IS 'Number of people to recruit';
 COMMENT ON COLUMN public.groups.description IS 'Detailed group description (HTML)';
 COMMENT ON COLUMN public.groups.image_url IS 'Main image URL';
@@ -231,3 +233,17 @@ COMMENT ON COLUMN public.group_members.created_at IS 'Join timestamp.';
 
 CREATE INDEX idx_group_members_group_id ON group_members(group_id);
 CREATE INDEX idx_group_members_user_id ON group_members(user_id);
+
+-- [MCP] 그룹 북마크 테이블
+CREATE TABLE group_bookmarks (
+  id BIGSERIAL PRIMARY KEY,
+  group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(group_id, user_id)
+);
+
+COMMENT ON TABLE public.group_bookmarks IS 'Stores which user bookmarked which group.';
+COMMENT ON COLUMN public.group_bookmarks.group_id IS 'Reference to the group.';
+COMMENT ON COLUMN public.group_bookmarks.user_id IS 'Reference to the user who bookmarked the group.';
+COMMENT ON COLUMN public.group_bookmarks.created_at IS 'Bookmark creation timestamp.';

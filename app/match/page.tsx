@@ -136,10 +136,6 @@ export default function MatchPage() {
 
   // [MCP] AI 크리에이터 모임 버튼 핸들러: 로그인 안 했으면 Clerk 로그인 팝업
   const handleGroupButton = () => {
-    if (!isSignedIn) {
-      openSignIn();
-      return;
-    }
     router.push("/match/groups");
   };
 

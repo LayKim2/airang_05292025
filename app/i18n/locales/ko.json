@@ -239,9 +239,13 @@
     }
   },
   "common": {
+    "loading": "로딩 중...",
+    "error": "에러가 발생했습니다.",
     "cancel": "취소",
-    "submit": "등록",
-    "add": "추가"
+    "delete": "삭제",
+    "deleting": "삭제 중...",
+    "expert": "전문가",
+    "creator": "크리에이터"
   },
   "matchExpertCardTitle": "AI 전문가 조회",
   "matchExpertCardDesc": "다양한 분야의 전문가를 한눈에 확인하고, 원하는 전문가를 찾아보세요.",
@@ -314,5 +318,159 @@
   },
   "matchGroupCardTitle": "AI 크리에이터 모임",
   "matchGroupCardDesc": "비슷한 AI 도구를 사용하는 크리에이터들과 모임을 만들고 참여하세요.",
-  "matchGroupCardButton": "모임 만들기/찾기"
+  "matchGroupCardButton": "모임 만들기/찾기",
+  "groups": {
+    "title": "AI 크리에이터 모임",
+    "goToServices": "AI 서비스 둘러보기 & 홍보하기",
+    "categoryAll": "전체",
+    "category": {
+      "study": "스터디",
+      "networking": "네트워킹",
+      "meetup": "밋업/세미나",
+      "free": "자유모임"
+    },
+    "searchPlaceholder": "모임명, 설명 검색...",
+    "registerButton": "모임 등록",
+    "loading": "모임 목록을 불러오는 중...",
+    "noResults": "검색 결과가 없습니다.",
+    "status": {
+      "recruiting": "모집중",
+      "completed": "모집완료"
+    },
+    "imageAlt": "대표 이미지",
+    "meetingType": {
+      "one_time": "일자",
+      "recurring": "시작일"
+    },
+    "dateLocale": "ko-KR",
+    "aiTools": "AI 도구/모델",
+    "register": {
+      "title": "AI 크리에이터 모임 등록",
+      "imageLabel": "대표 이미지 (선택)",
+      "uploadImage": "이미지 업로드",
+      "preview": "미리보기",
+      "groupName": "모임명",
+      "groupNamePlaceholder": "모임명을 입력하세요",
+      "recruitCount": "모집 인원",
+      "recruitCountPlaceholder": "예: 5",
+      "meetingType": "모임 유형",
+      "meetingTypeOneTime": "일회성 모임",
+      "meetingTypeRecurring": "정기 모임",
+      "meetingDate": "모임 일자",
+      "startDate": "모임 시작일",
+      "selectMeetingDate": "모임 일자 선택",
+      "selectStartDate": "시작일 선택",
+      "locationType": "장소 유형",
+      "locationTypeOffline": "오프라인",
+      "locationTypeOnline": "온라인",
+      "locationTypeBoth": "온/오프라인",
+      "cost": "비용",
+      "costPlaceholder": "예: 10000",
+      "currency": "화폐",
+      "location": "장소",
+      "locationPlaceholder": "예: 서울 강남구, 온라인 등",
+      "aiTools": "관련 AI 도구/모델",
+      "aiToolsPlaceholder": "예: ChatGPT, Stable Diffusion, Gemini 등, 입력 후 Enter",
+      "description": "상세 소개",
+      "image": "이미지",
+      "descriptionRequired": "상세 소개는 필수입니다.",
+      "submitButton": "모임 등록",
+      "closeModal": "팝업 닫기",
+      "successMessage": "모임이 성공적으로 등록되었습니다!",
+      "confirm": "확인",
+      "imageSizeError": "대표 이미지는 최대 1MB까지만 업로드할 수 있습니다.",
+      "editorImageSizeError": "이미지 파일은 최대 1MB까지만 업로드할 수 있습니다.",
+      "loginRequired": "로그인이 필요합니다.",
+      "requiredFieldsError": "필수 항목을 입력해 주세요. (모임 유형, 모임 일자/시작일 포함)",
+      "imageUploadError": "이미지 업로드 실패: ",
+      "registrationError": "등록에 실패했습니다: "
+    },
+    "detail": {
+      "loading": "로딩 중...",
+      "notFound": "그룹 정보를 찾을 수 없습니다.",
+      "defaultTitle": "AIrang 그룹",
+      "defaultDescription": "AI 크리에이터 모임",
+      "unbookmark": "북마크 해제",
+      "bookmark": "북마크 추가",
+      "shareLink": "링크 공유",
+      "organizer": "주최자",
+      "registrationDate": "등록일",
+      "memberCount": "명",
+      "locationOnline": "온라인",
+      "locationOffline": "오프라인",
+      "locationBoth": "온/오프라인",
+      "free": "무료",
+      "meetingType": "모임 유형",
+      "description": "모임 소개",
+      "recruitmentClosed": "모집 마감",
+      "alreadyJoined": "이미 참여 중",
+      "joinButton": "참여하기",
+      "linkCopied": "링크가 복사되었습니다!"
+    }
+  },
+  "mypage": {
+    "title": "마이페이지",
+    "menu": {
+      "profile": "기본정보",
+      "expertStatus": "전문가 신청"
+    },
+    "tab": {
+      "services": "내 AI 서비스",
+      "posts": "내 포스트",
+      "likedPosts": "좋아요한 포스트",
+      "likedServices": "좋아요한 서비스"
+    },
+    "section": {
+      "myServices": "내 AI 서비스",
+      "myPosts": "내 포스트",
+      "likedPosts": "좋아요한 포스트",
+      "likedServices": "좋아요한 서비스"
+    },
+    "empty": {
+      "myServices": "등록된 서비스가 없습니다.",
+      "myPosts": "작성한 포스트가 없습니다.",
+      "likedPosts": "좋아요한 포스트가 없습니다.",
+      "likedServices": "좋아요한 서비스가 없습니다."
+    },
+    "delete": {
+      "serviceTitle": "서비스 삭제",
+      "serviceDesc": "이 서비스를 삭제하시겠습니까?",
+      "postTitle": "포스트 삭제",
+      "postDesc": "이 포스트를 삭제하시겠습니까?"
+    },
+    "expert": {
+      "applicationDate": "신청일",
+      "approvalDate": "승인일",
+      "jobTitle": "직무",
+      "notEntered": "미입력",
+      "noBio": "한줄 소개 없음",
+      "aiTools": "전문 AI 도구/모델",
+      "externalProfiles": "외부 프로필/포트폴리오",
+      "portfolio": "포트폴리오",
+      "etc": "기타",
+      "noExternalProfiles": "외부 프로필 없음",
+      "noApplication": "아직 전문가 신청 내역이 없습니다.",
+      "applyNow": "전문가 신청하기"
+    },
+    "profile": {
+      "email": "이메일",
+      "noEmail": "이메일 없음",
+      "joinDate": "가입일",
+      "phone": "핸드폰번호"
+    },
+    "service": {
+      "aiService": "AI 서비스",
+      "editService": "서비스 수정",
+      "deleteService": "서비스 삭제",
+      "aiTools": "AI Tools",
+      "tryDemo": "데모 체험",
+      "by": "by"
+    },
+    "post": {
+      "me": "나",
+      "editPost": "포스트 수정",
+      "deletePost": "포스트 삭제",
+      "unlike": "좋아요 취소"
+    }
+  }
 } 

@@ -10,8 +10,10 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import Image from "next/image";
 import { Badge } from "@/app/components/ui/badge";
 import PostCreateModal from "@/app/components/community/PostCreateModal";
+import { useTranslation } from "@/app/i18n/useTranslation";
 
 const MyPage = () => {
+  const { t } = useTranslation();
   // [MCP] 데모용 역할/탭 상태
   const [userRole, setUserRole] = useState<'creator' | 'expert'>('expert');
   // [MCP] 기본 activeTab을 'services'(내 AI 서비스)로 변경, 타입 명시
@@ -337,8 +339,8 @@ const MyPage = () => {
   };
   // [MCP] 사이드 메뉴 항목
   const menuItems = [
-    { id: 'profile', label: '기본정보', icon: User },
-    { id: 'expert-status', label: '전문가 신청', icon: Award }
+    { id: 'profile', label: t('mypage.menu.profile'), icon: User },
+    { id: 'expert-status', label: t('mypage.menu.expertStatus'), icon: Award }
   ];
   // [MCP] 기본정보 메뉴 클릭 시 '내 AI 서비스'가 기본으로 보이게 기능 수정
   const handleMenuItemClick = (id: string) => {
@@ -493,7 +495,7 @@ const MyPage = () => {
         {/* [MCP] 마이페이지 타이틀+아이콘 */}
         <div className="flex items-center gap-2 mb-6">
           <User className="w-6 h-6 text-blue-500" />
-          <span className="text-lg font-bold text-gray-800">마이페이지</span>
+          <span className="text-lg font-bold text-gray-800">{t('mypage.title')}</span>
         </div>
         {/* 네비게이션 메뉴 (유지) */}
         <nav className="space-y-2">
@@ -523,9 +525,9 @@ const MyPage = () => {
                 {!expertLoading && !expertError && expertApplication && (
                   <>
                     {getStatusBadge(expertApplication.status)}
-                    <span className="inline-block bg-blue-100 text-blue-600 rounded-full px-3 py-1 text-xs font-semibold">신청일: {expertApplication.created_at ? expertApplication.created_at.split('T')[0] : '-'}</span>
+                    <span className="inline-block bg-blue-100 text-blue-600 rounded-full px-3 py-1 text-xs font-semibold">{t('mypage.expert.applicationDate')}: {expertApplication.created_at ? expertApplication.created_at.split('T')[0] : '-'}</span>
                     {expertApplication.reviewed_at && (
-                      <span className="inline-block bg-green-100 text-green-600 rounded-full px-3 py-1 text-xs font-semibold">승인일: {expertApplication.reviewed_at.split('T')[0]}</span>
+                                              <span className="inline-block bg-green-100 text-green-600 rounded-full px-3 py-1 text-xs font-semibold">{t('mypage.expert.approvalDate')}: {expertApplication.reviewed_at.split('T')[0]}</span>
                     )}
                   </>
                 )}
@@ -543,8 +545,8 @@ const MyPage = () => {
                       <span className="text-xl font-bold text-gray-900">{expertApplication.name || userData.name}</span>
                       <span className="text-base font-semibold text-blue-500">{expertApplication.ai_category || '-'}</span>
                     </div>
-                    <div className="text-sm text-gray-700">직무: <span className="font-medium">{expertApplication.job_title || '미입력'}</span></div>
-                    <div className="text-sm text-gray-500">{expertApplication.bio || '한줄 소개 없음'}</div>
+                    <div className="text-sm text-gray-700">{t('mypage.expert.jobTitle')}: <span className="font-medium">{expertApplication.job_title || t('mypage.expert.notEntered')}</span></div>
+                    <div className="text-sm text-gray-500">{expertApplication.bio || t('mypage.expert.noBio')}</div>
                   </div>
                 </div>
               )}
@@ -553,7 +555,7 @@ const MyPage = () => {
               {/* [MCP] AI 도구/모델 pill row */}
               {!expertLoading && !expertError && expertApplication && (
                 <div className="px-8 pb-2">
-                  <div className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2"><Bot className="w-4 h-4 text-blue-400" />전문 AI 도구/모델</div>
+                  <div className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2"><Bot className="w-4 h-4 text-blue-400" />{t('mypage.expert.aiTools')}</div>
                   {/* [MCP] pill row: 모바일 가로 스크롤, 데스크탑 flex-wrap */}
                   <div className="overflow-x-auto flex-nowrap whitespace-nowrap gap-2 flex -mx-8 px-8 sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
                     {(expertApplication.ai_tools || []).length > 0 ? (
@@ -571,7 +573,7 @@ const MyPage = () => {
               {/* [MCP] 외부 프로필/포트폴리오 링크 row */}
               {!expertLoading && !expertError && expertApplication && (
                 <div className="px-8 pb-8">
-                  <div className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2"><Star className="w-4 h-4 text-yellow-400" />외부 프로필/포트폴리오</div>
+                  <div className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2"><Star className="w-4 h-4 text-yellow-400" />{t('mypage.expert.externalProfiles')}</div>
                   <div className="flex flex-col gap-2">
                     {expertApplication.github_url && (
                       <a href={expertApplication.github_url} target="_blank" className="flex items-center gap-2 text-blue-600 hover:underline hover:scale-105 transition-transform group">
@@ -585,16 +587,16 @@ const MyPage = () => {
                     )}
                     {expertApplication.portfolio_url && (
                       <a href={expertApplication.portfolio_url} target="_blank" className="flex items-center gap-2 text-blue-600 hover:underline hover:scale-105 transition-transform group">
-                        <Star className="w-4 h-4 group-hover:text-blue-700" /> 포트폴리오 <ChevronRight className="w-4 h-4 text-blue-300 group-hover:translate-x-1 transition-transform" />
+                        <Star className="w-4 h-4 group-hover:text-blue-700" /> {t('mypage.expert.portfolio')} <ChevronRight className="w-4 h-4 text-blue-300 group-hover:translate-x-1 transition-transform" />
                       </a>
                     )}
                     {expertApplication.etc_url && (
                       <a href={expertApplication.etc_url} target="_blank" className="flex items-center gap-2 text-blue-600 hover:underline hover:scale-105 transition-transform group">
-                        <Star className="w-4 h-4 group-hover:text-blue-700" /> 기타 <ChevronRight className="w-4 h-4 text-blue-300 group-hover:translate-x-1 transition-transform" />
+                        <Star className="w-4 h-4 group-hover:text-blue-700" /> {t('mypage.expert.etc')} <ChevronRight className="w-4 h-4 text-blue-300 group-hover:translate-x-1 transition-transform" />
                       </a>
                     )}
                     {!(expertApplication.github_url || expertApplication.linkedin_url || expertApplication.portfolio_url || expertApplication.etc_url) && (
-                      <span className="text-xs text-gray-400">외부 프로필 없음</span>
+                      <span className="text-xs text-gray-400">{t('mypage.expert.noExternalProfiles')}</span>
                     )}
                   </div>
                 </div>
@@ -602,9 +604,9 @@ const MyPage = () => {
               {/* [MCP] 신청 내역이 없을 때 신청 버튼만 렌더링 */}
               {!expertLoading && !expertError && !expertApplication && (
                 <div className="flex flex-col items-center justify-center min-h-[300px] py-12 bg-gradient-to-br from-white/80 via-blue-50/70 to-violet-50/60">
-                  <div className="text-gray-500 mb-8 text-lg font-medium">아직 전문가 신청 내역이 없습니다.</div>
+                  <div className="text-gray-500 mb-8 text-lg font-medium">{t('mypage.expert.noApplication')}</div>
                   <Button onClick={() => router.push('/match/register')} className="px-10 py-4 text-xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-transform duration-200">
-                    <Sparkles className="w-6 h-6 mr-2 animate-bounce" /> 전문가 신청하기
+                    <Sparkles className="w-6 h-6 mr-2 animate-bounce" /> {t('mypage.expert.applyNow')}
                   </Button>
                 </div>
               )}
@@ -626,12 +628,12 @@ const MyPage = () => {
                     </div>
                     <div className="mt-2 flex flex-col items-center">
                       <span className="text-xl font-bold text-gray-900">{userData.name}</span>
-                      <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? 'Expert' : 'Creator'}</span>
+                      <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
                     </div>
                     <div className="mt-4 text-center text-gray-700 space-y-1">
-                      <div>이메일 {user?.primaryEmailAddress?.emailAddress || '이메일 없음'}</div>
-                      <div>가입일 {userData.joinDate}</div>
-                      <div>핸드폰번호 {userData.phone}</div>
+                      <div>{t('mypage.profile.email')} {user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</div>
+                      <div>{t('mypage.profile.joinDate')} {userData.joinDate}</div>
+                      <div>{t('mypage.profile.phone')} {userData.phone}</div>
                     </div>
                   </div>
                   {/* PC: 예시 구조로 */}
@@ -645,7 +647,7 @@ const MyPage = () => {
                       />
                       <div className="flex flex-col gap-2 min-w-0">
                         <span className="text-2xl font-bold text-gray-900 truncate">{userData.name}</span>
-                        <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? 'Expert' : 'Creator'}</span>
+                        <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
                       </div>
                       {/* [MCP] PC/모바일 모두 메달 이미지를 w-24 h-24 object-contain(테두리/배경/그림자 없음)으로 통일 */}
                       {userData.role === 'expert' && (
@@ -658,15 +660,15 @@ const MyPage = () => {
                     {/* 오른쪽: 정보 */}
                     <div className="flex flex-col gap-3 min-w-[300px] pl-10 pr-10 text-left">
                       <div>
-                        <span className="text-gray-500 font-medium mr-2">이메일</span>
-                        <span className="text-gray-800">{user?.primaryEmailAddress?.emailAddress || '이메일 없음'}</span>
+                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.email')}</span>
+                        <span className="text-gray-800">{user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 font-medium mr-2">가입일</span>
+                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.joinDate')}</span>
                         <span className="text-gray-800">{userData.joinDate}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 font-medium mr-2">핸드폰번호</span>
+                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.phone')}</span>
                         <span className="text-gray-800">{userData.phone}</span>
                       </div>
                     </div>
@@ -676,10 +678,10 @@ const MyPage = () => {
               {/* [MCP] 탭 네비게이션: 모바일 한 줄 pill + 가로 스크롤, 데스크탑 flex-wrap */}
               <div className="flex flex-row flex-nowrap overflow-x-auto whitespace-nowrap gap-2 -mx-4 px-4 mt-6 w-full justify-start sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
                 {[
-                  { id: 'services', label: '내 AI 서비스', icon: Bot },
-                  { id: 'posts', label: '내 포스트', icon: FileText },
-                  { id: 'liked-posts', label: '좋아요한 포스트', icon: Heart },
-                  { id: 'liked-services', label: '좋아요한 AI 서비스', icon: Star }
+                  { id: 'services', label: t('mypage.tab.services'), icon: Bot },
+                  { id: 'posts', label: t('mypage.tab.posts'), icon: FileText },
+                  { id: 'liked-posts', label: t('mypage.tab.likedPosts'), icon: Heart },
+                  { id: 'liked-services', label: t('mypage.tab.likedServices'), icon: Star }
                 ].map(item => (
                   <button
                     key={item.id}
@@ -696,12 +698,12 @@ const MyPage = () => {
               <div className="w-full mt-6">
                 {activeTab === 'services' && (
                   <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">내가 올린 AI 서비스</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myServices')}</h2>
                     {/* [MCP] 내 서비스 리스트 로딩/에러/빈 상태 처리 */}
-                    {myServicesLoading && <div className="text-center py-8 text-gray-500">로딩 중...</div>}
+                    {myServicesLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
                     {myServicesError && <div className="text-center py-8 text-red-500">{myServicesError}</div>}
                     {!myServicesLoading && !myServicesError && myServices.length === 0 && (
-                      <div className="text-center py-8 text-gray-400">등록한 AI 서비스가 없습니다.</div>
+                      <div className="text-center py-8 text-gray-400">{t('mypage.empty.myServices')}</div>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
                       {myServices.map((service) => (
@@ -712,7 +714,7 @@ const MyPage = () => {
                               <div className="absolute bottom-3 right-3 z-10 flex gap-2">
                                 <button
                                   className="bg-white/80 border border-gray-200 rounded-full p-2 shadow-sm hover:bg-violet-50 transition-colors"
-                                  aria-label="서비스 수정"
+                                  aria-label={t('mypage.service.editService')}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     router.push(`/services/register?id=${service.id}`);
@@ -723,7 +725,7 @@ const MyPage = () => {
                                 </button>
                                 <button
                                   className="bg-white/80 border border-gray-200 rounded-full p-2 shadow-sm hover:bg-red-50 transition-colors"
-                                  aria-label="서비스 삭제"
+                                  aria-label={t('mypage.service.deleteService')}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setShowDeleteModal(true);
@@ -757,7 +759,7 @@ const MyPage = () => {
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
                               <span className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-blue-50 text-blue-700 border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300">
-                                <Brain className="w-4 h-4" /> AI 서비스
+                                <Brain className="w-4 h-4" /> {t('mypage.service.aiService')}
                               </span>
                             </div>
                             <CardContent className="p-3 sm:p-4 lg:p-5 text-sm sm:text-base lg:text-base">
@@ -803,7 +805,7 @@ const MyPage = () => {
                                     }}
                                     disabled={!service.demo_url}
                                   >
-                                    데모 체험
+                                    {t('mypage.service.tryDemo')}
                                   </Button>
                                 </div>
                               </div>
@@ -818,12 +820,12 @@ const MyPage = () => {
                   <div className="w-full">
                     <div className="max-w-4xl mx-auto">
                       <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">내가 작성한 포스트</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myPosts')}</h2>
                         {/* [MCP] 내 포스트 리스트 로딩/에러/빈 상태 처리 */}
-                        {myPostsLoading && <div className="text-center py-8 text-gray-500">로딩 중...</div>}
+                        {myPostsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
                         {myPostsError && <div className="text-center py-8 text-red-500">{myPostsError}</div>}
                         {!myPostsLoading && !myPostsError && myPosts.length === 0 && (
-                          <div className="text-center py-8 text-gray-400">작성한 포스트가 없습니다.</div>
+                          <div className="text-center py-8 text-gray-400">{t('mypage.empty.myPosts')}</div>
                         )}
                         <div className="space-y-8">
                           {myPosts.map((post, index) => {
@@ -848,7 +850,7 @@ const MyPage = () => {
                                           {user?.firstName} {user?.lastName}
                                         </div>
                                         <div className="text-xs text-gray-400 flex items-center gap-2">
-                                          <span>나</span>
+                                          <span>{t('mypage.post.me')}</span>
                                           <span>·</span>
                                           <Clock className="w-3 h-3" />
                                           {formatDate(post.created_at)}
@@ -902,7 +904,7 @@ const MyPage = () => {
                                       {/* [MCP] 수정/삭제 버튼 (서비스 카드와 동일 스타일) */}
                                       <div className="flex items-center gap-2 ml-4">
                                         <button
-                                          aria-label="포스트 수정"
+                                          aria-label={t('mypage.post.editPost')}
                                           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                                           onClick={() => handleEditClick(post)}
                                           type="button"
@@ -910,7 +912,7 @@ const MyPage = () => {
                                           <Pencil className="w-5 h-5 text-gray-400 hover:text-blue-600" />
                                         </button>
                                         <button
-                                          aria-label="포스트 삭제"
+                                          aria-label={t('mypage.post.deletePost')}
                                           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                                           onClick={() => setDeletePostId(post.id)}
                                           type="button"
@@ -933,12 +935,12 @@ const MyPage = () => {
                   <div className="w-full">
                     <div className="max-w-4xl mx-auto">
                       <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">좋아요한 포스트</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.likedPosts')}</h2>
                         {/* [MCP] 좋아요한 포스트 리스트 로딩/에러/빈 상태 처리 */}
-                        {likedPostsLoading && <div className="text-center py-8 text-gray-500">로딩 중...</div>}
+                        {likedPostsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
                         {likedPostsError && <div className="text-center py-8 text-red-500">{likedPostsError}</div>}
                         {!likedPostsLoading && !likedPostsError && likedPosts.length === 0 && (
-                          <div className="text-center py-8 text-gray-400">좋아요한 포스트가 없습니다.</div>
+                          <div className="text-center py-8 text-gray-400">{t('mypage.empty.likedPosts')}</div>
                         )}
                         <div className="space-y-8">
                           {likedPosts.map((post, index) => {
@@ -1000,7 +1002,7 @@ const MyPage = () => {
                                         <div className="flex items-center gap-1">
                                           <Heart
                                             className={`w-4 h-4 cursor-pointer transition-colors text-red-500 fill-current`}
-                                            aria-label="좋아요 취소"
+                                            aria-label={t('mypage.post.unlike')}
                                             onClick={() => handleUnlikeLikedPost(post.id)}
                                           />
                                           <span>{post.like_count || 0}</span>
@@ -1027,12 +1029,12 @@ const MyPage = () => {
                 )}
                 {activeTab === 'liked-services' && (
                   <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">좋아요한 AI 서비스</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.likedServices')}</h2>
                     {/* [MCP] 좋아요한 서비스 리스트 로딩/에러/빈 상태 처리 */}
-                    {likedServicesLoading && <div className="text-center py-8 text-gray-500">로딩 중...</div>}
+                    {likedServicesLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
                     {likedServicesError && <div className="text-center py-8 text-red-500">{likedServicesError}</div>}
                     {!likedServicesLoading && !likedServicesError && likedServices.length === 0 && (
-                      <div className="text-center py-8 text-gray-400">좋아요한 AI 서비스가 없습니다.</div>
+                      <div className="text-center py-8 text-gray-400">{t('mypage.empty.likedServices')}</div>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
                       {likedServices.map((service) => (
@@ -1057,7 +1059,7 @@ const MyPage = () => {
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
                               <span className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-blue-50 text-blue-700 border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300">
-                                <Brain className="w-4 h-4" /> AI 서비스
+                                <Brain className="w-4 h-4" /> {t('mypage.service.aiService')}
                               </span>
                             </div>
                             <CardContent className="p-3 sm:p-4 lg:p-5 text-sm sm:text-base lg:text-base">
@@ -1091,7 +1093,7 @@ const MyPage = () => {
                                 </div>
                                 <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
                                   <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                                    <span>by</span>
+                                    <span>{t('mypage.service.by')}</span>
                                     <span className="font-semibold text-gray-700 flex items-center gap-2">
                                       {service.users?.avatar_url && (
                                         <Image
@@ -1137,7 +1139,7 @@ const MyPage = () => {
                                     }}
                                     disabled={!service.demo_url}
                                   >
-                                    데모 체험
+                                    {t('mypage.service.tryDemo')}
                                   </Button>
                                 </div>
                               </div>
@@ -1165,22 +1167,22 @@ const MyPage = () => {
               ×
             </button>
             <Sparkles className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
-            <h2 className="text-lg font-bold text-gray-900 mb-2">서비스를 삭제하시겠습니까?</h2>
-            <p className="text-gray-600 text-base">삭제한 서비스는 복구할 수 없습니다.<br/>정말로 삭제하시겠습니까?</p>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">{t('mypage.delete.serviceTitle')}</h2>
+            <p className="text-gray-600 text-base">{t('mypage.delete.serviceDesc')}</p>
             <div className="flex flex-col gap-2 mt-6">
               <button
                 className="px-6 py-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-semibold text-base hover:scale-105 transition-all disabled:opacity-60"
                 onClick={() => deleteTargetId && handleDeleteService(deleteTargetId)}
                 disabled={deletingId === deleteTargetId}
               >
-                {deletingId === deleteTargetId ? '삭제 중...' : '삭제'}
+                {deletingId === deleteTargetId ? t('common.deleting') : t('common.delete')}
               </button>
               <button
                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold text-base hover:bg-gray-200 transition-all"
                 onClick={() => { setShowDeleteModal(false); setDeleteTargetId(null); }}
                 disabled={deletingId === deleteTargetId}
               >
-                취소
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -1206,9 +1208,9 @@ const MyPage = () => {
             {/* 상단 Sparkles 아이콘 */}
             <Sparkles className="w-10 h-10 text-violet-400 mb-2" />
             {/* 제목 */}
-            <div className="mb-2 text-lg font-bold text-gray-900 text-center">포스트를 삭제하시겠습니까?</div>
+            <div className="mb-2 text-lg font-bold text-gray-900 text-center">{t('mypage.delete.postTitle')}</div>
             {/* 부가설명 */}
-            <div className="mb-4 text-gray-500 text-sm text-center">삭제한 포스트는 복구할 수 없습니다.<br/>정말로 삭제하시겠습니까?</div>
+            <div className="mb-4 text-gray-500 text-sm text-center">{t('mypage.delete.postDesc')}</div>
             {deleteError && <div className="mb-2 text-red-500 text-sm text-center">{deleteError}</div>}
             {/* 삭제/취소 버튼 (full width, 순서: 삭제-취소, 간격 넉넉) */}
             <button
@@ -1217,7 +1219,7 @@ const MyPage = () => {
               disabled={deleteLoading}
               type="button"
             >
-              {deleteLoading ? '삭제 중...' : '삭제'}
+              {deleteLoading ? t('common.deleting') : t('common.delete')}
             </button>
             <button
               className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold text-base shadow-sm hover:bg-gray-200 transition-colors"
@@ -1225,7 +1227,7 @@ const MyPage = () => {
               disabled={deleteLoading}
               type="button"
             >
-              취소
+              {t('common.cancel')}
             </button>
           </div>
         </div>

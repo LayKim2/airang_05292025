@@ -239,9 +239,13 @@
     }
   },
   "common": {
+    "loading": "Loading...",
+    "error": "An error occurred.",
     "cancel": "Cancel",
-    "submit": "Submit",
-    "add": "Add"
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "expert": "Expert",
+    "creator": "Creator"
   },
   "matchExpertCardTitle": "AI Experts",
   "matchExpertCardDesc": "See experts from various fields at a glance and find the right one for your needs.",
@@ -286,7 +290,6 @@
   "searchKeyword": "Search Keyword",
   "reset": "Reset",
   "apply": "Apply",
-  "loading": "Loading...",
   "noServices": "No services registered.",
   "expertRegisterTitle": "Expert Registration",
   "expertRegisterNameLabel": "Name/Nickname",
@@ -314,5 +317,159 @@
   },
   "matchGroupCardTitle": "AI Creator Groups",
   "matchGroupCardDesc": "Create or join groups with creators using similar AI tools.",
-  "matchGroupCardButton": "Create/Find Group"
+  "matchGroupCardButton": "Create/Find Group",
+  "groups": {
+    "title": "AI Creator Groups",
+    "goToServices": "Explore & Promote AI Services",
+    "categoryAll": "All",
+    "category": {
+      "study": "Study",
+      "networking": "Networking",
+      "meetup": "Meetup/Seminar",
+      "free": "Free Group"
+    },
+    "searchPlaceholder": "Search group name, description...",
+    "registerButton": "Register Group",
+    "loading": "Loading group list...",
+    "noResults": "No results found.",
+    "status": {
+      "recruiting": "Recruiting",
+      "completed": "Completed"
+    },
+    "imageAlt": "Group image",
+    "meetingType": {
+      "one_time": "Date",
+      "recurring": "Start Date"
+    },
+    "dateLocale": "en-US",
+    "aiTools": "AI Tools/Models",
+    "register": {
+      "title": "Register AI Creator Group",
+      "imageLabel": "Group Image (Optional)",
+      "uploadImage": "Upload Image",
+      "preview": "Preview",
+      "groupName": "Group Name",
+      "groupNamePlaceholder": "Enter group name",
+      "recruitCount": "Recruit Count",
+      "recruitCountPlaceholder": "e.g., 5",
+      "meetingType": "Meeting Type",
+      "meetingTypeOneTime": "One-time Meeting",
+      "meetingTypeRecurring": "Recurring Meeting",
+      "meetingDate": "Meeting Date",
+      "startDate": "Start Date",
+      "selectMeetingDate": "Select meeting date",
+      "selectStartDate": "Select start date",
+      "locationType": "Location Type",
+      "locationTypeOffline": "Offline",
+      "locationTypeOnline": "Online",
+      "locationTypeBoth": "Online/Offline",
+      "cost": "Cost",
+      "costPlaceholder": "e.g., 10000",
+      "currency": "Currency",
+      "location": "Location",
+      "locationPlaceholder": "e.g., Gangnam-gu, Seoul, Online, etc.",
+      "aiTools": "Related AI Tools/Models",
+      "aiToolsPlaceholder": "e.g., ChatGPT, Stable Diffusion, Gemini, etc. Press Enter after input",
+      "description": "Detailed Description",
+      "image": "Image",
+      "descriptionRequired": "Detailed description is required.",
+      "submitButton": "Register Group",
+      "closeModal": "Close modal",
+      "successMessage": "Group has been successfully registered!",
+      "confirm": "Confirm",
+      "imageSizeError": "Group image can only be uploaded up to 1MB.",
+      "editorImageSizeError": "Image files can only be uploaded up to 1MB.",
+      "loginRequired": "Login is required.",
+      "requiredFieldsError": "Please fill in all required fields. (Meeting type, meeting date/start date included)",
+      "imageUploadError": "Image upload failed: ",
+      "registrationError": "Registration failed: "
+    },
+    "detail": {
+      "loading": "Loading...",
+      "notFound": "Group information not found.",
+      "defaultTitle": "AIrang Group",
+      "defaultDescription": "AI Creator Meeting",
+      "unbookmark": "Remove bookmark",
+      "bookmark": "Add bookmark",
+      "shareLink": "Share link",
+      "organizer": "Organizer",
+      "registrationDate": "Registration date",
+      "memberCount": "members",
+      "locationOnline": "Online",
+      "locationOffline": "Offline",
+      "locationBoth": "Online/Offline",
+      "free": "Free",
+      "meetingType": "Meeting Type",
+      "description": "Meeting Description",
+      "recruitmentClosed": "Recruitment Closed",
+      "alreadyJoined": "Already Joined",
+      "joinButton": "Join",
+      "linkCopied": "Link copied!"
+    }
+  },
+  "mypage": {
+    "title": "My Page",
+    "menu": {
+      "profile": "Profile",
+      "expertStatus": "Expert Application"
+    },
+    "tab": {
+      "services": "My AI Services",
+      "posts": "My Posts",
+      "likedPosts": "Liked Posts",
+      "likedServices": "Liked Services"
+    },
+    "section": {
+      "myServices": "My AI Services",
+      "myPosts": "My Posts",
+      "likedPosts": "Liked Posts",
+      "likedServices": "Liked Services"
+    },
+    "empty": {
+      "myServices": "No services registered.",
+      "myPosts": "No posts written.",
+      "likedPosts": "No liked posts.",
+      "likedServices": "No liked services."
+    },
+    "delete": {
+      "serviceTitle": "Delete Service",
+      "serviceDesc": "Are you sure you want to delete this service?",
+      "postTitle": "Delete Post",
+      "postDesc": "Are you sure you want to delete this post?"
+    },
+    "expert": {
+      "applicationDate": "Application Date",
+      "approvalDate": "Approval Date",
+      "jobTitle": "Job Title",
+      "notEntered": "Not Entered",
+      "noBio": "No Bio",
+      "aiTools": "Expert AI Tools/Models",
+      "externalProfiles": "External Profiles/Portfolio",
+      "portfolio": "Portfolio",
+      "etc": "Other",
+      "noExternalProfiles": "No External Profiles",
+      "noApplication": "No expert application history yet.",
+      "applyNow": "Apply as Expert"
+    },
+    "profile": {
+      "email": "Email",
+      "noEmail": "No Email",
+      "joinDate": "Join Date",
+      "phone": "Phone Number"
+    },
+    "service": {
+      "aiService": "AI Service",
+      "editService": "Edit Service",
+      "deleteService": "Delete Service",
+      "aiTools": "AI Tools",
+      "tryDemo": "Try Demo",
+      "by": "by"
+    },
+    "post": {
+      "me": "Me",
+      "editPost": "Edit Post",
+      "deletePost": "Delete Post",
+      "unlike": "Unlike"
+    }
+  }
 } 

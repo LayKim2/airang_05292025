@@ -237,9 +237,13 @@
     }
   },
   "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました。",
     "cancel": "キャンセル",
-    "submit": "登録",
-    "add": "追加"
+    "delete": "削除",
+    "deleting": "削除中...",
+    "expert": "エキスパート",
+    "creator": "クリエイター"
   },
   "matchExpertCardTitle": "AI専門家一覧",
   "matchExpertCardDesc": "さまざまな分野の専門家を一目で確認し、あなたに合った専門家を見つけましょう。",
@@ -311,5 +315,159 @@
   },
   "matchGroupCardTitle": "AIクリエイターグループ",
   "matchGroupCardDesc": "同じAIツールを使うクリエイターとグループを作成・参加しましょう。",
-  "matchGroupCardButton": "グループ作成/参加"
+  "matchGroupCardButton": "グループ作成/参加",
+  "groups": {
+    "title": "AIクリエイターグループ",
+    "goToServices": "AIサービスを見る・宣伝する",
+    "categoryAll": "すべて",
+    "category": {
+      "study": "スタディ",
+      "networking": "ネットワーキング",
+      "meetup": "ミートアップ/セミナー",
+      "free": "自由グループ"
+    },
+    "searchPlaceholder": "グループ名、説明を検索...",
+    "registerButton": "グループ登録",
+    "loading": "グループリストを読み込み中...",
+    "noResults": "検索結果がありません。",
+    "status": {
+      "recruiting": "募集中",
+      "completed": "募集完了"
+    },
+    "imageAlt": "代表画像",
+    "meetingType": {
+      "one_time": "日付",
+      "recurring": "開始日"
+    },
+    "dateLocale": "ja-JP",
+    "aiTools": "AIツール/モデル",
+    "register": {
+      "title": "AIクリエイターグループ登録",
+      "imageLabel": "代表画像（選択）",
+      "uploadImage": "画像アップロード",
+      "preview": "プレビュー",
+      "groupName": "グループ名",
+      "groupNamePlaceholder": "グループ名を入力してください",
+      "recruitCount": "募集人数",
+      "recruitCountPlaceholder": "例：5",
+      "meetingType": "ミーティングタイプ",
+      "meetingTypeOneTime": "一回限りのミーティング",
+      "meetingTypeRecurring": "定期的なミーティング",
+      "meetingDate": "ミーティング日",
+      "startDate": "開始日",
+      "selectMeetingDate": "ミーティング日を選択",
+      "selectStartDate": "開始日を選択",
+      "locationType": "場所タイプ",
+      "locationTypeOffline": "オフライン",
+      "locationTypeOnline": "オンライン",
+      "locationTypeBoth": "オンライン/オフライン",
+      "cost": "費用",
+      "costPlaceholder": "例：10000",
+      "currency": "通貨",
+      "location": "場所",
+      "locationPlaceholder": "例：東京都渋谷区、オンラインなど",
+      "aiTools": "関連AIツール/モデル",
+      "aiToolsPlaceholder": "例：ChatGPT、Stable Diffusion、Geminiなど、入力後Enter",
+      "description": "詳細説明",
+      "image": "画像",
+      "descriptionRequired": "詳細説明は必須です。",
+      "submitButton": "グループ登録",
+      "closeModal": "モーダルを閉じる",
+      "successMessage": "グループが正常に登録されました！",
+      "confirm": "確認",
+      "imageSizeError": "代表画像は最大1MBまでアップロードできます。",
+      "editorImageSizeError": "画像ファイルは最大1MBまでアップロードできます。",
+      "loginRequired": "ログインが必要です。",
+      "requiredFieldsError": "必須項目を入力してください。（ミーティングタイプ、ミーティング日/開始日を含む）",
+      "imageUploadError": "画像アップロードに失敗しました：",
+      "registrationError": "登録に失敗しました："
+    },
+    "detail": {
+      "loading": "読み込み中...",
+      "notFound": "グループ情報が見つかりません。",
+      "defaultTitle": "AIrangグループ",
+      "defaultDescription": "AIクリエイターミーティング",
+      "unbookmark": "ブックマーク解除",
+      "bookmark": "ブックマーク追加",
+      "shareLink": "リンク共有",
+      "organizer": "主催者",
+      "registrationDate": "登録日",
+      "memberCount": "名",
+      "locationOnline": "オンライン",
+      "locationOffline": "オフライン",
+      "locationBoth": "オンライン/オフライン",
+      "free": "無料",
+      "meetingType": "ミーティングタイプ",
+      "description": "ミーティング説明",
+      "recruitmentClosed": "募集終了",
+      "alreadyJoined": "既に参加中",
+      "joinButton": "参加する",
+      "linkCopied": "リンクがコピーされました！"
+    }
+  },
+  "mypage": {
+    "title": "マイページ",
+    "menu": {
+      "profile": "基本情報",
+      "expertStatus": "専門家申請"
+    },
+    "tab": {
+      "services": "マイAIサービス",
+      "posts": "マイ投稿",
+      "likedPosts": "いいねした投稿",
+      "likedServices": "いいねしたサービス"
+    },
+    "section": {
+      "myServices": "マイAIサービス",
+      "myPosts": "マイ投稿",
+      "likedPosts": "いいねした投稿",
+      "likedServices": "いいねしたサービス"
+    },
+    "empty": {
+      "myServices": "登録されたサービスがありません。",
+      "myPosts": "投稿した記事がありません。",
+      "likedPosts": "いいねした投稿がありません。",
+      "likedServices": "いいねしたサービスがありません。"
+    },
+    "delete": {
+      "serviceTitle": "サービス削除",
+      "serviceDesc": "このサービスを削除しますか？",
+      "postTitle": "投稿削除",
+      "postDesc": "この投稿を削除しますか？"
+    },
+    "expert": {
+      "applicationDate": "申請日",
+      "approvalDate": "承認日",
+      "jobTitle": "職務",
+      "notEntered": "未入力",
+      "noBio": "自己紹介なし",
+      "aiTools": "専門AIツール/モデル",
+      "externalProfiles": "外部プロフィール/ポートフォリオ",
+      "portfolio": "ポートフォリオ",
+      "etc": "その他",
+      "noExternalProfiles": "外部プロフィールなし",
+      "noApplication": "まだエキスパート申請履歴がありません。",
+      "applyNow": "エキスパート申請"
+    },
+    "profile": {
+      "email": "メールアドレス",
+      "noEmail": "メールなし",
+      "joinDate": "登録日",
+      "phone": "電話番号"
+    },
+    "service": {
+      "aiService": "AIサービス",
+      "editService": "サービス編集",
+      "deleteService": "サービス削除",
+      "aiTools": "AIツール",
+      "tryDemo": "デモ体験",
+      "by": "by"
+    },
+    "post": {
+      "me": "私",
+      "editPost": "投稿編集",
+      "deletePost": "投稿削除",
+      "unlike": "いいね解除"
+    }
+  }
 } 

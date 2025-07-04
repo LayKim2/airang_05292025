@@ -13,6 +13,7 @@ import { useUser, useClerk } from "@clerk/nextjs"
 import PostCreateModal from "@/app/components/community/PostCreateModal"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
 import { supabase } from "@/lib/supabase"
+import SiteLoader from "@/app/components/ui/SiteLoader";
 
 export default function CommunityPage() {
   const { t } = useTranslation()
@@ -572,12 +573,7 @@ export default function CommunityPage() {
             </div>
 
             {/* Loading State */}
-            {loading && (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-                <p className="mt-2 text-gray-600">{t('community.loading')}</p>
-              </div>
-            )}
+            {loading && <SiteLoader text={t('community.loading')} />}
 
             {/* Load More Button */}
             {hasMore && !loading && (

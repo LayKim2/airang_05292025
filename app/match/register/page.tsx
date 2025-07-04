@@ -116,14 +116,19 @@ export default function ExpertRegisterPage() {
         .single();
       if (insertError) throw new Error(insertError.message || '전문가 등록에 실패했습니다');
       // 3. 성공 시 안내 및 마이페이지 이동
-      alert('전문가 등록 신청이 완료되었습니다! 검토 후 승인 처리됩니다.');
-      router.push('/mypage');
+      setShowSuccessModal(true);
     } catch (e: any) {
       setError(e.message || '전문가 등록에 실패했습니다')
     } finally {
       setLoading(false)
     }
   }
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const handleCloseSuccess = () => {
+    setShowSuccessModal(false);
+    router.push('/match');
+  };
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 py-12">
@@ -235,6 +240,31 @@ export default function ExpertRegisterPage() {
         {/* [MCP] 에러 메시지 */}
         {error && <div className="text-red-500 text-sm text-right mt-2">{error}</div>}
       </form>
+
+      {/* 등록 성공 팝업 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative border border-gray-200">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl"
+              onClick={handleCloseSuccess}
+              aria-label="팝업 닫기"
+            >
+              ×
+            </button>
+            <div className="flex flex-col items-center gap-4">
+              <Sparkles className="w-10 h-10 text-violet-500 mb-2" />
+              <h2 className="text-xl font-bold text-gray-900 text-center">전문가 등록 신청이 완료되었습니다!<br/>검토 후 승인 처리됩니다.</h2>
+              <button
+                className="mt-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-semibold text-base hover:scale-105 transition-all"
+                onClick={handleCloseSuccess}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
