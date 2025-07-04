@@ -474,5 +474,6 @@
       "deletePost": "Delete Post",
       "unlike": "Unlike"
     }
-  }
+  },
+  "headerCommunity": "AI Creator Community"
 } 

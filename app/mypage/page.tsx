@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import { useTranslation } from "@/app/i18n/useTranslation";
 
 const MyPage = () => {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
   // [MCP] 데모용 역할/탭 상태
   const [userRole, setUserRole] = useState<'creator' | 'expert'>('expert');
   // [MCP] 기본 activeTab을 'services'(내 AI 서비스)로 변경, 타입 명시
@@ -484,20 +485,46 @@ const MyPage = () => {
     }
   };
 
+  // [MCP] 쿼리스트링(tab=...) → activeTab 동기화
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'expert-status') setActiveTab('expert-status');
+    else setActiveTab('services');
+  }, [searchParams]);
+
   if (!isLoaded) return <div>Loading...</div>;
   if (!user) return <div>로그인이 필요합니다.</div>;
 
   return (
     // [MYPAGE][MCP] 전체 배경 그라데이션, 카드 soft shadow+border+hover, 사이드 메뉴 blur/투명도 등으로 세련된 느낌 강화
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-[104px] sm:pt-20">
-      {/* [MCP] 왼쪽 고정 사이드 메뉴: blur/투명도 효과 추가, 모바일에서는 숨김 */}
+      {/* [MCP] 왼쪽 고정 사이드 메뉴: PC(데스크탑)에서는 기존 디자인, 모바일에서는 상단 고정 가로 탭 */}
+      {/* 모바일: 상단 고정 가로 탭 메뉴 */}
+      <aside className="flex sm:hidden w-full bg-white/90 backdrop-blur-md shadow-xl border-b border-gray-100 fixed top-0 left-0 z-30 rounded-b-2xl px-4 py-2 overflow-x-auto whitespace-nowrap max-w-full flex-nowrap flex-row justify-between items-center">
+        <nav className="flex flex-row gap-2 w-auto">
+          {menuItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => handleMenuItemClick(item.id)}
+              className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
+                ${((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id)
+                  ? 'bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300'
+                  : 'bg-white text-gray-700 hover:bg-violet-50'}
+              `}
+              style={{ boxShadow: ((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id) ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
+            >
+              <item.icon size={18} />
+              <span className="ml-1">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      </aside>
+      {/* PC: 기존 세로 사이드바 */}
       <aside className="hidden sm:flex w-80 bg-white/90 backdrop-blur-md shadow-xl flex-col p-6 gap-8 border-r border-gray-100 min-h-screen">
-        {/* [MCP] 마이페이지 타이틀+아이콘 */}
         <div className="flex items-center gap-2 mb-6">
           <User className="w-6 h-6 text-blue-500" />
           <span className="text-lg font-bold text-gray-800">{t('mypage.title')}</span>
         </div>
-        {/* 네비게이션 메뉴 (유지) */}
         <nav className="space-y-2">
           {menuItems.map(item => (
             <MenuItem 

@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useLayoutEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight } from "lucide-react"
+import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight, Award } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -18,6 +18,7 @@ export function Header() {
   const [scrollY, setScrollY] = useState(0)
   const [isAnimating, setIsAnimating] = useState(true)
   const pathname = usePathname()
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const { user, isLoaded } = useUser();
   const [showScrollRight, setShowScrollRight] = useState(false);
@@ -68,6 +69,12 @@ export function Header() {
   ];
   // [MCP] 마이페이지 메뉴 별도 분리
   const myPageMenu = { name: t('header.myPage'), path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> };
+
+  // [MCP] 마이페이지 사이드바 메뉴(모바일용) - mypage에서만 사용
+  const myPageMenuItems = [
+    { name: t('mypage.menu.profile'), path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.expertStatus'), path: "/mypage?tab=expert-status", icon: <Award className="w-5 h-5 mb-0.5" /> }
+  ];
 
   return (
     <>
@@ -280,20 +287,33 @@ export function Header() {
               id="mobile-menu-scroll"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
-              {baseMenuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
-                    ${pathname === item.path ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300" : "bg-white text-gray-700 hover:bg-violet-50"
-                    }`}
-                  style={{ boxShadow: pathname === item.path ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.icon}
-                  <span className="ml-1">{item.name.replace('AI ', '')}</span>
-                </Link>
-              ))}
+              {(isMyPage ? myPageMenuItems : [...baseMenuItems, myPageMenu]).map((item) => {
+                // [MCP] 쿼리스트링(tab=...)까지 반영한 활성화 조건 (명확히 분리)
+                let isActive = false;
+                if (isMyPage) {
+                  if (item.path === "/mypage" && pathname === "/mypage" && !searchParams.get('tab')) {
+                    isActive = true;
+                  } else if (item.path.includes('tab=expert-status') && searchParams.get('tab') === 'expert-status') {
+                    isActive = true;
+                  }
+                } else {
+                  isActive = pathname === item.path;
+                }
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.path}
+                    className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
+                      ${isActive ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300" : "bg-white text-gray-700 hover:bg-violet-50"}
+                    `}
+                    style={{ boxShadow: isActive ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="ml-1">{item.name}</span>
+                  </Link>
+                );
+              })}
               {/* [MCP] 오른쪽 화살표 버튼: 메뉴가 넘칠 때만, 스크롤 오른쪽 끝이면 숨김, absolute로 고정 */}
               {showScrollRight && (
                 <button
