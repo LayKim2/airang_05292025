@@ -217,7 +217,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <main className="min-h-screen pt-14 sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[104px] sm:pt-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="relative">
         {/* Modern Background Elements */}
         <div className="absolute inset-0">

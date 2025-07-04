@@ -121,7 +121,7 @@ export default function GroupDetailPage() {
   };
 
   return (
-    <main className="mt-16 flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-2 sm:px-6">
+    <main className="pt-[104px] sm:pt-16 flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-2 sm:px-6">
       <Head>
         <title>{group?.title ? `${group.title} | AIrang` : t('groups.detail.defaultTitle')}</title>
         <meta property="og:title" content={group?.title || t('groups.detail.defaultTitle')} />

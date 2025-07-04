@@ -160,7 +160,7 @@ export default function ServiceRegisterForm() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-32 py-12">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[104px] sm:pt-32 py-12">
       {/* Top navigation */}
       <div className="w-full max-w-2xl mx-auto flex items-center mb-8">
         {/* [MCP] 수정/등록 모드에 따라 타이틀 변경 */}

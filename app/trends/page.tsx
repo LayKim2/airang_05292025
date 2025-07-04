@@ -108,7 +108,7 @@ export default function TrendsPage() {
   const { t } = useTranslation()
 
   return (
-    <main className="min-h-screen pt-[128px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[104px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
       <section className="relative py-8 md:py-12 lg:py-16">
         {/* Modern Background Elements */}

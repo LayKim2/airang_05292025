@@ -36,6 +36,8 @@
   "heroDescLong": "A community where creators who want to build AI services gather, share ideas, and grow together through projects.",
   "heroCommunityBtn": "Join the Community",
   "heroMatchBtn": "Team & Expert Matching",
+  "heroGroupsBtn": "Browse AI Groups",
+  "heroServicesBtn": "More AI Services",
   "formName": "Name",
   "formEmail": "Email Address",
   "formServiceDescription": "Service Description",
@@ -45,7 +47,14 @@
   "formSubmitting": "Submitting...",
   "formSuccess": "Your application has been submitted!",
   "formError": "An error occurred during submission. Please try again.",
-  "headerCommunity": "AI Creator Community",
+  "header": {
+    "aiServices": "AI Services",
+    "match": "Match/Meet",
+    "community": "Community",
+    "aiTools": "AI Tools",
+    "myPage": "My Page",
+    "mainMenu": "Main Menu"
+  },
   "communityBadge": "Connect with people who share your interests",
   "communityTitleHighlight": "Building AI together",
   "communityDesc": "Connect, collaborate, and grow with creators who share similar interests and goals.",
@@ -309,12 +318,6 @@
   "expertRegisterSuccess": "Your expert application has been submitted! It will be reviewed and approved.",
   "expertRegisterError": "Expert registration failed",
   "expertRegisterUrlPlaceholder": "Enter URL",
-  "header": {
-    "aiServices": "AI Services",
-    "community": "Community",
-    "match": "Match & Group",
-    "aiTools": "AI Tools"
-  },
   "matchGroupCardTitle": "AI Creator Groups",
   "matchGroupCardDesc": "Create or join groups with creators using similar AI tools.",
   "matchGroupCardButton": "Create/Find Group",

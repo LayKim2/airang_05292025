@@ -140,7 +140,7 @@ export default function MatchPage() {
   };
 
   return (
-    <main className="min-h-screen pt-14 sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[104px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* 전문가 등록 알림 팝업 (canRegisterExpert가 true일 때만, null(로딩중)일 때는 렌더링 안함) */}
       {canRegisterExpert === true && showAlert && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30">
@@ -272,10 +272,10 @@ export default function MatchPage() {
             </motion.div>
           </motion.div>
 
-          {/* Search Section */}
+          {/*  Search Section */}
+          {/*
           <div className="max-w-3xl mx-auto mb-12">
             <div className="flex items-center gap-2 w-full">
-              {/* 검색 input + 왼쪽 아이콘 */}
               <div className="relative w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -289,7 +289,6 @@ export default function MatchPage() {
                   className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:outline-none transition-all duration-300"
                 />
               </div>
-              {/* 검색 실행 버튼 (돋보기) */}
               <button
                 type="button"
                 className="flex items-center justify-center px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow-sm hover:bg-violet-50 transition-colors whitespace-nowrap"
@@ -300,6 +299,7 @@ export default function MatchPage() {
               </button>
             </div>
           </div>
+          */}
 
           {/* Match Type Selection */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
@@ -353,6 +353,7 @@ export default function MatchPage() {
             </motion.div>
 
             {/* [카드3] 요청글 등록 카드 */}
+            {/*
             <motion.div
               initial={{ opacity: 0, x: 0 }}
               animate={{ opacity: 1, x: 0 }}
@@ -375,6 +376,7 @@ export default function MatchPage() {
                 </button>
               </div>
             </motion.div>
+            */}
           </div>
 
         </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/app/components/ui/button"
-import { Users, UserPlus, ChevronRight, Heart, Eye, MessageCircle, TrendingUp } from "lucide-react"
+import { Users, UserPlus, ChevronRight, Heart, Eye, MessageCircle, TrendingUp, Grid } from "lucide-react"
 import { motion, easeInOut } from "framer-motion"
 import { useRouter } from 'next/navigation'
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -244,7 +244,7 @@ export function Hero() {
                         <ChevronRight className="w-5 h-5" />
                       </Button>
                     </div>
-                    <div className="p-8">
+                    <div className="p-3">
                       <div className="space-y-4">
                         <div>
                           <h3 className="text-2xl font-bold text-white mb-3">
@@ -253,51 +253,6 @@ export function Hero() {
                           <p className="text-gray-300 leading-relaxed">
                             {currentService.description}
                           </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {Array.isArray(currentService.ai_tools) && currentService.ai_tools.length > 0 &&
-                            currentService.ai_tools.map((tool: string, toolIndex: number) => (
-                              <Badge key={toolIndex} variant="secondary" className="bg-white/10 text-gray-200 text-sm font-medium">
-                                {tool}
-                              </Badge>
-                            ))
-                          }
-                        </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                          {/* 서비스 작성자 정보: 프로필 이미지, 이름, by 텍스트를 modern하게 표시 */}
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="text-gray-400">by</span>
-                            <span className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                              {currentService.users?.avatar_url && (
-                                <Image
-                                  src={currentService.users.avatar_url}
-                                  alt={(currentService.users?.first_name || '') + (currentService.users?.last_name ? ' ' + currentService.users.last_name : '')}
-                                  width={28}
-                                  height={28}
-                                  className="rounded-full object-cover border border-gray-200 shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg bg-white dark:bg-gray-800"
-                                />
-                              )}
-                              <span className="ml-1">
-                                <span className="text-white dark:text-gray-100">
-                                  {currentService.users?.first_name || ''}{currentService.users?.last_name ? ' ' + currentService.users.last_name : ''}
-                                </span>
-                              </span>
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-4 text-gray-400">
-                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
-                              <Heart className="w-4 h-4" />
-                              <span className="font-medium text-sm">{currentService.likes}</span>
-                            </div>
-                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
-                              <Eye className="w-4 h-4" />
-                              <span className="font-medium text-sm">{currentService.views}</span>
-                            </div>
-                            <div className="flex items-center space-x-1 transition-transform hover:scale-105">
-                              <MessageCircle className="w-4 h-4" />
-                              <span className="font-medium text-sm">{currentService.comments}</span>
-                            </div>
-                          </div>
                         </div>
                         {/* [MCP] 데모 URL 버튼: 서비스 데모 체험 */}
                         <div className="w-full mt-4">
@@ -445,10 +400,11 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
             >
+              {/* [MCP] 'AI 크리에이터 모임' 버튼: 그룹 리스트로 이동 */}
               <Button
                 size="lg"
                 className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 group shadow-lg hover:shadow-xl"
-                onClick={() => router.push('/community')}
+                onClick={() => router.push('/match/groups')}
               >
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
@@ -456,16 +412,17 @@ export function Hero() {
                 >
                   <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 </motion.div>
-                {t('heroCommunityBtn')}
+                {t('heroGroupsBtn')}
               </Button>
+              {/* [MCP] '더 많은 AI 서비스 둘러보기' 버튼: 서비스 리스트로 이동 */}
               <Button
                 size="lg"
                 variant="outline"
                 className="border border-gray-300 hover:border-gray-400 hover:bg-gray-50 font-medium px-6 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
-                onClick={() => router.push('/match')}
+                onClick={() => router.push('/services')}
               >
-                <UserPlus className="w-5 h-5 mr-2" />
-                {t('heroMatchBtn')}
+                <Grid className="w-5 h-5 mr-2" />
+                {t('heroServicesBtn')}
               </Button>
             </motion.div>
           </div>

@@ -591,7 +591,7 @@ export default function AIToolsPage() {
   };
 
   return (
-    <main className="min-h-screen pt-14 sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen pt-[104px] sm:pt-16 bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section Background (from match/page.tsx) */}
       <section className="relative py-8 md:py-12 lg:py-16">
         {/* Animated Gradient Orbs */}
