@@ -159,6 +159,12 @@
   "servicesTitle": "AI创作者作品",
   "servicesSearchPlaceholder": "搜索服务...",
   "aiService": "AI服务",
+  "notFound": {
+    "title": "404",
+    "subtitle": "页面未找到",
+    "description": "您请求的页面不存在或已被移动。",
+    "backHome": "返回首页"
+  },
   "aiTools": {
     "header": "AI工具集",
     "category": {

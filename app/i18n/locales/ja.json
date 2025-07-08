@@ -159,6 +159,12 @@
   "servicesTitle": "AIクリエイターの作品",
   "servicesSearchPlaceholder": "サービスを検索...",
   "aiService": "AIサービス",
+  "notFound": {
+    "title": "404",
+    "subtitle": "ページが見つかりません",
+    "description": "お探しのページは存在しないか、移動された可能性があります。",
+    "backHome": "ホームに戻る"
+  },
   "aiTools": {
     "header": "AIツール集",
     "category": {

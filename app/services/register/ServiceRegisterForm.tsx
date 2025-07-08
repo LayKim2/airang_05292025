@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { Input } from "@/app/components/ui/input"
 import { Textarea } from "@/app/components/ui/textarea"
@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useUserProfile } from "@/app/lib/useUserProfile"
 
-export default function ServiceRegisterForm() {
+function ServiceRegisterForm() {
   const { t } = useTranslation()
   const router = useRouter()
   const { user, loading: userLoading } = useUserProfile()
@@ -268,4 +268,21 @@ export default function ServiceRegisterForm() {
       </form>
     </div>
   )
-} 
+}
+
+// Suspense 래퍼 컴포넌트
+function ServiceRegisterFormWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[104px] sm:pt-32 py-12">
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="text-center text-gray-500 py-8">로딩 중...</div>
+        </div>
+      </div>
+    }>
+      <ServiceRegisterForm />
+    </Suspense>
+  )
+}
+
+export default ServiceRegisterFormWrapper

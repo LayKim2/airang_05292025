@@ -1,6 +1,6 @@
 // /mypage 라우트: 로그인된 사용자의 프로필(이름, 이메일, 이미지 등)을 보여주는 페이지
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -12,7 +12,7 @@ import { Badge } from "@/app/components/ui/badge";
 import PostCreateModal from "@/app/components/community/PostCreateModal";
 import { useTranslation } from "@/app/i18n/useTranslation";
 
-const MyPage = () => {
+function MyPage() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   // [MCP] 데모용 역할/탭 상태
@@ -1276,4 +1276,19 @@ const MyPage = () => {
   );
 };
 
-export default MyPage; 
+// Suspense 래퍼 컴포넌트
+function MyPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[104px] sm:pt-32 py-12">
+          <div className="text-center text-gray-500 py-8">로딩 중...</div>
+        </div>
+      </div>
+    }>
+      <MyPage />
+    </Suspense>
+  )
+}
+
+export default MyPageWrapper;

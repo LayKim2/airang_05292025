@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect, Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
@@ -13,7 +13,7 @@ import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/n
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
 
-export function Header() {
+function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isAnimating, setIsAnimating] = useState(true)
@@ -335,4 +335,27 @@ export function Header() {
       
     </>
   )
-} 
+}
+
+// Suspense 래퍼 컴포넌트
+export function HeaderWrapper() {
+  return (
+    <Suspense fallback={
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 py-2 sm:py-4">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl animate-pulse"></div>
+              <div className="text-xl sm:text-3xl font-black text-gray-300">AIrang</div>
+            </div>
+            <div className="hidden sm:flex items-center space-x-4">
+              <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    }>
+      <Header />
+    </Suspense>
+  )
+}

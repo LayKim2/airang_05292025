@@ -166,6 +166,12 @@
   "servicesTitle": "AI Creator Works",
   "servicesSearchPlaceholder": "Search services...",
   "aiService": "AI Service",
+  "notFound": {
+    "title": "404",
+    "subtitle": "Page Not Found",
+    "description": "The page you requested does not exist or has been moved.",
+    "backHome": "Back to Home"
+  },
   "aiTools": {
     "header": "AI Tools",
     "category": {
