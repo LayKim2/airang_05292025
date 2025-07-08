@@ -83,7 +83,7 @@ export default function ChatProvider() {
 
   return (
     <>
-      <GlobalChatFab onClick={() => setIsChatOpen(true)} />
+      {!isChatOpen && <GlobalChatFab onClick={() => setIsChatOpen(true)} />}
       <GroupChatModal 
         isOpen={isChatOpen} 
         onClose={() => setIsChatOpen(false)} 

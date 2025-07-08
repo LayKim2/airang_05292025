@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
-import { X, Send, Users, MessageCircle, Crown, User, ChevronRight } from "lucide-react";
+import { X, Send, Users, MessageCircle, Crown, User, ChevronRight, Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useUserProfile } from '@/app/lib/useUserProfile';
 import { useTranslation } from "@/app/i18n/useTranslation";
@@ -23,17 +23,49 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
   const [members, setMembers] = useState<any[]>([]);
   const [chatRoomId, setChatRoomId] = useState<number | null>(null);
   const [lastMessageId, setLastMessageId] = useState<number | null>(null);
+  const [showMembers, setShowMembers] = useState(false); // 모바일에서 멤버 목록 표시 여부
+  const [showGroups, setShowGroups] = useState(false); // 모바일에서 그룹 목록 표시 여부
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // 메시지 자동 스크롤
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    // PC에서 강제 스크롤
+    const messageContainer = document.querySelector('.message-container');
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
   };
 
+  // 메시지 변경 시 스크롤 (통합)
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!loading && messages.length > 0) {
+      // DOM 렌더링 완료 후 스크롤
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, loading]);
+
+  // 모달 열림/닫힘에 따른 배경 스크롤 제어
+  useEffect(() => {
+    if (isOpen) {
+      // 모달이 열리면 body 스크롤 막기
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '0px'; // 스크롤바 사라짐으로 인한 레이아웃 시프트 방지
+    } else {
+      // 모달이 닫히면 body 스크롤 복원
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+
+    // 컴포넌트 언마운트 시 스크롤 복원
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [isOpen]);
 
   // 폴링으로 새 메시지 확인 (백업 메커니즘)
   const checkNewMessages = async () => {
@@ -504,19 +536,14 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
 
   return (
     <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[85vh] max-h-[900px] flex overflow-hidden">
+      {/* PC 버전 (lg 이상) */}
+      <div className="hidden lg:flex bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[85vh] max-h-[900px] overflow-hidden">
         {/* 왼쪽: 그룹 리스트 */}
         <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
           {/* 헤더 */}
           <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="text-xl font-bold text-gray-900">그룹 채팅</h2>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
             </div>
             <div className="text-sm text-gray-600">
               {userGroups.length}개 그룹 참여 중
@@ -577,10 +604,33 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
               ))}
             </div>
           </div>
+
+          {/* 모임 나가기/삭제 버튼 */}
+          {selectedGroup && (
+            <div className="p-4 border-t border-gray-200">
+              {selectedGroup.role === 'leader' ? (
+                <button
+                  onClick={handleDeleteGroup}
+                  className="w-full px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                  title="모임 삭제"
+                >
+                  모임 삭제
+                </button>
+              ) : (
+                <button
+                  onClick={handleLeaveGroup}
+                  className="w-full px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                  title="모임 나가기"
+                >
+                  모임 나가기
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* 오른쪽: 채팅 영역 */}
-        <div className="flex-1 flex flex-col">
+        {/* 중앙: 채팅 영역 */}
+        <div className="flex-1 flex flex-col" style={{ minHeight: '0' }}>
           {selectedGroup ? (
             <>
               {/* 채팅 헤더 */}
@@ -606,29 +656,48 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     </div>
                   </div>
                   
-                  {/* 그룹 나가기/삭제 버튼 */}
-                  {selectedGroup.role === 'leader' ? (
+                  <div className="flex items-center gap-2">
+                    {/* 멤버 목록 토글 버튼 */}
                     <button
-                      onClick={handleDeleteGroup}
-                      className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                      title="그룹 삭제"
+                      onClick={() => setShowMembers(!showMembers)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="멤버 목록"
                     >
-                      그룹 삭제
+                      <Users className="w-5 h-5 text-gray-600" />
                     </button>
-                  ) : (
+                    
+                    {/* 그룹 삭제 버튼 (리더만) */}
+                    {selectedGroup.role === 'leader' && (
+                      <button
+                        onClick={handleDeleteGroup}
+                        className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                        title="그룹 삭제"
+                      >
+                        그룹 삭제
+                      </button>
+                    )}
+                    
+                    {/* 닫기 버튼 */}
                     <button
-                      onClick={handleLeaveGroup}
-                      className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                      title="그룹 나가기"
+                      onClick={onClose}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="닫기"
                     >
-                      나가기
+                      <X className="w-5 h-5 text-gray-500" />
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
 
               {/* 메시지 영역 */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div 
+                className="message-container flex-1 overflow-y-auto p-4 space-y-4"
+                style={{ 
+                  minHeight: '0',
+                  maxHeight: 'calc(100vh - 200px)',
+                  height: '100%'
+                }}
+              >
                 {loading ? (
                   <div className="text-center text-gray-500">채팅을 불러오는 중...</div>
                 ) : messages.length === 0 ? (
@@ -705,6 +774,13 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     onKeyPress={handleKeyPress}
                     placeholder="메시지를 입력하세요..."
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      appearance: 'none'
+                    }}
                   />
                   <button
                     onClick={handleSendMessage}
@@ -728,7 +804,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
         </div>
 
         {/* 오른쪽: 멤버 목록 */}
-        {selectedGroup && (
+        {selectedGroup && showMembers && (
           <div className="w-80 bg-gray-50 border-l border-gray-200 flex flex-col">
             {/* 멤버 헤더 */}
             <div className="p-4 border-b border-gray-200">
@@ -786,6 +862,345 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
             </div>
           </div>
         )}
+      </div>
+
+      {/* 모바일 버전 (lg 미만) */}
+      <div 
+        className="lg:hidden bg-white rounded-2xl shadow-2xl w-[95%] h-[90%] max-w-md mx-auto flex flex-col overflow-hidden touch-pan-y" 
+        style={{ 
+          maxHeight: '100vh',
+          position: 'fixed',
+          top: '5%',
+          left: '2.5%',
+          right: '2.5%',
+          bottom: '5%',
+          zIndex: 3001
+        }}
+      >
+        {/* 모바일 헤더 */}
+        <div className="p-3 border-b border-gray-200 bg-white flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGroups(!showGroups)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">그룹 채팅</h2>
+              <div className="text-xs text-gray-500">
+                {userGroups.length}개 그룹 참여 중
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* 모바일 그룹 리스트 (토글) */}
+        {showGroups && (
+          <div 
+            className="bg-gray-50 border-b border-gray-200 max-h-64 overflow-y-auto overscroll-contain"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            <div className="p-4 space-y-2">
+              {userGroups.map((group) => (
+                <div
+                  key={group.id}
+                  onClick={() => {
+                    onGroupSelect(group);
+                    setShowGroups(false);
+                  }}
+                  className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                    selectedGroup?.id === group.id
+                      ? 'bg-violet-100 border-2 border-violet-300'
+                      : 'bg-white border border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {group.image_url ? (
+                      <img
+                        src={group.image_url}
+                        alt={group.title}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-violet-600" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900 truncate">
+                          {group.title}
+                        </h3>
+                        {group.role === 'leader' && (
+                          <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {group.description?.replace(/<[^>]+>/g, '').slice(0, 20)}...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* 모바일 모임 나가기/삭제 버튼 */}
+            {selectedGroup && (
+              <div className="p-4 border-t border-gray-200">
+                {selectedGroup.role === 'leader' ? (
+                  <button
+                    onClick={handleDeleteGroup}
+                    className="w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                    title="모임 삭제"
+                  >
+                    모임 삭제
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleLeaveGroup}
+                    className="w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                    title="모임 나가기"
+                  >
+                    모임 나가기
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 모바일 채팅 영역 */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {selectedGroup ? (
+            <>
+              {/* 채팅 헤더 */}
+              <div className="p-3 border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {selectedGroup.image_url ? (
+                      <img
+                        src={selectedGroup.image_url}
+                        alt={selectedGroup.title}
+                        className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                        <Users className="w-4 h-4 text-violet-600" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">{selectedGroup.title}</h3>
+                      <div className="text-xs text-gray-500">
+                        {members.length}명 참여 중
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {/* 멤버 목록 토글 버튼 */}
+                    <button
+                      onClick={() => setShowMembers(!showMembers)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="멤버 목록"
+                    >
+                      <Users className="w-4 h-4 text-gray-600" />
+                    </button>
+                    
+                    {/* 그룹 삭제 버튼 (리더만) */}
+                    {selectedGroup.role === 'leader' && (
+                      <button
+                        onClick={handleDeleteGroup}
+                        className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                        title="그룹 삭제"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 멤버 목록 (모바일 토글) */}
+              {showMembers && (
+                <div 
+                  className="bg-gray-50 border-b border-gray-200 max-h-48 overflow-y-auto overscroll-contain"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
+                  <div className="p-3">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">멤버 목록</h4>
+                    <div className="space-y-2">
+                      {members.map((member) => (
+                        <div key={member.user_id} className="flex items-center justify-between p-2 rounded-lg bg-white">
+                          <div className="flex items-center gap-2">
+                            <div className="relative">
+                              {member.users?.avatar_url ? (
+                                <img
+                                  src={member.users.avatar_url}
+                                  alt={`${member.users.first_name} ${member.users.last_name}`}
+                                  className="w-6 h-6 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-semibold text-violet-600">
+                                  {member.users?.first_name?.[0] || 'U'}
+                                </div>
+                              )}
+                              {member.role === 'leader' && (
+                                <Crown className="w-2 h-2 text-yellow-500 absolute -top-0.5 -right-0.5" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900 truncate">
+                                {member.users?.first_name} {member.users?.last_name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {member.role === 'leader' ? '리더' : '멤버'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* 리더만 다른 멤버 내보내기 */}
+                          {selectedGroup.role === 'leader' && member.user_id !== profile?.clerk_user_id && (
+                            <button
+                              onClick={() => handleKickMember(
+                                member.user_id, 
+                                `${member.users?.first_name} ${member.users?.last_name}`
+                              )}
+                              className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                              title="내보내기"
+                            >
+                              내보내기
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 메시지 영역 */}
+              <div 
+                className="flex-1 overflow-y-auto p-3 space-y-3 overscroll-contain" 
+                style={{ 
+                  WebkitOverflowScrolling: 'touch',
+                  minHeight: '0',
+                  height: '100%',
+                  maxHeight: 'calc(100vh - 200px)'
+                }}
+              >
+                {loading ? (
+                  <div className="text-center text-gray-500 text-sm">채팅을 불러오는 중...</div>
+                ) : messages.length === 0 ? (
+                  <div className="text-center text-gray-500 text-sm">아직 메시지가 없습니다.</div>
+                ) : (
+                  messages.map((message) => {
+                    const isMyMessage = message.user_id === profile?.clerk_user_id;
+                    const isSystemMessage = message.message_type === 'system';
+                    
+                    // 시스템 메시지 렌더링
+                    if (isSystemMessage) {
+                      return (
+                        <div key={message.id} className="flex justify-center my-2">
+                          <div className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full border border-gray-200">
+                            <span className="text-gray-500">💬</span> {message.message}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // 일반 사용자 메시지 렌더링
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex gap-2 ${isMyMessage ? 'flex-row-reverse' : ''}`}
+                      >
+                        {/* 프로필 이미지 */}
+                        <div className="flex-shrink-0">
+                          {message.users?.avatar_url ? (
+                            <img
+                              src={message.users.avatar_url}
+                              alt={`${message.users.first_name} ${message.users.last_name}`}
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-semibold text-violet-600">
+                              {message.users?.first_name?.[0] || 'U'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 메시지 */}
+                        <div className={`max-w-[70%] ${isMyMessage ? 'text-right' : ''}`}>
+                          <div className={`inline-block p-2.5 rounded-2xl ${
+                            isMyMessage 
+                              ? 'bg-violet-500 text-white' 
+                              : 'bg-gray-100 text-gray-900'
+                          }`}>
+                            <div className="text-sm leading-relaxed">{message.message}</div>
+                          </div>
+                          <div className={`text-xs text-gray-500 mt-1 ${
+                            isMyMessage ? 'text-right' : 'text-left'
+                          }`}>
+                            {new Date(message.created_at).toLocaleTimeString('ko-KR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* 메시지 입력 */}
+              <div className="p-2 border-t border-gray-200 bg-white">
+                <div className="flex gap-2">
+                                      <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="메시지를 입력하세요..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
+                      style={{
+                        fontSize: '16px', // iOS에서 자동 확대 방지
+                        transform: 'translateZ(0)', // 하드웨어 가속
+                        backgroundColor: '#ffffff', // 배경색 명시적 설정
+                        color: '#000000', // 텍스트 색상 명시적 설정
+                        WebkitAppearance: 'none', // iOS 기본 스타일 제거
+                        MozAppearance: 'none', // Firefox 기본 스타일 제거
+                        appearance: 'none' // 기본 스타일 제거
+                      }}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim()}
+                      className="px-3 py-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center text-gray-500">
+                <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p className="text-base font-medium mb-2">그룹을 선택해주세요</p>
+                <p className="text-sm">채팅을 보려면 상단 메뉴에서 그룹을 선택하세요.</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
