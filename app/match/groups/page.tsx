@@ -60,9 +60,22 @@ export default function GroupsPage() {
   useEffect(() => {
     const fetchBookmarks = async () => {
       if (!profile?.clerk_user_id) return;
-      const { data, error } = await supabase.from('group_bookmarks').select('group_id').eq('user_id', profile.clerk_user_id);
-      if (!error && data) {
-        setBookmarkedGroupIds(data.map((b: any) => b.group_id));
+      try {
+        const { data, error } = await supabase
+          .from('group_bookmarks')
+          .select('group_id')
+          .eq('user_id', profile.clerk_user_id);
+        
+        if (error) {
+          console.error('북마크 조회 오류:', error);
+          return;
+        }
+        
+        if (data) {
+          setBookmarkedGroupIds(data.map((b: any) => b.group_id));
+        }
+      } catch (error) {
+        console.error('북마크 조회 실패:', error);
       }
     };
     fetchBookmarks();
@@ -74,14 +87,43 @@ export default function GroupsPage() {
       openSignIn();
       return;
     }
-    if (isBookmarked) {
-      await supabase.from('group_bookmarks').delete().eq('group_id', groupId).eq('user_id', profile.clerk_user_id);
-    } else {
-      await supabase.from('group_bookmarks').insert({ group_id: groupId, user_id: profile.clerk_user_id });
+    
+    try {
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from('group_bookmarks')
+          .delete()
+          .eq('group_id', groupId)
+          .eq('user_id', profile.clerk_user_id);
+        
+        if (error) {
+          console.error('북마크 삭제 오류:', error);
+          return;
+        }
+      } else {
+        const { error } = await supabase
+          .from('group_bookmarks')
+          .insert({ 
+            group_id: groupId, 
+            user_id: profile.clerk_user_id 
+          });
+        
+        if (error) {
+          console.error('북마크 추가 오류:', error);
+          return;
+        }
+      }
+      
+      // 상태 갱신
+      const { data } = await supabase
+        .from('group_bookmarks')
+        .select('group_id')
+        .eq('user_id', profile.clerk_user_id);
+      
+      setBookmarkedGroupIds(data ? data.map((b: any) => b.group_id) : []);
+    } catch (error) {
+      console.error('북마크 토글 실패:', error);
     }
-    // 상태 갱신
-    const { data } = await supabase.from('group_bookmarks').select('group_id').eq('user_id', profile.clerk_user_id);
-    setBookmarkedGroupIds(data ? data.map((b: any) => b.group_id) : []);
   };
 
   // [필터/검색 적용된 리스트]

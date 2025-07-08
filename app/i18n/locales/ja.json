@@ -419,25 +419,32 @@
     "title": "マイページ",
     "menu": {
       "profile": "基本情報",
+      "groups": "マイグループ",
       "expertStatus": "専門家申請"
     },
     "tab": {
       "services": "マイAIサービス",
       "posts": "マイ投稿",
       "likedPosts": "いいねした投稿",
-      "likedServices": "いいねしたサービス"
+      "likedServices": "いいねしたサービス",
+      "groups": "マイグループ",
+      "bookmarkedGroups": "ブックマークしたグループ"
     },
     "section": {
       "myServices": "マイAIサービス",
       "myPosts": "マイ投稿",
       "likedPosts": "いいねした投稿",
-      "likedServices": "いいねしたサービス"
+      "likedServices": "いいねしたサービス",
+      "myGroups": "グループ",
+      "bookmarkedGroups": "ブックマークしたグループ"
     },
     "empty": {
       "myServices": "登録されたサービスがありません。",
       "myPosts": "投稿した記事がありません。",
       "likedPosts": "いいねした投稿がありません。",
-      "likedServices": "いいねしたサービスがありません。"
+      "likedServices": "いいねしたサービスがありません。",
+      "myGroups": "参加しているグループがありません。",
+      "bookmarkedGroups": "ブックマークしたグループがありません。"
     },
     "delete": {
       "serviceTitle": "サービス削除",
@@ -478,6 +485,17 @@
       "editPost": "投稿編集",
       "deletePost": "投稿削除",
       "unlike": "いいね解除"
+    },
+    "group": {
+      "aiGroup": "AIグループ",
+      "members": "メンバー",
+      "member": "名",
+      "leader": "リーダー",
+      "joinedAt": "参加日",
+      "enterGroup": "グループに入る",
+      "bookmarked": "ブックマーク済み",
+      "bookmarkedAt": "ブックマーク日",
+      "unbookmark": "ブックマーク解除"
     }
   }
 } 

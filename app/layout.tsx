@@ -6,6 +6,7 @@ import { HeaderWrapper } from "./components/home/Header"
 import ClientLayout from "@/app/components/ClientLayout"
 import GoogleAnalytics from './components/GoogleAnalytics'
 import { ClerkProvider } from '@clerk/nextjs'
+import ChatProvider from "./components/chat/ChatProvider";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,6 +37,7 @@ export default function RootLayout({
             >
               <HeaderWrapper />
               {children}
+              <ChatProvider />
             </ThemeProvider>
           </ClientLayout>
         </ClerkProvider>

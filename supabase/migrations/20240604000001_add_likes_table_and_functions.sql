@@ -247,3 +247,117 @@ COMMENT ON TABLE public.group_bookmarks IS 'Stores which user bookmarked which g
 COMMENT ON COLUMN public.group_bookmarks.group_id IS 'Reference to the group.';
 COMMENT ON COLUMN public.group_bookmarks.user_id IS 'Reference to the user who bookmarked the group.';
 COMMENT ON COLUMN public.group_bookmarks.created_at IS 'Bookmark creation timestamp.';
+
+
+
+-- 그룹 채팅방 테이블 (그룹당 하나의 채팅방)
+CREATE TABLE group_chat_rooms (
+  id BIGSERIAL PRIMARY KEY,
+  group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(group_id)
+);
+
+-- 그룹 채팅 메시지 테이블
+CREATE TABLE group_chat_messages (
+  id BIGSERIAL PRIMARY KEY,
+  chat_room_id BIGINT NOT NULL REFERENCES group_chat_rooms(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(clerk_user_id) ON DELETE CASCADE,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 인덱스 생성
+CREATE INDEX idx_group_chat_rooms_group_id ON group_chat_rooms(group_id);
+CREATE INDEX idx_group_chat_messages_chat_room_id ON group_chat_messages(chat_room_id);
+CREATE INDEX idx_group_chat_messages_created_at ON group_chat_messages(created_at DESC);
+
+-- 그룹 참여 시 자동으로 채팅방 생성하는 함수
+CREATE OR REPLACE FUNCTION create_group_chat_room()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO group_chat_rooms (group_id)
+  VALUES (NEW.group_id)
+  ON CONFLICT (group_id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거 생성
+CREATE TRIGGER trigger_create_group_chat_room
+  AFTER INSERT ON group_members
+  FOR EACH ROW
+  EXECUTE FUNCTION create_group_chat_room();
+
+
+
+  -- 메시지 타입 컬럼 추가
+ALTER TABLE group_chat_messages 
+ADD COLUMN message_type VARCHAR(20) DEFAULT 'user'; -- 'user', 'system'
+
+-- 시스템 메시지 인덱스
+CREATE INDEX idx_group_chat_messages_type ON group_chat_messages(message_type);
+
+
+
+-- 멤버 입장 시 시스템 메시지 생성 함수
+CREATE OR REPLACE FUNCTION create_member_join_message()
+RETURNS TRIGGER AS $$
+DECLARE
+  chat_room_id BIGINT;
+  user_name TEXT;
+BEGIN
+  -- 채팅방 ID 가져오기
+  SELECT id INTO chat_room_id 
+  FROM group_chat_rooms 
+  WHERE group_id = NEW.group_id;
+  
+  -- 사용자 이름 가져오기
+  SELECT CONCAT(first_name, ' ', last_name) INTO user_name
+  FROM users 
+  WHERE clerk_user_id = NEW.user_id;
+  
+  -- 시스템 메시지 삽입
+  INSERT INTO group_chat_messages (chat_room_id, user_id, message, message_type)
+  VALUES (chat_room_id, NEW.user_id, user_name || '님이 그룹에 참여했습니다.', 'system');
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 멤버 퇴장 시 시스템 메시지 생성 함수
+CREATE OR REPLACE FUNCTION create_member_leave_message()
+RETURNS TRIGGER AS $$
+DECLARE
+  chat_room_id BIGINT;
+  user_name TEXT;
+BEGIN
+  -- 채팅방 ID 가져오기
+  SELECT id INTO chat_room_id 
+  FROM group_chat_rooms 
+  WHERE group_id = OLD.group_id;
+  
+  -- 사용자 이름 가져오기
+  SELECT CONCAT(first_name, ' ', last_name) INTO user_name
+  FROM users 
+  WHERE clerk_user_id = OLD.user_id;
+  
+  -- 시스템 메시지 삽입
+  INSERT INTO group_chat_messages (chat_room_id, user_id, message, message_type)
+  VALUES (chat_room_id, OLD.user_id, user_name || '님이 그룹을 나갔습니다.', 'system');
+  
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거 생성
+CREATE TRIGGER trigger_member_join_message
+  AFTER INSERT ON group_members
+  FOR EACH ROW
+  EXECUTE FUNCTION create_member_join_message();
+
+CREATE TRIGGER trigger_member_leave_message
+  AFTER DELETE ON group_members
+  FOR EACH ROW
+  EXECUTE FUNCTION create_member_leave_message();

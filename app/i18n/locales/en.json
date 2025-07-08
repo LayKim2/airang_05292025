@@ -420,25 +420,32 @@
     "title": "My Page",
     "menu": {
       "profile": "Profile",
+      "groups": "My Groups",
       "expertStatus": "Expert Application"
     },
     "tab": {
       "services": "My AI Services",
       "posts": "My Posts",
       "likedPosts": "Liked Posts",
-      "likedServices": "Liked Services"
+      "likedServices": "Liked Services",
+      "groups": "My Groups",
+      "bookmarkedGroups": "Bookmarked Groups"
     },
     "section": {
       "myServices": "My AI Services",
       "myPosts": "My Posts",
       "likedPosts": "Liked Posts",
-      "likedServices": "Liked Services"
+      "likedServices": "Liked Services",
+      "myGroups": "Groups",
+      "bookmarkedGroups": "Bookmarked Groups"
     },
     "empty": {
       "myServices": "No services registered.",
       "myPosts": "No posts written.",
       "likedPosts": "No liked posts.",
-      "likedServices": "No liked services."
+      "likedServices": "No liked services.",
+      "myGroups": "No groups joined.",
+      "bookmarkedGroups": "No bookmarked groups."
     },
     "delete": {
       "serviceTitle": "Delete Service",
@@ -479,6 +486,17 @@
       "editPost": "Edit Post",
       "deletePost": "Delete Post",
       "unlike": "Unlike"
+    },
+    "group": {
+      "aiGroup": "AI Group",
+      "members": "Members",
+      "member": "members",
+      "leader": "Leader",
+      "joinedAt": "Joined",
+      "enterGroup": "Enter Group",
+      "bookmarked": "Bookmarked",
+      "bookmarkedAt": "Bookmarked At",
+      "unbookmark": "Remove Bookmark"
     }
   },
   "headerCommunity": "AI Creator Community"

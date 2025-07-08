@@ -421,25 +421,32 @@
     "title": "我的页面",
     "menu": {
       "profile": "基本信息",
+      "groups": "我的小组",
       "expertStatus": "专家申请"
     },
     "tab": {
       "services": "我的AI服务",
       "posts": "我的帖子",
       "likedPosts": "点赞的帖子",
-      "likedServices": "点赞的服务"
+      "likedServices": "点赞的服务",
+      "groups": "我的小组",
+      "bookmarkedGroups": "收藏的小组"
     },
     "section": {
       "myServices": "我的AI服务",
       "myPosts": "我的帖子",
       "likedPosts": "点赞的帖子",
-      "likedServices": "点赞的服务"
+      "likedServices": "点赞的服务",
+      "myGroups": "小组",
+      "bookmarkedGroups": "收藏的小组"
     },
     "empty": {
       "myServices": "没有注册的服务。",
       "myPosts": "没有发布的帖子。",
       "likedPosts": "没有点赞的帖子。",
-      "likedServices": "没有点赞的服务。"
+      "likedServices": "没有点赞的服务。",
+      "myGroups": "没有加入的小组。",
+      "bookmarkedGroups": "没有收藏的小组。"
     },
     "delete": {
       "serviceTitle": "删除服务",
@@ -480,6 +487,17 @@
       "editPost": "编辑帖子",
       "deletePost": "删除帖子",
       "unlike": "取消点赞"
+    },
+    "group": {
+      "aiGroup": "AI小组",
+      "members": "成员",
+      "member": "人",
+      "leader": "组长",
+      "joinedAt": "加入日期",
+      "enterGroup": "进入小组",
+      "bookmarked": "已收藏",
+      "bookmarkedAt": "收藏日期",
+      "unbookmark": "取消收藏"
     }
   }
 } 

@@ -61,8 +61,23 @@ export default function GroupDetailPage() {
   useEffect(() => {
     const fetchBookmark = async () => {
       if (!profile?.clerk_user_id || !groupId) return;
-      const { data, error } = await supabase.from('group_bookmarks').select('id').eq('group_id', groupId).eq('user_id', profile.clerk_user_id).single();
-      setIsBookmarked(!!data);
+      try {
+        const { data, error } = await supabase
+          .from('group_bookmarks')
+          .select('id')
+          .eq('group_id', groupId)
+          .eq('user_id', profile.clerk_user_id)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('북마크 조회 오류:', error);
+          return;
+        }
+        
+        setIsBookmarked(!!data);
+      } catch (error) {
+        console.error('북마크 조회 실패:', error);
+      }
     };
     fetchBookmark();
   }, [profile?.clerk_user_id, groupId]);
@@ -88,12 +103,38 @@ export default function GroupDetailPage() {
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!profile?.clerk_user_id || !groupId) return;
-    if (isBookmarked) {
-      await supabase.from('group_bookmarks').delete().eq('group_id', groupId).eq('user_id', profile.clerk_user_id);
-      setIsBookmarked(false);
-    } else {
-      await supabase.from('group_bookmarks').insert({ group_id: groupId, user_id: profile.clerk_user_id });
-      setIsBookmarked(true);
+    
+    try {
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from('group_bookmarks')
+          .delete()
+          .eq('group_id', groupId)
+          .eq('user_id', profile.clerk_user_id);
+        
+        if (error) {
+          console.error('북마크 삭제 오류:', error);
+          return;
+        }
+        
+        setIsBookmarked(false);
+      } else {
+        const { error } = await supabase
+          .from('group_bookmarks')
+          .insert({ 
+            group_id: groupId, 
+            user_id: profile.clerk_user_id 
+          });
+        
+        if (error) {
+          console.error('북마크 추가 오류:', error);
+          return;
+        }
+        
+        setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.error('북마크 토글 실패:', error);
     }
   };
 
