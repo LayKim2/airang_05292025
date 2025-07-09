@@ -81,9 +81,15 @@ export default function ChatProvider() {
     }
   };
 
+  // 채팅 모달 열기 시 그룹 목록 새로 가져오기
+  const handleOpenChat = async () => {
+    setIsChatOpen(true);
+    await fetchUserGroups(); // 그룹 목록 새로 가져오기
+  };
+
   return (
     <>
-      {!isChatOpen && <GlobalChatFab onClick={() => setIsChatOpen(true)} />}
+      {!isChatOpen && <GlobalChatFab onClick={handleOpenChat} />}
       <GroupChatModal 
         isOpen={isChatOpen} 
         onClose={() => setIsChatOpen(false)} 

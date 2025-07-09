@@ -198,16 +198,55 @@
       "presentation": "발표",
       "law": "법률"
     },
-    "button": {
-      "more": "더보기",
-      "less": "접기",
-      "visit": "바로가기"
-    },
+    "more": "더보기",
+    "less": "접기",
+    "visit": "바로가기",
     "label": {
       "free": "무료",
       "paid": "유료"
     },
     "placeholder": "AI 도구/모델 입력 후 Enter"
+  },
+  "button": {
+    "close": "닫기",
+    "send": "전송",
+    "leave": "모임 나가기",
+    "delete": "모임 삭제",
+    "kick": "내보내기",
+    "confirm": "확인",
+    "cancel": "취소"
+  },
+  "chat": {
+    "title": "그룹 채팅",
+    "noGroups": "그룹에 참여해주세요",
+    "noGroupsDesc": "채팅을 사용하려면 먼저 그룹에 가입해야 합니다.",
+    "selectGroup": "그룹을 선택해주세요",
+    "selectGroupDesc": "채팅을 보려면 왼쪽에서 그룹을 선택하세요.",
+    "selectGroupMobile": "채팅을 보려면 상단 메뉴에서 그룹을 선택하세요.",
+    "noMessages": "아직 메시지가 없습니다.",
+    "loading": "채팅을 불러오는 중...",
+    "messagePlaceholder": "메시지를 입력하세요...",
+    "membersTitle": "멤버 목록",
+    "participating": "명 참여 중",
+    "groupsParticipating": "개 그룹 참여 중",
+    "leader": "리더",
+    "member": "멤버",
+    "leaveConfirm": "그룹에서 나가시겠습니까?",
+    "deleteConfirm": "그룹을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+    "kickConfirm": "님을 그룹에서 내보내시겠습니까?",
+    "memberList": "멤버 목록",
+    "toggleMembers": "멤버 목록",
+    "toggleGroups": "그룹 목록",
+    "systemMessages": {
+      "memberJoin": "{userName}님이 그룹에 참여했습니다",
+      "memberLeave": "{userName}님이 그룹을 나갔습니다",
+      "groupCreated": "{creatorName}님이 그룹을 생성했습니다",
+      "roleChange": "{userName}님의 역할이 {oldRole}에서 {newRole}로 변경되었습니다",
+      "roles": {
+        "member": "멤버",
+        "leader": "리더"
+      }
+    }
   },
   "signIn": "로그인",
   "signUp": "회원가입",
@@ -340,7 +379,7 @@
       "free": "자유모임"
     },
     "searchPlaceholder": "모임명, 설명 검색...",
-    "registerButton": "모임 등록",
+    "registerButton": "모임 찾기",
     "loading": "모임 목록을 불러오는 중...",
     "noResults": "검색 결과가 없습니다.",
     "status": {

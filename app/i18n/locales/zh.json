@@ -339,7 +339,7 @@
       "free": "自由小组"
     },
     "searchPlaceholder": "搜索小组名、描述...",
-    "registerButton": "注册小组",
+    "registerButton": "寻找小组",
     "loading": "正在加载小组列表...",
     "noResults": "未找到结果。",
     "status": {
@@ -498,6 +498,47 @@
       "bookmarked": "已收藏",
       "bookmarkedAt": "收藏日期",
       "unbookmark": "取消收藏"
+    }
+  },
+  "button": {
+    "close": "关闭",
+    "send": "发送",
+    "leave": "退出群组",
+    "delete": "删除群组",
+    "kick": "移除",
+    "confirm": "确认",
+    "cancel": "取消"
+  },
+  "chat": {
+    "title": "群组聊天",
+    "noGroups": "请加入群组",
+    "noGroupsDesc": "要使用聊天功能，请先加入群组。",
+    "selectGroup": "请选择群组",
+    "selectGroupDesc": "要查看聊天，请在左侧选择群组。",
+    "selectGroupMobile": "要查看聊天，请在顶部菜单选择群组。",
+    "noMessages": "暂无消息。",
+    "loading": "正在加载聊天...",
+    "messagePlaceholder": "请输入消息...",
+    "membersTitle": "成员列表",
+    "participating": "人参与中",
+    "groupsParticipating": "个群组参与中",
+    "leader": "群主",
+    "member": "成员",
+    "leaveConfirm": "确定要退出该群组吗？",
+    "deleteConfirm": "确定要删除该群组吗？\n此操作无法撤销。",
+    "kickConfirm": "确定要将该成员移出群组吗？",
+    "memberList": "成员列表",
+    "toggleMembers": "成员列表",
+    "toggleGroups": "群组列表",
+    "systemMessages": {
+      "memberJoin": "{userName}加入了群组",
+      "memberLeave": "{userName}退出了群组",
+      "groupCreated": "{creatorName}创建了群组",
+      "roleChange": "{userName}的角色从{oldRole}变更为{newRole}",
+      "roles": {
+        "member": "成员",
+        "leader": "群主"
+      }
     }
   }
 } 

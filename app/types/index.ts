@@ -87,4 +87,52 @@ export const GROUP_CATEGORIES: Category[] = [
   { id: 'networking', name: '네트워킹' },
   { id: 'meetup', name: '밋업/세미나' },
   { id: 'free', name: '자유모임' },
-]; 
+];
+
+// 채팅 시스템 메시지 관련 타입 정의
+export type SystemMessageCode = 'MEMBER_JOIN' | 'MEMBER_LEAVE';
+
+export interface SystemMessageParams {
+  user_name?: string;
+  user_id?: string;
+  role?: string;
+  userName?: string; // 번역을 위한 별칭
+}
+
+export interface ChatMessage {
+  id: number;
+  chat_room_id: number;
+  user_id: string;
+  message: string;
+  message_type: 'user' | 'system';
+  system_message_code?: SystemMessageCode;
+  system_message_params?: SystemMessageParams;
+  created_at: string;
+  users?: {
+    clerk_user_id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+  };
+}
+
+export interface ChatRoom {
+  id: number;
+  group_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupMember {
+  id: number;
+  group_id: number;
+  user_id: string;
+  role: 'member' | 'leader';
+  created_at: string;
+  users?: {
+    clerk_user_id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+  };
+} 

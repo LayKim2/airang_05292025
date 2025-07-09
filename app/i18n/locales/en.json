@@ -197,16 +197,55 @@
       "presentation": "Presentation",
       "law": "Law"
     },
-    "button": {
-      "more": "More",
-      "less": "Less",
-      "visit": "Visit"
-    },
+    "more": "More",
+    "less": "Less",
+    "visit": "Visit",
     "label": {
       "free": "Free",
       "paid": "Paid"
     },
     "placeholder": "Enter AI tool/model and press Enter"
+  },
+  "button": {
+    "close": "Close",
+    "send": "Send",
+    "leave": "Leave Group",
+    "delete": "Delete Group",
+    "kick": "Kick",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "chat": {
+    "title": "Group Chat",
+    "noGroups": "Please join a group",
+    "noGroupsDesc": "You need to join a group first to use chat.",
+    "selectGroup": "Please select a group",
+    "selectGroupDesc": "Select a group from the left to view chat.",
+    "selectGroupMobile": "Select a group from the top menu to view chat.",
+    "noMessages": "No messages yet.",
+    "loading": "Loading chat...",
+    "messagePlaceholder": "Type a message...",
+    "membersTitle": "Members",
+    "participating": "participating",
+    "groupsParticipating": "groups participating",
+    "leader": "Leader",
+    "member": "Member",
+    "leaveConfirm": "Leave this group?",
+    "deleteConfirm": "Delete this group?\nThis action cannot be undone.",
+    "kickConfirm": "Kick this member from the group?",
+    "memberList": "Member List",
+    "toggleMembers": "Member List",
+    "toggleGroups": "Group List",
+    "systemMessages": {
+      "memberJoin": "{userName} joined the group",
+      "memberLeave": "{userName} left the group",
+      "groupCreated": "{creatorName} created the group",
+      "roleChange": "{userName}'s role changed from {oldRole} to {newRole}",
+      "roles": {
+        "member": "Member",
+        "leader": "Leader"
+      }
+    }
   },
   "signIn": "Sign In",
   "signUp": "Sign Up",
@@ -338,7 +377,7 @@
       "free": "Free Group"
     },
     "searchPlaceholder": "Search group name, description...",
-    "registerButton": "Register Group",
+    "registerButton": "Find Groups",
     "loading": "Loading group list...",
     "noResults": "No results found.",
     "status": {

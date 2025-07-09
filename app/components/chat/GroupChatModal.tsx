@@ -4,6 +4,7 @@ import { X, Send, Users, MessageCircle, Crown, User, ChevronRight, Menu } from "
 import { supabase } from "@/lib/supabase";
 import { useUserProfile } from '@/app/lib/useUserProfile';
 import { useTranslation } from "@/app/i18n/useTranslation";
+import { ChatMessage, SystemMessageCode, SystemMessageParams, GroupMember } from "@/app/types";
 
 interface GroupChatModalProps {
   isOpen: boolean;
@@ -401,7 +402,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
     if (!profile?.clerk_user_id || !selectedGroup?.id) return;
 
     // 확인 다이얼로그
-    if (!confirm(`"${selectedGroup.title}" 그룹에서 나가시겠습니까?`)) {
+    if (!confirm(`${t('chat.leaveConfirm')}`)) {
       return;
     }
 
@@ -431,7 +432,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
     if (!profile?.clerk_user_id || !selectedGroup?.id) return;
 
     // 확인 다이얼로그
-    if (!confirm(`"${selectedGroup.title}" 그룹을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+    if (!confirm(`${t('chat.deleteConfirm')}`)) {
       return;
     }
 
@@ -461,7 +462,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
     if (!profile?.clerk_user_id || !selectedGroup?.id) return;
 
     // 확인 다이얼로그
-    if (!confirm(`"${memberName}"님을 그룹에서 내보내시겠습니까?`)) {
+    if (!confirm(`${t('chat.kickConfirm')}`)) {
       return;
     }
 
@@ -510,7 +511,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
       <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">그룹 채팅</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('chat.title')}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-200 rounded-full transition-colors"
@@ -520,14 +521,17 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
           </div>
           <div className="text-gray-600 mb-6">
             <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium mb-2">그룹에 참여해주세요</p>
-            <p className="text-sm">채팅을 사용하려면 먼저 그룹에 가입해야 합니다.</p>
+            <p className="text-lg font-medium mb-2">{t('chat.noGroups')}</p>
+            <p className="text-sm">{t('chat.noGroupsDesc')}</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              window.location.href = '/match/groups';
+            }}
             className="px-6 py-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
           >
-            확인
+            {t('groups.registerButton')}
           </button>
         </div>
       </div>
@@ -543,10 +547,10 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
           {/* 헤더 */}
           <div className="p-6 border-b border-gray-200">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900">그룹 채팅</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('chat.title')}</h2>
             </div>
             <div className="text-sm text-gray-600">
-              {userGroups.length}개 그룹 참여 중
+              {userGroups.length} {t('chat.groupsParticipating')}
             </div>
           </div>
 
@@ -612,17 +616,17 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                 <button
                   onClick={handleDeleteGroup}
                   className="w-full px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
-                  title="모임 삭제"
+                  title={t('button.delete')}
                 >
-                  모임 삭제
+                  {t('button.delete')}
                 </button>
               ) : (
                 <button
                   onClick={handleLeaveGroup}
                   className="w-full px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
-                  title="모임 나가기"
+                  title={t('button.leave')}
                 >
-                  모임 나가기
+                  {t('button.leave')}
                 </button>
               )}
             </div>
@@ -651,7 +655,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     <div>
                       <h3 className="font-semibold text-gray-900">{selectedGroup.title}</h3>
                       <div className="text-sm text-gray-500">
-                        {members.length}명 참여 중
+                        {members.length}{t('chat.participating')}
                       </div>
                     </div>
                   </div>
@@ -661,27 +665,17 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     <button
                       onClick={() => setShowMembers(!showMembers)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="멤버 목록"
+                      title={t('chat.toggleMembers')}
                     >
                       <Users className="w-5 h-5 text-gray-600" />
                     </button>
                     
-                    {/* 그룹 삭제 버튼 (리더만) */}
-                    {selectedGroup.role === 'leader' && (
-                      <button
-                        onClick={handleDeleteGroup}
-                        className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                        title="그룹 삭제"
-                      >
-                        그룹 삭제
-                      </button>
-                    )}
                     
                     {/* 닫기 버튼 */}
                     <button
                       onClick={onClose}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="닫기"
+                      title={t('button.close')}
                     >
                       <X className="w-5 h-5 text-gray-500" />
                     </button>
@@ -699,20 +693,81 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                 }}
               >
                 {loading ? (
-                  <div className="text-center text-gray-500">채팅을 불러오는 중...</div>
+                  <div className="text-center text-gray-500">{t('chat.loading')}</div>
                 ) : messages.length === 0 ? (
-                  <div className="text-center text-gray-500">아직 메시지가 없습니다.</div>
+                  <div className="text-center text-gray-500">{t('chat.noMessages')}</div>
                 ) : (
                   messages.map((message) => {
                     const isMyMessage = message.user_id === profile?.clerk_user_id;
                     const isSystemMessage = message.message_type === 'system';
                     
-                    // 시스템 메시지 렌더링
+                    // 시스템 메시지 렌더링 (system_message_code와 system_message_params 활용)
                     if (isSystemMessage) {
+                      const systemCode = message.system_message_code;
+                      const systemParams = message.system_message_params;
+                      
+                      // 시스템 메시지 코드별 아이콘과 스타일 결정
+                      const getSystemMessageStyle = (code: string) => {
+                        switch (code) {
+                          case 'MEMBER_JOIN':
+                            return {
+                              icon: '👋',
+                              bgColor: 'bg-green-50',
+                              textColor: 'text-green-700',
+                              borderColor: 'border-green-200'
+                            };
+                          case 'MEMBER_LEAVE':
+                            return {
+                              icon: '👋',
+                              bgColor: 'bg-orange-50',
+                              textColor: 'text-orange-700',
+                              borderColor: 'border-orange-200'
+                            };
+                          default:
+                            return {
+                              icon: '💬',
+                              bgColor: 'bg-gray-50',
+                              textColor: 'text-gray-600',
+                              borderColor: 'border-gray-200'
+                            };
+                        }
+                      };
+                      
+                      // 다국어 지원 시스템 메시지 생성
+                      const getSystemMessageText = (code: string, params: any) => {
+                        if (!code || !params) return message.message; // fallback to original message
+                        
+                        try {
+                          // 간단한 문자열 치환 함수
+                          const replaceParams = (template: string, params: any) => {
+                            return template.replace(/\{(\w+)\}/g, (match, key) => {
+                              return params[key] || match;
+                            });
+                          };
+                          
+                          switch (code) {
+                            case 'MEMBER_JOIN':
+                              const joinTemplate = t('chat.systemMessages.memberJoin');
+                              return replaceParams(joinTemplate, { userName: params.user_name || 'Unknown User' });
+                            case 'MEMBER_LEAVE':
+                              const leaveTemplate = t('chat.systemMessages.memberLeave');
+                              return replaceParams(leaveTemplate, { userName: params.user_name || 'Unknown User' });
+                            default:
+                              return message.message; // fallback
+                          }
+                        } catch (error) {
+                          console.error('System message translation error:', error);
+                          return message.message; // fallback
+                        }
+                      };
+                      
+                      const style = getSystemMessageStyle(systemCode);
+                      const translatedMessage = getSystemMessageText(systemCode as SystemMessageCode, systemParams as SystemMessageParams);
+                      
                       return (
                         <div key={message.id} className="flex justify-center my-2">
-                          <div className="bg-gray-100 text-gray-600 text-sm px-4 py-2 rounded-full border border-gray-200">
-                            <span className="text-gray-500">💬</span> {message.message}
+                          <div className={`${style.bgColor} ${style.textColor} text-sm px-4 py-2 rounded-full border ${style.borderColor}`}>
+                            <span className="mr-2">{style.icon}</span> {translatedMessage}
                           </div>
                         </div>
                       );
@@ -772,7 +827,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="메시지를 입력하세요..."
+                    placeholder={t('chat.messagePlaceholder')}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                     style={{
                       backgroundColor: '#ffffff',
@@ -786,6 +841,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
                     className="px-4 py-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title={t('button.send')}
                   >
                     <Send className="w-4 h-4" />
                   </button>
@@ -796,8 +852,8 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center text-gray-500">
                 <Users className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <p className="text-lg font-medium mb-2">그룹을 선택해주세요</p>
-                <p className="text-sm">채팅을 보려면 왼쪽에서 그룹을 선택하세요.</p>
+                <p className="text-lg font-medium mb-2">{t('chat.selectGroup')}</p>
+                <p className="text-sm">{t('chat.selectGroupDesc')}</p>
               </div>
             </div>
           )}
@@ -808,7 +864,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
           <div className="w-80 bg-gray-50 border-l border-gray-200 flex flex-col">
             {/* 멤버 헤더 */}
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700">멤버 목록</h3>
+              <h3 className="text-sm font-semibold text-gray-700">{t('chat.membersTitle')}</h3>
             </div>
 
             {/* 멤버 목록 */}
@@ -838,7 +894,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                           {member.users?.first_name} {member.users?.last_name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {member.role === 'leader' ? '리더' : '멤버'}
+                          {member.role === 'leader' ? t('chat.leader') : t('chat.member')}
                         </div>
                       </div>
                     </div>
@@ -851,9 +907,9 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                           `${member.users?.first_name} ${member.users?.last_name}`
                         )}
                         className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                        title="내보내기"
+                        title={t('button.kick')}
                       >
-                        내보내기
+                        {t('button.kick')}
                       </button>
                     )}
                   </div>
@@ -887,9 +943,9 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
               <Menu className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">그룹 채팅</h2>
+              <h2 className="text-lg font-bold text-gray-900">{t('chat.title')}</h2>
               <div className="text-xs text-gray-500">
-                {userGroups.length}개 그룹 참여 중
+                {userGroups.length} {t('chat.groupsParticipating')}
               </div>
             </div>
           </div>
@@ -958,17 +1014,17 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                   <button
                     onClick={handleDeleteGroup}
                     className="w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
-                    title="모임 삭제"
+                    title={t('button.delete')}
                   >
-                    모임 삭제
+                    {t('button.delete')}
                   </button>
                 ) : (
                   <button
                     onClick={handleLeaveGroup}
                     className="w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
-                    title="모임 나가기"
+                    title={t('button.leave')}
                   >
-                    모임 나가기
+                    {t('button.leave')}
                   </button>
                 )}
               </div>
@@ -998,7 +1054,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 truncate">{selectedGroup.title}</h3>
                       <div className="text-xs text-gray-500">
-                        {members.length}명 참여 중
+                        {members.length}{t('chat.participating')}
                       </div>
                     </div>
                   </div>
@@ -1008,21 +1064,11 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                     <button
                       onClick={() => setShowMembers(!showMembers)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="멤버 목록"
+                      title={t('chat.toggleMembers')}
                     >
                       <Users className="w-4 h-4 text-gray-600" />
                     </button>
                     
-                    {/* 그룹 삭제 버튼 (리더만) */}
-                    {selectedGroup.role === 'leader' && (
-                      <button
-                        onClick={handleDeleteGroup}
-                        className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                        title="그룹 삭제"
-                      >
-                        삭제
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1034,7 +1080,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
                   <div className="p-3">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">멤버 목록</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('chat.membersTitle')}</h4>
                     <div className="space-y-2">
                       {members.map((member) => (
                         <div key={member.user_id} className="flex items-center justify-between p-2 rounded-lg bg-white">
@@ -1060,7 +1106,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                                 {member.users?.first_name} {member.users?.last_name}
                               </div>
                               <div className="text-xs text-gray-500">
-                                {member.role === 'leader' ? '리더' : '멤버'}
+                                {member.role === 'leader' ? t('chat.leader') : t('chat.member')}
                               </div>
                             </div>
                           </div>
@@ -1073,9 +1119,9 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                                 `${member.users?.first_name} ${member.users?.last_name}`
                               )}
                               className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                              title="내보내기"
+                              title={t('button.kick')}
                             >
-                              내보내기
+                              {t('button.kick')}
                             </button>
                           )}
                         </div>
@@ -1096,20 +1142,81 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                 }}
               >
                 {loading ? (
-                  <div className="text-center text-gray-500 text-sm">채팅을 불러오는 중...</div>
+                  <div className="text-center text-gray-500 text-sm">{t('chat.loading')}</div>
                 ) : messages.length === 0 ? (
-                  <div className="text-center text-gray-500 text-sm">아직 메시지가 없습니다.</div>
+                  <div className="text-center text-gray-500 text-sm">{t('chat.noMessages')}</div>
                 ) : (
                   messages.map((message) => {
                     const isMyMessage = message.user_id === profile?.clerk_user_id;
                     const isSystemMessage = message.message_type === 'system';
                     
-                    // 시스템 메시지 렌더링
+                    // 시스템 메시지 렌더링 (system_message_code와 system_message_params 활용)
                     if (isSystemMessage) {
+                      const systemCode = message.system_message_code;
+                      const systemParams = message.system_message_params;
+                      
+                      // 시스템 메시지 코드별 아이콘과 스타일 결정
+                      const getSystemMessageStyle = (code: string) => {
+                        switch (code) {
+                          case 'MEMBER_JOIN':
+                            return {
+                              icon: '👋',
+                              bgColor: 'bg-green-50',
+                              textColor: 'text-green-700',
+                              borderColor: 'border-green-200'
+                            };
+                          case 'MEMBER_LEAVE':
+                            return {
+                              icon: '👋',
+                              bgColor: 'bg-orange-50',
+                              textColor: 'text-orange-700',
+                              borderColor: 'border-orange-200'
+                            };
+                          default:
+                            return {
+                              icon: '💬',
+                              bgColor: 'bg-gray-50',
+                              textColor: 'text-gray-600',
+                              borderColor: 'border-gray-200'
+                            };
+                        }
+                      };
+                      
+                      // 다국어 지원 시스템 메시지 생성
+                      const getSystemMessageText = (code: SystemMessageCode | undefined, params: SystemMessageParams | undefined) => {
+                        if (!code || !params) return message.message; // fallback to original message
+                        
+                        try {
+                          // 간단한 문자열 치환 함수
+                          const replaceParams = (template: string, params: SystemMessageParams) => {
+                            return template.replace(/\{(\w+)\}/g, (match, key) => {
+                              return params[key as keyof SystemMessageParams] || match;
+                            });
+                          };
+                          
+                          switch (code) {
+                            case 'MEMBER_JOIN':
+                              const joinTemplate = t('chat.systemMessages.memberJoin');
+                              return replaceParams(joinTemplate, { userName: params.user_name || 'Unknown User' });
+                            case 'MEMBER_LEAVE':
+                              const leaveTemplate = t('chat.systemMessages.memberLeave');
+                              return replaceParams(leaveTemplate, { userName: params.user_name || 'Unknown User' });
+                            default:
+                              return message.message; // fallback
+                          }
+                        } catch (error) {
+                          console.error('System message translation error:', error);
+                          return message.message; // fallback
+                        }
+                      };
+                      
+                      const style = getSystemMessageStyle(systemCode);
+                      const translatedMessage = getSystemMessageText(systemCode as SystemMessageCode, systemParams as SystemMessageParams);
+                      
                       return (
                         <div key={message.id} className="flex justify-center my-2">
-                          <div className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full border border-gray-200">
-                            <span className="text-gray-500">💬</span> {message.message}
+                          <div className={`${style.bgColor} ${style.textColor} text-xs px-3 py-1.5 rounded-full border ${style.borderColor}`}>
+                            <span className="mr-1">{style.icon}</span> {translatedMessage}
                           </div>
                         </div>
                       );
@@ -1169,7 +1276,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="메시지를 입력하세요..."
+                      placeholder={t('chat.messagePlaceholder')}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
                       style={{
                         fontSize: '16px', // iOS에서 자동 확대 방지
@@ -1185,6 +1292,7 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
                       onClick={handleSendMessage}
                       disabled={!newMessage.trim()}
                       className="px-3 py-2 bg-violet-500 text-white rounded-full hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                      title={t('button.send')}
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -1195,8 +1303,8 @@ export default function GroupChatModal({ isOpen, onClose, userGroups, selectedGr
             <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center text-gray-500">
                 <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p className="text-base font-medium mb-2">그룹을 선택해주세요</p>
-                <p className="text-sm">채팅을 보려면 상단 메뉴에서 그룹을 선택하세요.</p>
+                <p className="text-base font-medium mb-2">{t('chat.selectGroup')}</p>
+                <p className="text-sm">{t('chat.selectGroupMobile')}</p>
               </div>
             </div>
           )}

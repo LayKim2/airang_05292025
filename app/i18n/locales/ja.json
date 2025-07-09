@@ -337,7 +337,7 @@
       "free": "自由グループ"
     },
     "searchPlaceholder": "グループ名、説明を検索...",
-    "registerButton": "グループ登録",
+    "registerButton": "グループを探す",
     "loading": "グループリストを読み込み中...",
     "noResults": "検索結果がありません。",
     "status": {
@@ -496,6 +496,47 @@
       "bookmarked": "ブックマーク済み",
       "bookmarkedAt": "ブックマーク日",
       "unbookmark": "ブックマーク解除"
+    }
+  },
+  "button": {
+    "close": "閉じる",
+    "send": "送信",
+    "leave": "グループ退出",
+    "delete": "グループ削除",
+    "kick": "追放",
+    "confirm": "確認",
+    "cancel": "キャンセル"
+  },
+  "chat": {
+    "title": "グループチャット",
+    "noGroups": "グループに参加してください",
+    "noGroupsDesc": "チャットを利用するには、まずグループに参加してください。",
+    "selectGroup": "グループを選択してください",
+    "selectGroupDesc": "チャットを見るには左からグループを選択してください。",
+    "selectGroupMobile": "チャットを見るには上部メニューからグループを選択してください。",
+    "noMessages": "まだメッセージがありません。",
+    "loading": "チャットを読み込み中...",
+    "messagePlaceholder": "メッセージを入力してください...",
+    "membersTitle": "メンバーリスト",
+    "participating": "人参加中",
+    "groupsParticipating": "件グループ参加中",
+    "leader": "リーダー",
+    "member": "メンバー",
+    "leaveConfirm": "このグループから退出しますか？",
+    "deleteConfirm": "このグループを削除しますか？\nこの操作は元に戻せません。",
+    "kickConfirm": "このメンバーをグループから追放しますか？",
+    "memberList": "メンバーリスト",
+    "toggleMembers": "メンバーリスト",
+    "toggleGroups": "グループリスト",
+    "systemMessages": {
+      "memberJoin": "{userName}さんがグループに参加しました",
+      "memberLeave": "{userName}さんがグループを退出しました",
+      "groupCreated": "{creatorName}さんがグループを作成しました",
+      "roleChange": "{userName}さんの役割が{oldRole}から{newRole}に変更されました",
+      "roles": {
+        "member": "メンバー",
+        "leader": "リーダー"
+      }
     }
   }
 } 
