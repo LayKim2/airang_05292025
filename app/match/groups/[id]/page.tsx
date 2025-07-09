@@ -7,6 +7,8 @@ import { Sparkles, CheckCircle, Users, Calendar, BookOpen, User, Zap, Bookmark, 
 import { useUserProfile } from '@/app/lib/useUserProfile';
 import Head from 'next/head';
 import { useTranslation } from "@/app/i18n/useTranslation";
+// [MCP] Clerk 로그인 모달
+import { useClerk } from '@clerk/nextjs';
 
 // [MCP] 그룹 상세 페이지: 그룹 id로 데이터 fetch, 주요 정보 표시 scaffold
 export default function GroupDetailPage() {
@@ -15,7 +17,10 @@ export default function GroupDetailPage() {
   const params = useParams();
   const groupId = params?.id;
   const [group, setGroup] = useState<any>(null);
+  // [MCP] 그룹장(organizer) 프로필 상태 추가
+  const [organizerProfile, setOrganizerProfile] = useState<any>(null);
   const { profile } = useUserProfile();
+  const { openSignIn } = useClerk(); // [MCP] Clerk 로그인 모달
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isClosed = group && (group.status === 'recruited' || (group.recruit_count && members.length >= group.recruit_count));
@@ -33,6 +38,8 @@ export default function GroupDetailPage() {
         const { data: u, error: userError } = await supabase.from('users').select('first_name, last_name, email, avatar_url').eq('clerk_user_id', groupData.user_id).single();
         if (!userError && u) userData = u;
       }
+      // [MCP] organizerProfile 상태에 그룹장 정보 저장
+      setOrganizerProfile(userData);
       // group_members + users 조인: 참여자 전체(리더/멤버) avatar_url 등
       let memberList: any[] = [];
       if (groupData && groupData.id) {
@@ -87,7 +94,12 @@ export default function GroupDetailPage() {
 
   // 참여하기 버튼 핸들러
   const handleJoin = async () => {
-    if (!profile?.clerk_user_id || !groupId) return;
+    // [MCP] 로그인 필요시 Clerk 로그인 모달
+    if (!profile?.clerk_user_id) {
+      openSignIn();
+      return;
+    }
+    if (!groupId) return;
     if (isJoined) return;
     await supabase.from('group_members').insert({
       group_id: groupId,
@@ -102,7 +114,12 @@ export default function GroupDetailPage() {
   // 북마크 토글 핸들러
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!profile?.clerk_user_id || !groupId) return;
+    // [MCP] 로그인 필요시 Clerk 로그인 모달
+    if (!profile?.clerk_user_id) {
+      openSignIn();
+      return;
+    }
+    if (!groupId) return;
     
     try {
       if (isBookmarked) {
@@ -216,15 +233,17 @@ export default function GroupDetailPage() {
         {/* 주요 정보 카드 */}
         <div className="bg-white rounded-b-3xl shadow-xl -mt-6 p-6 pt-10 flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt={t('groups.detail.organizer')} className="w-12 h-12 rounded-full object-cover border bg-gray-100" />
+            {/* [MCP] 그룹장(organizer) 아바타 표시 */}
+            {organizerProfile?.avatar_url ? (
+              <img src={organizerProfile.avatar_url} alt={t('groups.detail.organizer')} className="w-12 h-12 rounded-full object-cover border bg-gray-100" />
             ) : (
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-lg font-bold text-violet-500">
-                {profile?.first_name?.[0] || 'U'}
-                </div>
-              )}
+                {organizerProfile?.first_name?.[0] || 'U'}
+              </div>
+            )}
             <div>
-              <div className="text-sm text-gray-500 font-semibold">{t('groups.detail.organizer')}: {profile ? `${profile.first_name || ''}${profile.last_name ? ' ' + profile.last_name : ''}` : group.user_id}</div>
+              {/* [MCP] group leader 이름 표시 */}
+              <div className="text-sm text-gray-500 font-semibold">{t('groups.detail.organizer')}: {organizerProfile ? `${organizerProfile.first_name || ''}${organizerProfile.last_name ? ' ' + organizerProfile.last_name : ''}` : group.user_id}</div>
               <div className="text-xs text-gray-400">{t('groups.detail.registrationDate')}: {group.created_at ? new Date(group.created_at).toLocaleDateString() : '-'}</div>
             </div>
           </div>

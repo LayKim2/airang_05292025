@@ -51,6 +51,7 @@ export interface User {
   created_at?: string;
   last_sign_in_at?: string;
   updated_at?: string;
+  user_role?: string; // [MCP] supabase users 테이블의 역할 컬럼
 }
 
 export type Post = {

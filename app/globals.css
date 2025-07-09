@@ -10,6 +10,28 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* [MCP] 커스텀 애니메이션 */
+  @keyframes fade-slide-in {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-slide-in {
+    animation: fade-slide-in 0.5s cubic-bezier(0.4,0,0.2,1) both;
+  }
+
+  @keyframes gradient-move {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  .animate-gradient-move {
+    background-size: 200% 200%;
+    animation: gradient-move 5s linear infinite;
+  }
 }
 
 @layer base {

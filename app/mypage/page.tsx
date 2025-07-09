@@ -773,68 +773,6 @@ function MyPage() {
             </div>
           ) : (
             <>
-              <section className="w-full mb-8">
-                <div className="w-full">
-                  {/* 모바일: 기존 구조 유지 */}
-                  <div className="flex flex-col items-center sm:hidden px-0 py-8 bg-white border border-gray-200 shadow-lg rounded-xl">
-                    <div className="flex flex-row items-center gap-6">
-                      <img src={userData.profileImage} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 bg-white shadow-md" />
-                      {userData.role === 'expert' && (
-                        <img src="/images/role/expert2.png" alt="Expert Medal" className="w-24 h-24 object-contain" />
-                      )}
-                      {userData.role === 'creator' && (
-                        <img src="/images/role/creator2.png" alt="Creator Medal" className="w-24 h-24 object-contain" />
-                      )}
-                    </div>
-                    <div className="mt-2 flex flex-col items-center">
-                      <span className="text-xl font-bold text-gray-900">{userData.name}</span>
-                      <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
-                    </div>
-                    <div className="mt-4 text-center text-gray-700 space-y-1">
-                      <div>{t('mypage.profile.email')} {user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</div>
-                      <div>{t('mypage.profile.joinDate')} {userData.joinDate}</div>
-                      <div>{t('mypage.profile.phone')} {userData.phone}</div>
-                    </div>
-                  </div>
-                  {/* PC: 예시 구조로 */}
-                  <div className="hidden sm:flex backdrop-blur-md bg-white/70 border border-gray-200 shadow-lg rounded-3xl w-full flex-row items-center px-0 py-10 relative">
-                    {/* 왼쪽: 프로필/이름/역할/메달 */}
-                    <div className="flex items-center gap-8 pl-10 flex-1 min-w-0">
-                      <img 
-                        src={userData.profileImage} 
-                        alt="Profile" 
-                        className="w-24 h-24 rounded-full object-cover border-2 border-blue-200 bg-white shadow-md"
-                      />
-                      <div className="flex flex-col gap-2 min-w-0">
-                        <span className="text-2xl font-bold text-gray-900 truncate">{userData.name}</span>
-                        <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
-                      </div>
-                      {/* [MCP] PC/모바일 모두 메달 이미지를 w-24 h-24 object-contain(테두리/배경/그림자 없음)으로 통일 */}
-                      {userData.role === 'expert' && (
-                        <img src="/images/role/expert2.png" alt="Expert Medal" className="w-32 h-32 rounded-full object-cover bg-white shadow-md" />
-                      )}
-                      {userData.role === 'creator' && (
-                        <img src="/images/role/creator2.png" alt="Creator Medal" className="w-32 h-32 rounded-full object-cover bg-white shadow-md" />
-                      )}
-                    </div>
-                    {/* 오른쪽: 정보 */}
-                    <div className="flex flex-col gap-3 min-w-[300px] pl-10 pr-10 text-left">
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.email')}</span>
-                        <span className="text-gray-800">{user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.joinDate')}</span>
-                        <span className="text-gray-800">{userData.joinDate}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.phone')}</span>
-                        <span className="text-gray-800">{userData.phone}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
               {/* [MCP] 탭 네비게이션: 모바일 한 줄 pill + 가로 스크롤, 데스크탑 flex-wrap */}
               <div className="flex flex-row flex-nowrap overflow-x-auto whitespace-nowrap gap-2 -mx-4 px-4 mt-6 w-full justify-start sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
                 {[

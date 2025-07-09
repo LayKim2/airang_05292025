@@ -217,30 +217,30 @@
     "cancel": "취소"
   },
   "chat": {
-    "title": "그룹 채팅",
-    "noGroups": "그룹에 참여해주세요",
-    "noGroupsDesc": "채팅을 사용하려면 먼저 그룹에 가입해야 합니다.",
-    "selectGroup": "그룹을 선택해주세요",
-    "selectGroupDesc": "채팅을 보려면 왼쪽에서 그룹을 선택하세요.",
-    "selectGroupMobile": "채팅을 보려면 상단 메뉴에서 그룹을 선택하세요.",
+    "title": "모임 채팅",
+    "noGroups": "모임에 참여해주세요",
+    "noGroupsDesc": "채팅을 사용하려면 먼저 모임에 가입해야 합니다.",
+    "selectGroup": "모임을 선택해주세요",
+    "selectGroupDesc": "채팅을 보려면 왼쪽에서 모임을 선택하세요.",
+    "selectGroupMobile": "채팅을 보려면 상단 메뉴에서 모임을 선택하세요.",
     "noMessages": "아직 메시지가 없습니다.",
     "loading": "채팅을 불러오는 중...",
     "messagePlaceholder": "메시지를 입력하세요...",
     "membersTitle": "멤버 목록",
     "participating": "명 참여 중",
-    "groupsParticipating": "개 그룹 참여 중",
+    "groupsParticipating": "개 모임 참여 중",
     "leader": "리더",
     "member": "멤버",
-    "leaveConfirm": "그룹에서 나가시겠습니까?",
-    "deleteConfirm": "그룹을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
-    "kickConfirm": "님을 그룹에서 내보내시겠습니까?",
+    "leaveConfirm": "모임에서 나가시겠습니까?",
+    "deleteConfirm": "모임을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+    "kickConfirm": "님을 모임에서 내보내시겠습니까?",
     "memberList": "멤버 목록",
     "toggleMembers": "멤버 목록",
-    "toggleGroups": "그룹 목록",
+    "toggleGroups": "모임 목록",
     "systemMessages": {
-      "memberJoin": "{userName}님이 그룹에 참여했습니다",
-      "memberLeave": "{userName}님이 그룹을 나갔습니다",
-      "groupCreated": "{creatorName}님이 그룹을 생성했습니다",
+      "memberJoin": "{userName}님이 모임에 참여했습니다",
+      "memberLeave": "{userName}님이 모임을 나갔습니다",
+      "groupCreated": "{creatorName}님이 모임을 생성했습니다",
       "roleChange": "{userName}님의 역할이 {oldRole}에서 {newRole}로 변경되었습니다",
       "roles": {
         "member": "멤버",
@@ -436,8 +436,8 @@
     },
     "detail": {
       "loading": "로딩 중...",
-      "notFound": "그룹 정보를 찾을 수 없습니다.",
-      "defaultTitle": "AIrang 그룹",
+      "notFound": "모임 정보를 찾을 수 없습니다.",
+      "defaultTitle": "AIrang 모임",
       "defaultDescription": "AI 크리에이터 모임",
       "unbookmark": "북마크 해제",
       "bookmark": "북마크 추가",
@@ -461,7 +461,7 @@
     "title": "마이페이지",
     "menu": {
       "profile": "기본정보",
-      "groups": "내 그룹",
+      "groups": "내 모임",
       "expertStatus": "전문가 신청"
     },
     "tab": {
@@ -469,24 +469,24 @@
       "posts": "내 포스트",
       "likedPosts": "좋아요한 포스트",
       "likedServices": "좋아요한 서비스",
-      "groups": "내 그룹",
-      "bookmarkedGroups": "북마크한 그룹"
+      "groups": "내 모임",
+      "bookmarkedGroups": "북마크한 모임"
     },
     "section": {
       "myServices": "내 AI 서비스",
       "myPosts": "내 포스트",
       "likedPosts": "좋아요한 포스트",
       "likedServices": "좋아요한 서비스",
-      "myGroups": "그룹",
-      "bookmarkedGroups": "북마크한 그룹"
+      "myGroups": "모임",
+      "bookmarkedGroups": "북마크한 모임"
     },
     "empty": {
       "myServices": "등록된 서비스가 없습니다.",
       "myPosts": "작성한 포스트가 없습니다.",
       "likedPosts": "좋아요한 포스트가 없습니다.",
       "likedServices": "좋아요한 서비스가 없습니다.",
-      "myGroups": "참여한 그룹이 없습니다.",
-      "bookmarkedGroups": "북마크한 그룹이 없습니다."
+      "myGroups": "참여한 모임이 없습니다.",
+      "bookmarkedGroups": "북마크한 모임이 없습니다."
     },
     "delete": {
       "serviceTitle": "서비스 삭제",
@@ -529,12 +529,12 @@
       "unlike": "좋아요 취소"
     },
     "group": {
-      "aiGroup": "AI 그룹",
+      "aiGroup": "AI 모임",
       "members": "멤버",
       "member": "명",
       "leader": "리더",
       "joinedAt": "참여일",
-      "enterGroup": "그룹 입장",
+      "enterGroup": "모임 입장",
       "bookmarked": "북마크됨",
       "bookmarkedAt": "북마크일",
       "unbookmark": "북마크 해제"

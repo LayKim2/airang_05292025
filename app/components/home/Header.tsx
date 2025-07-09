@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs"
+import { useUserProfile } from '@/app/lib/useUserProfile';
+import { Badge } from '@/app/components/ui/badge';
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
@@ -16,27 +18,22 @@ export const MOBILE_HEADER_TAB_HEIGHT = 56;
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(true)
   const pathname = usePathname()
   const searchParams = useSearchParams();
   const { t } = useTranslation();
   const { user, isLoaded } = useUser();
+  const { profile } = useUserProfile();
   const [showScrollRight, setShowScrollRight] = useState(false);
+  const isRootPage = pathname === "/";
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(false)
-      setTimeout(() => setIsAnimating(true), 100)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [])
+    // [MCP] root(/) 페이지에서만 스크롤 이벤트 리스너 등록 (성능 최적화)
+    if (isRootPage) {
+      const handleScroll = () => setScrollY(window.scrollY)
+      window.addEventListener("scroll", handleScroll)
+      return () => window.removeEventListener("scroll", handleScroll)
+    }
+  }, [isRootPage])
 
   useLayoutEffect(() => {
     const el = document.getElementById('mobile-menu-scroll');
@@ -52,11 +49,7 @@ function Header() {
       window.removeEventListener('resize', checkScroll);
     };
   }, []);
-
-  const isServicesPage = pathname === "/services"
-  const isAIToolsPage = pathname === "/ai-tools"
-  const isMatchPage = pathname === "/match"
-  const isCommunityPage = pathname === "/community"
+  
   const isMyPage = pathname === "/mypage";
 
   // [MCP] 메뉴 항목: 데스크탑/모바일 분기용, 마이페이지는 모바일에서만 노출
@@ -84,7 +77,7 @@ function Header() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isMyPage
             ? "bg-white border-b border-gray-100 shadow"
-            : isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+            : !isRootPage || scrollY > 50
               ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100"
               : "bg-transparent"
         }`}
@@ -100,36 +93,12 @@ function Header() {
                   <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
                 </div>
                 <div>
-                  <AnimatePresence>
-                    {isAnimating && (
-                      <motion.h1 
-                        className="text-xl sm:text-3xl font-black"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <motion.span 
-                          className="bg-clip-text text-transparent"
-                          animate={{
-                            backgroundImage: [
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                              "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
-                              "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                            ]
-                          }}
-                          transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        >
-                          AIrang
-                        </motion.span>
-                      </motion.h1>
-                    )}
-                  </AnimatePresence>
+                  {/* [MCP] CSS로 슬라이드+페이드, 무한 그라데이션 애니메이션 */}
+                  <h1 className="text-xl sm:text-3xl font-black animate-fade-slide-in">
+                    <span className="bg-clip-text text-transparent animate-gradient-move bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500">
+                      AIrang
+                    </span>
+                  </h1>
                   <p className="text-xs sm:text-sm font-medium text-gray-500">
                     {t('headerCommunity')}
                   </p>
@@ -145,12 +114,12 @@ function Header() {
                     key={item.name}
                     href={item.path}
                     className={`transition-colors font-semibold relative group ${
-                      isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                      !isRootPage || scrollY > 50
                         ? "text-gray-700 hover:text-violet-600"
                         : "text-gray-200 hover:text-white"
                     } ${
                       pathname === item.path
-                        ? isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                        ? !isRootPage || scrollY > 50
                           ? "text-violet-600"
                           : "text-white"
                         : ""
@@ -165,7 +134,20 @@ function Header() {
               </nav>
             )}
             <div className="hidden sm:flex items-center space-x-4">
-              <LanguageSwitcher />
+              {/* [MCP] PC에서만 user_role Badge 표시 (LanguageSwitcher 왼쪽), root 페이지만 아니면 밝은 스타일 */}
+              {user && profile?.user_role && (
+                <Badge
+                  variant="outline"
+                  className={
+                    !isRootPage
+                      ? "text-base px-3 py-1 font-semibold capitalize bg-white/80 text-gray-700 border-gray-200 shadow"
+                      : "text-base px-3 py-1 font-semibold capitalize bg-transparent text-gray-200 border-gray-400"
+                  }
+                >
+                  {profile.user_role === 'expert' ? t('common.expert') : profile.user_role === 'creator' ? t('common.creator') : profile.user_role}
+                </Badge>
+              )}
+              
               <SignedOut>
                 <SignInButton mode="modal">
                   <Button
@@ -184,10 +166,21 @@ function Header() {
                   </UserButton.MenuItems>
                 </UserButton>
               </SignedIn>
+              <LanguageSwitcher />
             </div>
             {/* [MCP] 모바일 메뉴(햄버거/하단탭)는 항상 노출 */}
             <div className="flex items-center space-x-2 sm:hidden">
-              <LanguageSwitcher />
+              {/* [MCP] 모바일: 로그인 시 역할(role) 텍스트를 한 줄로, 길면 '...' 처리로 Header 레이아웃 유지 */}
+              <SignedIn>
+                {user && profile?.user_role && (
+                  <Badge
+                    variant="outline"
+                    className="text-base px-3 py-1 font-semibold capitalize bg-gradient-to-r from-purple-500 to-blue-500 text-white border-none shadow max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap"
+                  >
+                    {profile.user_role === 'expert' ? t('common.expert') : profile.user_role === 'creator' ? t('common.creator') : profile.user_role}
+                  </Badge>
+                )}
+              </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
                   <Button
@@ -206,15 +199,18 @@ function Header() {
                   </UserButton.MenuItems>
                 </UserButton>
               </SignedIn>
+              <LanguageSwitcher />
+              {/* <Button ...> ... <Menu /> ... </Button> 햄버거 메뉴 버튼은 모바일에서 숨김 */}
+              {/*
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="sm:hidden z-50 text-gray-200"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {/* [MCP] 햄버거 메뉴: 항상 Menu 아이콘만 보이고, 색상도 항상 text-gray-200으로 고정 */}
                 <Menu className="w-6 h-6" />
               </Button>
+              */}
             </div>
             {isMenuOpen && (
               <>
