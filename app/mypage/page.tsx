@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Users, Bookmark, Crown } from "lucide-react";
+import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Users, Bookmark, Crown, MessagesSquare } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
@@ -63,6 +63,8 @@ function MyPage() {
   const [bookmarkedGroupsError, setBookmarkedGroupsError] = useState<string | null>(null);
   // [MCP] 그룹별 멤버 수 상태 (group_id -> count)
   const [groupMemberCounts, setGroupMemberCounts] = useState<Record<number, number>>({});
+  // [MCP] 그룹별 채팅 메시지 수 상태 (group_id -> count)
+  const [groupChatCounts, setGroupChatCounts] = useState<Record<number, number>>({});
 
   // [MCP] 더미 데이터 (실제 fetch로 대체 예정)
   const userData = {
@@ -387,15 +389,13 @@ function MyPage() {
     { id: "General", name: "자유게시판", icon: Archive },
   ];
 
-  // [MCP] 날짜 포맷 함수 (community와 동일하게)
+  // [MCP] 날짜 포맷 함수 - MM/DD/YYYY 형태
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 1) return '방금 전';
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
-    if (diffInHours < 48) return '어제';
-    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
   };
 
   // [MCP] 역할/상태 뱃지
@@ -604,6 +604,18 @@ function MyPage() {
     } catch (e: any) {
       console.error('그룹 북마크 해제 실패:', e.message);
     }
+  };
+
+  // [MCP] 그룹 채팅 열기 함수
+  const handleOpenGroupChat = (group: any) => {
+    // URL 파라미터로 채팅 모달 열기 신호 전달
+    const url = new URL(window.location.href);
+    url.searchParams.set('openChat', 'true');
+    url.searchParams.set('selectedGroupId', group.id.toString());
+    window.history.replaceState({}, '', url.toString());
+    
+    // 페이지 새로고침하여 ChatProvider가 채팅 모달을 열도록 함
+    window.location.reload();
   };
 
   // [MCP] 쿼리스트링(tab=...) → activeTab 동기화
@@ -1356,16 +1368,6 @@ function MyPage() {
                                     )}
                                     {group.role === 'leader' ? t('mypage.group.leader') : t('mypage.group.member')}
                                   </span>
-                                  {/* 멤버 수 정보 (오른쪽) */}
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center text-xs text-gray-600 font-medium">
-                                      <Users className="w-4 h-4 mr-1 text-green-500" />
-                                      {t('mypage.group.members')}
-                                    </span>
-                                    <span className="inline-flex items-center bg-green-50 border border-green-200 text-green-700 font-medium px-2.5 py-1 rounded-full text-xs">
-                                      {groupMemberCounts[group.id] || 0} {t('mypage.group.member')}
-                                    </span>
-                                  </div>
                                 </div>
                                 <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
                                   <div className="flex items-center space-x-2 text-gray-500 text-sm">
@@ -1377,11 +1379,10 @@ function MyPage() {
                                   <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
                                     <div className="flex items-center space-x-1">
                                       <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                                      <span className="font-medium">{group.member_count || 0}</span>
+                                      <span className="font-medium">{groupMemberCounts[group.id] || 0}</span>
                                     </div>
                                     <div className="flex items-center space-x-1">
-                                      <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                                      <span className="font-medium">{group.post_count || 0}</span>
+                                      <MessagesSquare className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
                                     </div>
                                   </div>
                                 </div>
@@ -1496,8 +1497,7 @@ function MyPage() {
                                       <span className="font-medium">{group.member_count || 0}</span>
                                     </div>
                                     <div className="flex items-center space-x-1">
-                                      <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                                      <span className="font-medium">{group.post_count || 0}</span>
+                                      <MessagesSquare className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
                                     </div>
                                   </div>
                                 </div>

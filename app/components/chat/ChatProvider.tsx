@@ -12,6 +12,34 @@ export default function ChatProvider() {
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
   const { profile } = useUserProfile();
 
+  // URL 파라미터에서 채팅 열기 신호 확인
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shouldOpenChat = urlParams.get('openChat');
+      const selectedGroupId = urlParams.get('selectedGroupId');
+      
+      if (shouldOpenChat === 'true' && selectedGroupId) {
+        // URL 파라미터 제거
+        const url = new URL(window.location.href);
+        url.searchParams.delete('openChat');
+        url.searchParams.delete('selectedGroupId');
+        window.history.replaceState({}, '', url.toString());
+        
+        // 채팅 모달 열기
+        setIsChatOpen(true);
+        
+        // 그룹 목록을 가져온 후 해당 그룹 선택
+        fetchUserGroups().then(() => {
+          const targetGroup = userGroups.find(group => group.id.toString() === selectedGroupId);
+          if (targetGroup) {
+            setSelectedGroup(targetGroup);
+          }
+        });
+      }
+    }
+  }, []);
+
   // 사용자가 속한 모든 그룹 정보 가져오기
   const fetchUserGroups = async () => {
     if (!profile?.clerk_user_id) return;
