@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase'
 import { useUserProfile } from '@/app/lib/useUserProfile'
 import { useClerk } from '@clerk/nextjs'
 import SiteLoader from "@/app/components/ui/SiteLoader";
+import { useInView } from 'react-intersection-observer';
 
 // 애니메이션 config 재사용
 const orbAnimation = {
@@ -90,6 +91,15 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // 무한 스크롤 관련 상태
+  const PAGE_SIZE = 9;
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { ref: loadMoreRef, inView } = useInView();
+  // 최초 로딩 상태와 추가 로딩 상태 분리
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   // 정렬 옵션 (예시)
   const sortOptions = [
     { id: "latest", name: t('sortLatest') },
@@ -118,73 +128,96 @@ export default function ServicesPage() {
     setFilterOpen(false)
   }
 
-  // 서비스 리스트 fetch
-  useEffect(() => {
-    const fetchServices = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        // [MCP] 작성자(users) 정보까지 join해서 가져오기
-        let query = supabase.from('services').select('*, users:author_id(*)')
-        if (selectedCategory && selectedCategory !== "all") query = query.eq('category', selectedCategory)
-        if (searchQuery) query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
-        if (sortBy) {
-          if (sortBy === 'latest') {
-            query = query.order('created_at', { ascending: false })
-          } // 인기순은 프론트에서 정렬
+  // 서비스 리스트 fetch (페이지네이션 적용)
+  const fetchServices = async (reset = false) => {
+    if (reset) {
+      setInitialLoading(true);
+      setLoadingMore(false);
+    } else {
+      setLoadingMore(true);
+    }
+    try {
+      let query = supabase.from('services').select('*, users:author_id(*)');
+      if (selectedCategory && selectedCategory !== "all") query = query.eq('category', selectedCategory);
+      if (searchQuery) query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      if (sortBy) {
+        if (sortBy === 'latest') {
+          query = query.order('created_at', { ascending: false });
         }
-        const { data: servicesData, error } = await query;
-        if (error) throw new Error(error.message || "서비스 목록을 불러오지 못했습니다.")
-        // [MCP] 각 서비스별로 좋아요 개수와 liked_by_user 상태를 service_likes에서 직접 집계
-        const serviceIds = (servicesData || []).map((s: any) => s.id)
-        let likesMap: Record<number, number> = {}
-        let likedMap: Record<number, boolean> = {}
-        if (serviceIds.length > 0) {
-          // [MCP] 전체 좋아요 개수 집계 (group 메서드 대신 count(*) 쿼리)
-          const { data: likesCountData, error: likesCountError } = await supabase
+      }
+      const from = (reset ? 0 : (page - 1) * PAGE_SIZE);
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
+      const { data: servicesData, error } = await query;
+      if (error) throw new Error(error.message || "서비스 목록을 불러오지 못했습니다.");
+      // 좋아요/유저 정보 등 기존 로직 유지
+      const serviceIds = (servicesData || []).map((s: any) => s.id);
+      let likesMap: Record<number, number> = {};
+      let likedMap: Record<number, boolean> = {};
+      if (serviceIds.length > 0) {
+        const { data: likesCountData, error: likesCountError } = await supabase
+          .from('service_likes')
+          .select('service_id', { count: 'exact', head: false })
+          .in('service_id', serviceIds);
+        if (likesCountError) throw new Error(likesCountError.message);
+        if (Array.isArray(likesCountData)) {
+          likesCountData.forEach((row: any) => {
+            likesMap[row.service_id] = (likesMap[row.service_id] || 0) + 1;
+          });
+        }
+        if (user?.id) {
+          const { data: likedRows } = await supabase
             .from('service_likes')
-            .select('service_id', { count: 'exact', head: false })
-            .in('service_id', serviceIds)
-          if (likesCountError) throw new Error(likesCountError.message)
-          if (Array.isArray(likesCountData)) {
-            // service_id별로 count 집계
-            likesCountData.forEach((row: any) => {
-              likesMap[row.service_id] = (likesMap[row.service_id] || 0) + 1
-            })
-          }
-          // [MCP] 현재 유저가 좋아요를 눌렀는지 체크
-          if (user?.id) {
-            const { data: likedRows } = await supabase
-              .from('service_likes')
-              .select('service_id')
-              .eq('user_id', user.id)
-              .in('service_id', serviceIds)
-            if (Array.isArray(likedRows)) {
-              likedRows.forEach((row: any) => {
-                likedMap[row.service_id] = true
-              })
-            }
+            .select('service_id')
+            .eq('user_id', user.id)
+            .in('service_id', serviceIds);
+          if (Array.isArray(likedRows)) {
+            likedRows.forEach((row: any) => {
+              likedMap[row.service_id] = true;
+            });
           }
         }
-        let servicesWithLike = (servicesData || []).map((s: any) => ({
-          ...s,
-          like_count: likesMap[s.id] || 0,
-          liked_by_user: likedMap[s.id] || false,
-        }))
-        // [MCP] 인기순 정렬은 프론트에서 like_count 내림차순
-        if (sortBy === 'popular') {
-          servicesWithLike = servicesWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
-        }
-        setServices(servicesWithLike)
-      } catch (e: any) {
-        setError(e.message || "서비스 목록을 불러오지 못했습니다.")
-      } finally {
-        setLoading(false)
+      }
+      let servicesWithLike = (servicesData || []).map((s: any) => ({
+        ...s,
+        like_count: likesMap[s.id] || 0,
+        liked_by_user: likedMap[s.id] || false,
+      }));
+      if (sortBy === 'popular') {
+        servicesWithLike = servicesWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0));
+      }
+      if (reset) {
+        setServices(servicesWithLike);
+        setPage(2);
+      } else {
+        setServices(prev => [...prev, ...servicesWithLike]);
+        setPage(prev => prev + 1);
+      }
+      setHasMore(servicesWithLike.length === PAGE_SIZE);
+    } catch (e: any) {
+      setError(e.message || "서비스 목록을 불러오지 못했습니다.");
+    } finally {
+      if (reset) {
+        setInitialLoading(false);
+      } else {
+        setLoadingMore(false);
       }
     }
-    fetchServices()
-    // user.id가 바뀌면 liked_by_user도 다시 체크
-  }, [selectedCategory, searchQuery, sortBy, user?.id])
+  };
+
+  // 최초 및 필터/검색/정렬 변경 시 서비스 fetch
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    fetchServices(true);
+  }, [selectedCategory, searchQuery, sortBy, user?.id]);
+
+  // inView(하단 감지) 시 추가 fetch
+  useEffect(() => {
+    if (inView && hasMore && !initialLoading && !loadingMore) {
+      fetchServices();
+    }
+  }, [inView]);
 
   // --- 카테고리별 연한 배경색/텍스트색 매핑 ---
   const categoryBgMap: Record<string, string> = {
@@ -298,7 +331,24 @@ export default function ServicesPage() {
                 {t('servicesTitle')}
               </Badge>
             </motion.div>
-
+            {/* 서비스 등록 버튼: 모든 해상도에서 타이틀 아래 오른쪽 정렬로 항상 노출 */}
+            <div className="flex justify-end mb-4 -mt-4">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-xl hover:scale-105 transition-all duration-300 font-semibold text-sm md:text-base"
+                style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
+                aria-label={t('serviceRegisterTitle')}
+                onClick={() => {
+                  if (!user) {
+                    openSignIn();
+                  } else {
+                    router.push('/services/register');
+                  }
+                }}
+              >
+                <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                <span>{t('serviceRegisterTitle')}</span>
+              </button>
+            </div>
             {/* Search and Filter Section */}
             <div className="space-y-6">
               {/* Search Bar + Filter Button */}
@@ -605,24 +655,18 @@ export default function ServicesPage() {
               </motion.div>
             ))}
           </div>
+          {/* 무한 스크롤 하단 감지용 div */}
+          {hasMore && !initialLoading && !loadingMore && (
+            <div ref={loadMoreRef} className="h-10" />
+          )}
+          {/* 추가 로딩 시 하단에만 로딩 인디케이터 대신 텍스트 */}
+          {loadingMore && services.length > 0 && (
+            <div className="flex justify-center py-4">
+              <span className="text-gray-400 text-sm">{t('services.loadingMore')}</span>
+            </div>
+          )}
         </div>
       </section>
-      {/* 플로팅 액션 버튼 - AI 서비스 등록 (페이지 이동) */}
-      <button
-        className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-xl hover:scale-105 transition-all duration-300"
-        style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
-        aria-label={t('serviceRegisterTitle')}
-        onClick={() => {
-          // [MCP] 로그인 안 했으면 Clerk 로그인 팝업, 했으면 기존대로 이동
-          if (!user) {
-            openSignIn(); // Clerk 로그인 모달
-          } else {
-            router.push('/services/register');
-          }
-        }}
-      >
-        <Plus className="w-8 h-8" />
-      </button>
     </main>
   )
 }

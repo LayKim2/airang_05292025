@@ -242,7 +242,9 @@
       "tagsPlaceholder": "タグを入力してEnter",
       "tagsHelp": "複数のタグはカンマ(,)で区切ってください。",
       "imageUpload": "画像添付"
-    }
+    },
+    "createPost": "投稿作成",
+    "loadingMore": "さらに読み込み中..."
   },
   "common": {
     "loading": "読み込み中...",
@@ -337,7 +339,7 @@
       "free": "自由グループ"
     },
     "searchPlaceholder": "グループ名、説明を検索...",
-    "registerButton": "グループを探す",
+    "registerButton": "グループ登録",
     "loading": "グループリストを読み込み中...",
     "noResults": "検索結果がありません。",
     "status": {
@@ -538,5 +540,16 @@
         "leader": "リーダー"
       }
     }
-  }
+  },
+  "matchExpertAlertTitle": "専門家として登録して収益を得ましょう！",
+  "matchExpertAlertDesc": "AI専門家として登録すると、講義や依頼を受けて<br />知識や経験を収益につなげることができます。<br />今すぐ専門家に登録しましょう。",
+  "matchExpertAlertCheckbox": "1週間表示しない",
+  "matchExpertAlertButton": "専門家登録ページへ",
+  "matchServiceAlertTitle": "まずサービスを登録してください",
+  "matchServiceAlertDesc": "専門家として活動するにはAIサービスを1件以上登録する必要があります。<br />サービス登録後、講義登録や依頼を受けることができます。",
+  "matchServiceAlertButton": "AIサービスを登録する",
+  "matchComingSoonTitle": "サービス準備中です",
+  "matchComingSoonDesc": "近日中に公開予定です。",
+  "matchComingSoonButton": "確認",
+  "loadingMore": "さらに読み込み中..."
 } 

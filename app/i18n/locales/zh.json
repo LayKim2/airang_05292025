@@ -245,7 +245,9 @@
       "search": "搜索",
       "reset": "全部重置",
       "apply": "应用"
-    }
+    },
+    "createPost": "发布帖子",
+    "loadingMore": "加载更多..."
   },
   "common": {
     "loading": "加载中...",
@@ -339,7 +341,7 @@
       "free": "自由小组"
     },
     "searchPlaceholder": "搜索小组名、描述...",
-    "registerButton": "寻找小组",
+    "registerButton": "注册小组",
     "loading": "正在加载小组列表...",
     "noResults": "未找到结果。",
     "status": {
@@ -415,7 +417,8 @@
       "alreadyJoined": "已加入",
       "joinButton": "加入",
       "linkCopied": "链接已复制！"
-    }
+    },
+    "loadingMore": "加载更多..."
   },
   "mypage": {
     "title": "我的页面",
@@ -540,5 +543,15 @@
         "leader": "群主"
       }
     }
-  }
+  },
+  "matchExpertAlertTitle": "注册为专家并获得收益！",
+  "matchExpertAlertDesc": "注册为AI专家后，您可以接收讲座和委托，<br />将知识和经验转化为收益。<br />现在就注册成为专家吧！",
+  "matchExpertAlertCheckbox": "一周内不再显示",
+  "matchExpertAlertButton": "前往专家注册",
+  "matchServiceAlertTitle": "请先注册服务",
+  "matchServiceAlertDesc": "要作为专家活动，必须至少注册一个AI服务。<br />注册服务后即可发布讲座并接收委托。",
+  "matchServiceAlertButton": "前往注册AI服务",
+  "matchComingSoonTitle": "服务即将上线",
+  "matchComingSoonDesc": "即将开放，敬请期待。",
+  "matchComingSoonButton": "确认"
 } 

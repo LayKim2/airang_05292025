@@ -290,7 +290,9 @@
       "search": "Search",
       "reset": "Reset All",
       "apply": "Apply"
-    }
+    },
+    "createPost": "Create Post",
+    "loadingMore": "Loading more..."
   },
   "common": {
     "loading": "Loading...",
@@ -377,7 +379,7 @@
       "free": "Free Group"
     },
     "searchPlaceholder": "Search group name, description...",
-    "registerButton": "Find Groups",
+    "registerButton": "Register Group",
     "loading": "Loading group list...",
     "noResults": "No results found.",
     "status": {
@@ -453,7 +455,8 @@
       "alreadyJoined": "Already Joined",
       "joinButton": "Join",
       "linkCopied": "Link copied!"
-    }
+    },
+    "loadingMore": "Loading more..."
   },
   "mypage": {
     "title": "My Page",
@@ -538,5 +541,15 @@
       "unbookmark": "Remove Bookmark"
     }
   },
-  "headerCommunity": "AI Creator Community"
+  "headerCommunity": "AI Creator Community",
+  "matchExpertAlertTitle": "Register as an expert and earn income!",
+  "matchExpertAlertDesc": "Register as an AI expert to receive lectures and requests.<br />Turn your knowledge and experience into income.<br />Register now as an expert!",
+  "matchExpertAlertCheckbox": "Don't show for a week",
+  "matchExpertAlertButton": "Go to Expert Registration",
+  "matchServiceAlertTitle": "Please register a service first",
+  "matchServiceAlertDesc": "To work as an expert, you must register at least one AI service.<br />After registering a service, you can receive lectures and requests.",
+  "matchServiceAlertButton": "Go to Register AI Service",
+  "matchComingSoonTitle": "Service Coming Soon",
+  "matchComingSoonDesc": "It will be opened soon.",
+  "matchComingSoonButton": "OK"
 } 

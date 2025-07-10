@@ -12,6 +12,7 @@ import { useUserProfile } from '@/app/lib/useUserProfile';
 import { useClerk } from '@clerk/nextjs';
 import SiteLoader from "@/app/components/ui/SiteLoader";
 import { useTranslation } from "@/app/i18n/useTranslation";
+import { useInView } from 'react-intersection-observer';
 
 // 그룹 카테고리별 배경/텍스트/아이콘 맵
 const categoryBgMap: Record<string, string> = {
@@ -44,17 +45,60 @@ export default function GroupsPage() {
   const { openSignIn } = useClerk();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('groups').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
+  // 무한 스크롤 관련 상태
+  const PAGE_SIZE = 9;
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { ref: loadMoreRef, inView } = useInView();
+  // 최초 로딩 상태와 추가 로딩 상태 분리
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // 그룹 데이터 fetch 함수 (페이지네이션 적용)
+  const fetchGroups = async (reset = false) => {
+    if (reset) {
+      setInitialLoading(true);
+      setLoadingMore(false);
+    } else {
+      setLoadingMore(true);
+    }
+    const from = (reset ? 0 : (page - 1) * PAGE_SIZE);
+    const to = from + PAGE_SIZE - 1;
+    const { data, error, count } = await supabase
+      .from('groups')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (!error && data) {
+      if (reset) {
         setGroups(data);
+        setPage(2);
+      } else {
+        setGroups(prev => [...prev, ...data]);
+        setPage(prev => prev + 1);
       }
-      setLoading(false);
-    };
-    fetchGroups();
-  }, []);
+      setHasMore(data.length === PAGE_SIZE);
+    }
+    if (reset) {
+      setInitialLoading(false);
+    } else {
+      setLoadingMore(false);
+    }
+  };
+
+  // 최초 및 필터/검색 변경 시 그룹 fetch
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    fetchGroups(true);
+  }, [filter, search]);
+
+  // inView(하단 감지) 시 추가 fetch
+  useEffect(() => {
+    if (inView && hasMore && !initialLoading && !loadingMore) {
+      fetchGroups();
+    }
+  }, [inView]);
 
   // 현재 유저의 북마크 그룹 fetch
   useEffect(() => {
@@ -194,7 +238,8 @@ export default function GroupsPage() {
 
         {/* 모임 리스트 카드형 UI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
+          {/* 최초 로딩 시에만 전체 로딩 인디케이터 */}
+          {initialLoading && groups.length === 0 ? (
             <SiteLoader text={t('groups.loading')} />
           ) : filteredGroups.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-16 text-lg">{t('groups.noResults')}</div>
@@ -296,6 +341,16 @@ export default function GroupsPage() {
             ))
           )}
         </div>
+        {/* 무한 스크롤 하단 감지용 div */}
+        {hasMore && !initialLoading && !loadingMore && (
+          <div ref={loadMoreRef} className="h-10" />
+        )}
+        {/* 추가 로딩 시 하단에만 로딩 인디케이터 대신 텍스트 */}
+        {loadingMore && groups.length > 0 && (
+          <div className="flex justify-center py-4">
+            <span className="text-gray-400 text-sm">{t('groups.loadingMore')}</span>
+          </div>
+        )}
       </div>
     </main>
   );
