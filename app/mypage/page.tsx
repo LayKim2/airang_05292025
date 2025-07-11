@@ -441,23 +441,6 @@ function MyPage() {
     return `${month}/${day}/${year}`;
   };
 
-  // [MCP] 역할/상태 뱃지
-  const getBadge = (role: string) => {
-    if (role === 'expert') {
-      return (
-        <div className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-          <Award size={14} />
-          Expert
-        </div>
-      );
-    }
-    return (
-      <div className="flex items-center gap-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-        <Star size={14} />
-        Creator
-      </div>
-    );
-  };
   // [MCP] 전문가 신청 상태 뱃지
   const getStatusBadge = (status: string) => {
     if (status === 'approved') {
