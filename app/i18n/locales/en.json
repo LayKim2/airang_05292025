@@ -478,7 +478,7 @@
       "myPosts": "My Posts",
       "likedPosts": "Liked Posts",
       "likedServices": "Liked Services",
-      "myGroups": "Groups",
+      "myGroups": "My Groups",
       "bookmarkedGroups": "Bookmarked Groups"
     },
     "empty": {
@@ -536,6 +536,8 @@
       "leader": "Leader",
       "joinedAt": "Joined",
       "enterGroup": "Enter Group",
+      "enterChat": "Enter Chat",
+      "viewDetails": "View Details",
       "bookmarked": "Bookmarked",
       "bookmarkedAt": "Bookmarked At",
       "unbookmark": "Remove Bookmark"

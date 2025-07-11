@@ -1,12 +1,32 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from "@/lib/supabase";
 import { useUserProfile } from '@/app/lib/useUserProfile';
 import GlobalChatFab from "./GlobalChatFab";
 import GroupChatModal from "./GroupChatModal";
 
-export default function ChatProvider() {
+// Chat Context 생성
+interface ChatContextType {
+  openChatWithGroup: (groupId: number) => Promise<void>;
+}
+
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
+
+// Chat Hook
+export const useChat = () => {
+  const context = useContext(ChatContext);
+  if (!context) {
+    throw new Error('useChat must be used within a ChatProvider');
+  }
+  return context;
+};
+
+interface ChatProviderProps {
+  children: React.ReactNode;
+}
+
+export default function ChatProvider({ children }: ChatProviderProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [userGroups, setUserGroups] = useState<any[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
@@ -115,8 +135,25 @@ export default function ChatProvider() {
     await fetchUserGroups(); // 그룹 목록 새로 가져오기
   };
 
+  // 특정 그룹을 선택하고 채팅 모달 열기
+  const handleOpenChatWithGroup = async (groupId: number) => {
+    setIsChatOpen(true);
+    await fetchUserGroups(); // 그룹 목록 새로 가져오기
+    
+    // 그룹 목록에서 해당 그룹 찾기
+    const targetGroup = userGroups.find(group => group.id === groupId);
+    if (targetGroup) {
+      setSelectedGroup(targetGroup);
+    }
+  };
+
+  const contextValue: ChatContextType = {
+    openChatWithGroup: handleOpenChatWithGroup
+  };
+
   return (
-    <>
+    <ChatContext.Provider value={contextValue}>
+      {children}
       {!isChatOpen && <GlobalChatFab onClick={handleOpenChat} />}
       <GroupChatModal 
         isOpen={isChatOpen} 
@@ -126,6 +163,6 @@ export default function ChatProvider() {
         onGroupSelect={setSelectedGroup}
         onGroupLeave={handleGroupLeave}
       />
-    </>
+    </ChatContext.Provider>
   );
 } 

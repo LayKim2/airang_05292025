@@ -479,7 +479,7 @@
       "myPosts": "내 포스트",
       "likedPosts": "좋아요한 포스트",
       "likedServices": "좋아요한 서비스",
-      "myGroups": "모임",
+      "myGroups": "내 모임",
       "bookmarkedGroups": "북마크한 모임"
     },
     "empty": {
@@ -533,10 +533,12 @@
     "group": {
       "aiGroup": "AI 모임",
       "members": "멤버",
-      "member": "명",
+      "member": "멤버",
       "leader": "리더",
       "joinedAt": "참여일",
       "enterGroup": "모임 입장",
+      "enterChat": "채팅방 입장",
+      "viewDetails": "자세히 보기",
       "bookmarked": "북마크됨",
       "bookmarkedAt": "북마크일",
       "unbookmark": "북마크 해제"

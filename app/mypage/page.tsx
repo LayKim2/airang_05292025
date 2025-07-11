@@ -11,10 +11,12 @@ import Image from "next/image";
 import { Badge } from "@/app/components/ui/badge";
 import PostCreateModal from "@/app/components/community/PostCreateModal";
 import { useTranslation } from "@/app/i18n/useTranslation";
+import { useChat } from "@/app/components/chat/ChatProvider";
 
 function MyPage() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const { openChatWithGroup } = useChat();
   // [MCP] 데모용 역할/탭 상태
   const [userRole, setUserRole] = useState<'creator' | 'expert'>('expert');
   // [MCP] 기본 activeTab을 'services'(내 AI 서비스)로 변경, 타입 명시
@@ -98,16 +100,18 @@ function MyPage() {
     })();
   }, [user?.id]);
 
-  // [MCP] 내 AI 서비스 리스트 fetch (activeTab === 'services'일 때만)
+  // [MCP] 모든 데이터 초기 로드 (페이지 진입 시 한 번만)
   useEffect(() => {
-    if (activeTab !== 'services' || !user?.id) return;
-    setMyServicesLoading(true);
-    setMyServicesError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadAllData = async () => {
       try {
+        // [MCP] 1. 내 AI 서비스 리스트 fetch
+        setMyServicesLoading(true);
         let query = supabase.from('services').select('*, users:author_id(*)').eq('author_id', user.id).order('created_at', { ascending: false });
         const { data: servicesData, error } = await query;
         if (error) throw new Error(error.message || "내 서비스 목록을 불러오지 못했습니다.");
+        
         // [MCP] 각 서비스별로 좋아요 개수와 liked_by_user 상태를 service_likes에서 직접 집계
         const serviceIds = (servicesData || []).map((s: any) => s.id);
         let likesMap: Record<number, number> = {};
@@ -142,21 +146,23 @@ function MyPage() {
           liked_by_user: likedMap[s.id] || false,
         }));
         setMyServices(servicesWithLike);
+        setMyServicesLoading(false);
       } catch (e: any) {
         setMyServicesError(e.message || "내 서비스 목록을 불러오지 못했습니다.");
-      } finally {
         setMyServicesLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 좋아요한 서비스 리스트 fetch (activeTab === 'liked-services'일 때만)
+    loadAllData();
+  }, [user?.id]);
+
+  // [MCP] 좋아요한 서비스 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'liked-services' || !user?.id) return;
-    setLikedServicesLoading(true);
-    setLikedServicesError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadLikedServices = async () => {
       try {
+        setLikedServicesLoading(true);
         // 1. service_likes에서 내가 좋아요한 service_id 리스트 조회
         const { data: likeRows, error: likeRowsError } = await supabase
           .from('service_likes')
@@ -209,21 +215,23 @@ function MyPage() {
           liked_by_user: likedMap[s.id] || false,
         }));
         setLikedServices(servicesWithLike);
+        setLikedServicesLoading(false);
       } catch (e: any) {
         setLikedServicesError(e.message || "좋아요한 서비스 목록을 불러오지 못했습니다.");
-      } finally {
         setLikedServicesLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 내가 작성한 포스트 리스트 fetch (activeTab === 'posts'일 때만)
+    loadLikedServices();
+  }, [user?.id]);
+
+  // [MCP] 내가 작성한 포스트 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'posts' || !user?.id) return;
-    setMyPostsLoading(true);
-    setMyPostsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadMyPosts = async () => {
       try {
+        setMyPostsLoading(true);
         const { data: postsData, error } = await supabase
           .from('posts')
           .select('*, users:author_id(*), post_likes(*)')
@@ -238,21 +246,23 @@ function MyPage() {
           users: post.users,
         }));
         setMyPosts(postsWithLike);
+        setMyPostsLoading(false);
       } catch (e: any) {
         setMyPostsError(e.message || "내 포스트 목록을 불러오지 못했습니다.");
-      } finally {
         setMyPostsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 좋아요한 포스트 리스트 fetch (activeTab === 'liked-posts'일 때만)
+    loadMyPosts();
+  }, [user?.id]);
+
+  // [MCP] 좋아요한 포스트 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'liked-posts' || !user?.id) return;
-    setLikedPostsLoading(true);
-    setLikedPostsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadLikedPosts = async () => {
       try {
+        setLikedPostsLoading(true);
         // 1. post_likes에서 내가 좋아요한 post_id 리스트 가져오기
         const { data: likeRows, error: likeError } = await supabase
           .from('post_likes')
@@ -280,21 +290,23 @@ function MyPage() {
           users: post.users,
         }));
         setLikedPosts(postsWithLike);
+        setLikedPostsLoading(false);
       } catch (e: any) {
         setLikedPostsError(e.message || '좋아요한 포스트를 불러오지 못했습니다.');
-      } finally {
         setLikedPostsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 내가 참여한 그룹 리스트 fetch (activeTab === 'groups'일 때만)
+    loadLikedPosts();
+  }, [user?.id]);
+
+  // [MCP] 내가 참여한 그룹 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'groups' || !user?.id) return;
-    setMyGroupsLoading(true);
-    setMyGroupsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadMyGroups = async () => {
       try {
+        setMyGroupsLoading(true);
         // [MCP] 그룹 멤버십에서 내가 참여한 그룹 조회
         const { data: groupMemberships, error: membershipError } = await supabase
           .from('group_members')
@@ -310,23 +322,24 @@ function MyPage() {
           joined_at: membership.created_at,
           role: membership.role || 'member'
         }));
-        
         setMyGroups(groups);
+        setMyGroupsLoading(false);
       } catch (e: any) {
         setMyGroupsError(e.message || "내 그룹 목록을 불러오지 못했습니다.");
-      } finally {
         setMyGroupsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 북마크한 그룹 리스트 fetch (activeTab === 'bookmarked-groups'일 때만)
+    loadMyGroups();
+  }, [user?.id]);
+
+  // [MCP] 북마크한 그룹 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'bookmarked-groups' || !user?.id) return;
-    setBookmarkedGroupsLoading(true);
-    setBookmarkedGroupsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadBookmarkedGroups = async () => {
       try {
+        setBookmarkedGroupsLoading(true);
         // [MCP] group_bookmarks에서 내가 북마크한 그룹 조회
         const { data: bookmarks, error: bookmarksError } = await supabase
           .from('group_bookmarks')
@@ -341,14 +354,42 @@ function MyPage() {
           bookmarked_at: bookmark.created_at
         }));
         
-        setBookmarkedGroups(groups);
+        // [MCP] 각 그룹에 대해 사용자의 역할 정보 추가
+        const groupIds = groups.map((group: any) => group.id);
+        if (groupIds.length > 0) {
+          const { data: memberships, error: membershipError } = await supabase
+            .from('group_members')
+            .select('group_id, role')
+            .eq('user_id', user.id)
+            .in('group_id', groupIds);
+          
+          if (!membershipError && memberships) {
+            const roleMap: Record<number, string> = {};
+            memberships.forEach((membership: any) => {
+              roleMap[membership.group_id] = membership.role || 'member';
+            });
+            
+            // 각 그룹에 역할 정보 추가
+            const groupsWithRoles = groups.map((group: any) => ({
+              ...group,
+              role: roleMap[group.id] || 'member'
+            }));
+            setBookmarkedGroups(groupsWithRoles);
+          } else {
+            setBookmarkedGroups(groups);
+          }
+        } else {
+          setBookmarkedGroups(groups);
+        }
+        setBookmarkedGroupsLoading(false);
       } catch (e: any) {
         setBookmarkedGroupsError(e.message || "북마크한 그룹 목록을 불러오지 못했습니다.");
-      } finally {
         setBookmarkedGroupsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
+
+    loadBookmarkedGroups();
+  }, [user?.id]);
 
   // [MCP] 그룹 id 배열로 group_members 테이블에서 count를 가져오는 함수
   const fetchGroupMemberCounts = async (groupIds: number[]) => {
@@ -1289,7 +1330,7 @@ function MyPage() {
                               <div className="space-y-3 sm:space-y-4 lg:space-y-5">
                                 <div>
                                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-violet-600 transition-colors truncate whitespace-nowrap overflow-hidden max-w-full">
-                                    {group.name}
+                                    {group.title}
                                   </h3>
                                   <div className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-2 overflow-hidden max-w-full"
                                     dangerouslySetInnerHTML={{ __html: formatContentWithRoundedImages(group.description || '') }}
@@ -1319,20 +1360,17 @@ function MyPage() {
                                       <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                                       <span className="font-medium">{groupMemberCounts[group.id] || 0}</span>
                                     </div>
-                                    <div className="flex items-center space-x-1">
-                                      <MessagesSquare className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-                                    </div>
                                   </div>
                                 </div>
                                 {/* [MCP] 그룹 입장 버튼 */}
                                 <div className="w-full mt-4">
                                   <Button
-                                    className="w-full bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-base py-3"
+                                    className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white rounded-2xl transition-all duration-300 font-bold text-base py-4 shadow-xl hover:shadow-2xl transform hover:scale-[1.03] flex items-center justify-center gap-3 border-2 border-blue-400/20"
                                     onClick={() => {
-                                      router.push(`/match/groups/${group.id}`);
+                                      openChatWithGroup(group.id);
                                     }}
                                   >
-                                    {t('mypage.group.enterGroup')}
+                                    <span className="text-lg">💬 {t('mypage.group.enterChat')}</span>
                                   </Button>
                                 </div>
                               </div>
@@ -1411,16 +1449,6 @@ function MyPage() {
                                     )}
                                     {group.role === 'leader' ? t('mypage.group.leader') : t('mypage.group.member')}
                                   </span>
-                                  {/* 멤버 수 정보 (오른쪽) */}
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center text-xs text-gray-600 font-medium">
-                                      <Users className="w-4 h-4 mr-1 text-green-500" />
-                                      {t('mypage.group.members')}
-                                    </span>
-                                    <span className="inline-flex items-center bg-green-50 border border-green-200 text-green-700 font-medium px-2.5 py-1 rounded-full text-xs">
-                                      {groupMemberCounts[group.id] || 0} {t('mypage.group.member')}
-                                    </span>
-                                  </div>
                                 </div>
                                 <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
                                   <div className="flex items-center space-x-2 text-gray-500 text-sm">
@@ -1432,10 +1460,7 @@ function MyPage() {
                                   <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
                                     <div className="flex items-center space-x-1">
                                       <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                                      <span className="font-medium">{group.member_count || 0}</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <MessagesSquare className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                                      <span className="font-medium">{groupMemberCounts[group.id] || 0}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -1447,7 +1472,7 @@ function MyPage() {
                                       router.push(`/match/groups/${group.id}`);
                                     }}
                                   >
-                                    {t('mypage.group.enterGroup')}
+                                    {t('mypage.group.viewDetails')}
                                   </Button>
                                 </div>
                               </div>

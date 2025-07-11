@@ -36,8 +36,9 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <HeaderWrapper />
-              {children}
-              <ChatProvider />
+              <ChatProvider>
+                {children}
+              </ChatProvider>
             </ThemeProvider>
           </ClientLayout>
         </ClerkProvider>

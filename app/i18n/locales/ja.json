@@ -437,7 +437,7 @@
       "myPosts": "マイ投稿",
       "likedPosts": "いいねした投稿",
       "likedServices": "いいねしたサービス",
-      "myGroups": "グループ",
+      "myGroups": "マイグループ",
       "bookmarkedGroups": "ブックマークしたグループ"
     },
     "empty": {
@@ -495,6 +495,8 @@
       "leader": "リーダー",
       "joinedAt": "参加日",
       "enterGroup": "グループに入る",
+      "enterChat": "チャットに入る",
+      "viewDetails": "詳細を見る",
       "bookmarked": "ブックマーク済み",
       "bookmarkedAt": "ブックマーク日",
       "unbookmark": "ブックマーク解除"
