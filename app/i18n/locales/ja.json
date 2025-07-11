@@ -159,6 +159,12 @@
   "servicesTitle": "AIクリエイターの作品",
   "servicesSearchPlaceholder": "サービスを検索...",
   "aiService": "AIサービス",
+  "notFound": {
+    "title": "404",
+    "subtitle": "ページが見つかりません",
+    "description": "お探しのページは存在しないか、移動された可能性があります。",
+    "backHome": "ホームに戻る"
+  },
   "aiTools": {
     "header": "AIツール集",
     "category": {
@@ -236,7 +242,9 @@
       "tagsPlaceholder": "タグを入力してEnter",
       "tagsHelp": "複数のタグはカンマ(,)で区切ってください。",
       "imageUpload": "画像添付"
-    }
+    },
+    "createPost": "投稿作成",
+    "loadingMore": "さらに読み込み中..."
   },
   "common": {
     "loading": "読み込み中...",
@@ -413,25 +421,32 @@
     "title": "マイページ",
     "menu": {
       "profile": "基本情報",
+      "groups": "マイグループ",
       "expertStatus": "専門家申請"
     },
     "tab": {
       "services": "マイAIサービス",
       "posts": "マイ投稿",
       "likedPosts": "いいねした投稿",
-      "likedServices": "いいねしたサービス"
+      "likedServices": "いいねしたサービス",
+      "groups": "マイグループ",
+      "bookmarkedGroups": "ブックマークしたグループ"
     },
     "section": {
       "myServices": "マイAIサービス",
       "myPosts": "マイ投稿",
       "likedPosts": "いいねした投稿",
-      "likedServices": "いいねしたサービス"
+      "likedServices": "いいねしたサービス",
+      "myGroups": "マイグループ",
+      "bookmarkedGroups": "ブックマークしたグループ"
     },
     "empty": {
       "myServices": "登録されたサービスがありません。",
       "myPosts": "投稿した記事がありません。",
       "likedPosts": "いいねした投稿がありません。",
-      "likedServices": "いいねしたサービスがありません。"
+      "likedServices": "いいねしたサービスがありません。",
+      "myGroups": "参加しているグループがありません。",
+      "bookmarkedGroups": "ブックマークしたグループがありません。"
     },
     "delete": {
       "serviceTitle": "サービス削除",
@@ -472,6 +487,71 @@
       "editPost": "投稿編集",
       "deletePost": "投稿削除",
       "unlike": "いいね解除"
+    },
+    "group": {
+      "aiGroup": "AIグループ",
+      "members": "メンバー",
+      "member": "名",
+      "leader": "リーダー",
+      "joinedAt": "参加日",
+      "enterGroup": "グループに入る",
+      "enterChat": "チャットに入る",
+      "viewDetails": "詳細を見る",
+      "bookmarked": "ブックマーク済み",
+      "bookmarkedAt": "ブックマーク日",
+      "unbookmark": "ブックマーク解除"
     }
-  }
+  },
+  "button": {
+    "close": "閉じる",
+    "send": "送信",
+    "leave": "グループ退出",
+    "delete": "グループ削除",
+    "kick": "追放",
+    "confirm": "確認",
+    "cancel": "キャンセル"
+  },
+  "chat": {
+    "title": "グループチャット",
+    "noGroups": "グループに参加してください",
+    "noGroupsDesc": "チャットを利用するには、まずグループに参加してください。",
+    "selectGroup": "グループを選択してください",
+    "selectGroupDesc": "チャットを見るには左からグループを選択してください。",
+    "selectGroupMobile": "チャットを見るには上部メニューからグループを選択してください。",
+    "noMessages": "まだメッセージがありません。",
+    "loading": "チャットを読み込み中...",
+    "messagePlaceholder": "メッセージを入力してください...",
+    "membersTitle": "メンバーリスト",
+    "participating": "人参加中",
+    "groupsParticipating": "件グループ参加中",
+    "leader": "リーダー",
+    "member": "メンバー",
+    "leaveConfirm": "このグループから退出しますか？",
+    "deleteConfirm": "このグループを削除しますか？\nこの操作は元に戻せません。",
+    "kickConfirm": "このメンバーをグループから追放しますか？",
+    "memberList": "メンバーリスト",
+    "toggleMembers": "メンバーリスト",
+    "toggleGroups": "グループリスト",
+    "systemMessages": {
+      "memberJoin": "{userName}さんがグループに参加しました",
+      "memberLeave": "{userName}さんがグループを退出しました",
+      "groupCreated": "{creatorName}さんがグループを作成しました",
+      "roleChange": "{userName}さんの役割が{oldRole}から{newRole}に変更されました",
+      "roles": {
+        "member": "メンバー",
+        "leader": "リーダー"
+      }
+    }
+  },
+  "matchExpertAlertTitle": "専門家として登録して収益を得ましょう！",
+  "matchExpertAlertDesc": "AI専門家として登録すると、講義や依頼を受けて<br />知識や経験を収益につなげることができます。<br />今すぐ専門家に登録しましょう。",
+  "matchExpertAlertCheckbox": "1週間表示しない",
+  "matchExpertAlertButton": "専門家登録ページへ",
+  "matchServiceAlertTitle": "まずサービスを登録してください",
+  "matchServiceAlertDesc": "専門家として活動するにはAIサービスを1件以上登録する必要があります。<br />サービス登録後、講義登録や依頼を受けることができます。",
+  "matchServiceAlertButton": "AIサービスを登録する",
+  "matchComingSoonTitle": "サービス準備中です",
+  "matchComingSoonDesc": "近日中に公開予定です。",
+  "matchComingSoonButton": "確認",
+  "loadingMore": "さらに読み込み中..."
 } 

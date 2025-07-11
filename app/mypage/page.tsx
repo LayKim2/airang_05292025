@@ -1,23 +1,26 @@
 // /mypage 라우트: 로그인된 사용자의 프로필(이름, 이메일, 이미지 등)을 보여주는 페이지
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive } from "lucide-react";
+import { Award, Star, CheckCircle, Clock, X, FileText, Bot, Heart, ChevronRight, User, Sparkles, Brain, Eye, MessageCircle, Zap, Pencil, Trash2, TrendingUp, Share2, BookText, MessageCircleQuestion, Archive, Users, Bookmark, Crown, MessagesSquare } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
 import Image from "next/image";
 import { Badge } from "@/app/components/ui/badge";
 import PostCreateModal from "@/app/components/community/PostCreateModal";
 import { useTranslation } from "@/app/i18n/useTranslation";
+import { useChat } from "@/app/components/chat/ChatProvider";
 
-const MyPage = () => {
+function MyPage() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const { openChatWithGroup } = useChat();
   // [MCP] 데모용 역할/탭 상태
   const [userRole, setUserRole] = useState<'creator' | 'expert'>('expert');
   // [MCP] 기본 activeTab을 'services'(내 AI 서비스)로 변경, 타입 명시
-  const [activeTab, setActiveTab] = useState<'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status'>('services');
+  const [activeTab, setActiveTab] = useState<'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status' | 'groups' | 'bookmarked-groups'>('services');
   const { user, isLoaded } = useUser();
   const router = useRouter();
   // [MCP] 전문가 신청 상태 관리
@@ -52,6 +55,18 @@ const MyPage = () => {
   const [likedPosts, setLikedPosts] = useState<any[]>([]);
   const [likedPostsLoading, setLikedPostsLoading] = useState(false);
   const [likedPostsError, setLikedPostsError] = useState<string | null>(null);
+  // [MCP] 내가 참여한 그룹 리스트 상태
+  const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [myGroupsLoading, setMyGroupsLoading] = useState(false);
+  const [myGroupsError, setMyGroupsError] = useState<string | null>(null);
+  // [MCP] 북마크한 그룹 리스트 상태
+  const [bookmarkedGroups, setBookmarkedGroups] = useState<any[]>([]);
+  const [bookmarkedGroupsLoading, setBookmarkedGroupsLoading] = useState(false);
+  const [bookmarkedGroupsError, setBookmarkedGroupsError] = useState<string | null>(null);
+  // [MCP] 그룹별 멤버 수 상태 (group_id -> count)
+  const [groupMemberCounts, setGroupMemberCounts] = useState<Record<number, number>>({});
+  // [MCP] 그룹별 채팅 메시지 수 상태 (group_id -> count)
+  const [groupChatCounts, setGroupChatCounts] = useState<Record<number, number>>({});
 
   // [MCP] 더미 데이터 (실제 fetch로 대체 예정)
   const userData = {
@@ -85,16 +100,18 @@ const MyPage = () => {
     })();
   }, [user?.id]);
 
-  // [MCP] 내 AI 서비스 리스트 fetch (activeTab === 'services'일 때만)
+  // [MCP] 모든 데이터 초기 로드 (페이지 진입 시 한 번만)
   useEffect(() => {
-    if (activeTab !== 'services' || !user?.id) return;
-    setMyServicesLoading(true);
-    setMyServicesError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadAllData = async () => {
       try {
+        // [MCP] 1. 내 AI 서비스 리스트 fetch
+        setMyServicesLoading(true);
         let query = supabase.from('services').select('*, users:author_id(*)').eq('author_id', user.id).order('created_at', { ascending: false });
         const { data: servicesData, error } = await query;
         if (error) throw new Error(error.message || "내 서비스 목록을 불러오지 못했습니다.");
+        
         // [MCP] 각 서비스별로 좋아요 개수와 liked_by_user 상태를 service_likes에서 직접 집계
         const serviceIds = (servicesData || []).map((s: any) => s.id);
         let likesMap: Record<number, number> = {};
@@ -129,21 +146,23 @@ const MyPage = () => {
           liked_by_user: likedMap[s.id] || false,
         }));
         setMyServices(servicesWithLike);
+        setMyServicesLoading(false);
       } catch (e: any) {
         setMyServicesError(e.message || "내 서비스 목록을 불러오지 못했습니다.");
-      } finally {
         setMyServicesLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 좋아요한 서비스 리스트 fetch (activeTab === 'liked-services'일 때만)
+    loadAllData();
+  }, [user?.id]);
+
+  // [MCP] 좋아요한 서비스 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'liked-services' || !user?.id) return;
-    setLikedServicesLoading(true);
-    setLikedServicesError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadLikedServices = async () => {
       try {
+        setLikedServicesLoading(true);
         // 1. service_likes에서 내가 좋아요한 service_id 리스트 조회
         const { data: likeRows, error: likeRowsError } = await supabase
           .from('service_likes')
@@ -196,21 +215,23 @@ const MyPage = () => {
           liked_by_user: likedMap[s.id] || false,
         }));
         setLikedServices(servicesWithLike);
+        setLikedServicesLoading(false);
       } catch (e: any) {
         setLikedServicesError(e.message || "좋아요한 서비스 목록을 불러오지 못했습니다.");
-      } finally {
         setLikedServicesLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 내가 작성한 포스트 리스트 fetch (activeTab === 'posts'일 때만)
+    loadLikedServices();
+  }, [user?.id]);
+
+  // [MCP] 내가 작성한 포스트 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'posts' || !user?.id) return;
-    setMyPostsLoading(true);
-    setMyPostsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadMyPosts = async () => {
       try {
+        setMyPostsLoading(true);
         const { data: postsData, error } = await supabase
           .from('posts')
           .select('*, users:author_id(*), post_likes(*)')
@@ -225,21 +246,23 @@ const MyPage = () => {
           users: post.users,
         }));
         setMyPosts(postsWithLike);
+        setMyPostsLoading(false);
       } catch (e: any) {
         setMyPostsError(e.message || "내 포스트 목록을 불러오지 못했습니다.");
-      } finally {
         setMyPostsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
 
-  // [MCP] 좋아요한 포스트 리스트 fetch (activeTab === 'liked-posts'일 때만)
+    loadMyPosts();
+  }, [user?.id]);
+
+  // [MCP] 좋아요한 포스트 리스트 fetch (초기 로드에 포함)
   useEffect(() => {
-    if (activeTab !== 'liked-posts' || !user?.id) return;
-    setLikedPostsLoading(true);
-    setLikedPostsError(null);
-    (async () => {
+    if (!user?.id) return;
+    
+    const loadLikedPosts = async () => {
       try {
+        setLikedPostsLoading(true);
         // 1. post_likes에서 내가 좋아요한 post_id 리스트 가져오기
         const { data: likeRows, error: likeError } = await supabase
           .from('post_likes')
@@ -267,13 +290,136 @@ const MyPage = () => {
           users: post.users,
         }));
         setLikedPosts(postsWithLike);
+        setLikedPostsLoading(false);
       } catch (e: any) {
         setLikedPostsError(e.message || '좋아요한 포스트를 불러오지 못했습니다.');
-      } finally {
         setLikedPostsLoading(false);
       }
-    })();
-  }, [activeTab, user?.id]);
+    };
+
+    loadLikedPosts();
+  }, [user?.id]);
+
+  // [MCP] 내가 참여한 그룹 리스트 fetch (초기 로드에 포함)
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const loadMyGroups = async () => {
+      try {
+        setMyGroupsLoading(true);
+        // [MCP] 그룹 멤버십에서 내가 참여한 그룹 조회
+        const { data: groupMemberships, error: membershipError } = await supabase
+          .from('group_members')
+          .select('*, groups(*)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        if (membershipError) throw new Error(membershipError.message || "내 그룹 목록을 불러오지 못했습니다.");
+        
+        // [MCP] 그룹 정보 정리
+        const groups = (groupMemberships || []).map((membership: any) => ({
+          ...membership.groups,
+          membership_id: membership.id,
+          joined_at: membership.created_at,
+          role: membership.role || 'member'
+        }));
+        setMyGroups(groups);
+        setMyGroupsLoading(false);
+      } catch (e: any) {
+        setMyGroupsError(e.message || "내 그룹 목록을 불러오지 못했습니다.");
+        setMyGroupsLoading(false);
+      }
+    };
+
+    loadMyGroups();
+  }, [user?.id]);
+
+  // [MCP] 북마크한 그룹 리스트 fetch (초기 로드에 포함)
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const loadBookmarkedGroups = async () => {
+      try {
+        setBookmarkedGroupsLoading(true);
+        // [MCP] group_bookmarks에서 내가 북마크한 그룹 조회
+        const { data: bookmarks, error: bookmarksError } = await supabase
+          .from('group_bookmarks')
+          .select('*, groups(*)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        if (bookmarksError) throw new Error(bookmarksError.message || "북마크한 그룹 목록을 불러오지 못했습니다.");
+        
+        // [MCP] 그룹 정보 정리
+        const groups = (bookmarks || []).map((bookmark: any) => ({
+          ...bookmark.groups,
+          bookmarked_at: bookmark.created_at
+        }));
+        
+        // [MCP] 각 그룹에 대해 사용자의 역할 정보 추가
+        const groupIds = groups.map((group: any) => group.id);
+        if (groupIds.length > 0) {
+          const { data: memberships, error: membershipError } = await supabase
+            .from('group_members')
+            .select('group_id, role')
+            .eq('user_id', user.id)
+            .in('group_id', groupIds);
+          
+          if (!membershipError && memberships) {
+            const roleMap: Record<number, string> = {};
+            memberships.forEach((membership: any) => {
+              roleMap[membership.group_id] = membership.role || 'member';
+            });
+            
+            // 각 그룹에 역할 정보 추가
+            const groupsWithRoles = groups.map((group: any) => ({
+              ...group,
+              role: roleMap[group.id] || 'member'
+            }));
+            setBookmarkedGroups(groupsWithRoles);
+          } else {
+            setBookmarkedGroups(groups);
+          }
+        } else {
+          setBookmarkedGroups(groups);
+        }
+        setBookmarkedGroupsLoading(false);
+      } catch (e: any) {
+        setBookmarkedGroupsError(e.message || "북마크한 그룹 목록을 불러오지 못했습니다.");
+        setBookmarkedGroupsLoading(false);
+      }
+    };
+
+    loadBookmarkedGroups();
+  }, [user?.id]);
+
+  // [MCP] 그룹 id 배열로 group_members 테이블에서 count를 가져오는 함수
+  const fetchGroupMemberCounts = async (groupIds: number[]) => {
+    if (!groupIds.length) return {};
+    // supabase에서 group_id별 row 전체를 가져와서 수동 집계
+    const { data, error } = await supabase
+      .from('group_members')
+      .select('group_id')
+      .in('group_id', groupIds);
+    if (error) {
+      console.error('멤버 수 조회 실패:', error.message);
+      return {};
+    }
+    // data: [{ group_id: 1 }, ...] -> group_id별 count 집계
+    const counts: Record<number, number> = {};
+    (data || []).forEach((row: any) => {
+      counts[row.group_id] = (counts[row.group_id] || 0) + 1;
+    });
+    return counts;
+  };
+
+  // [MCP] 내 그룹/북마크 그룹 리스트가 바뀔 때마다 멤버 수 동기화
+  useEffect(() => {
+    const allGroupIds = [
+      ...myGroups.map(g => g.id),
+      ...bookmarkedGroups.map(g => g.id)
+    ].filter((v, i, arr) => arr.indexOf(v) === i && v != null);
+    if (!allGroupIds.length) return;
+    fetchGroupMemberCounts(allGroupIds).then(setGroupMemberCounts);
+  }, [myGroups, bookmarkedGroups]);
 
   // [MCP] 카테고리 정보 (community와 동일하게)
   const postCategories = [
@@ -284,15 +430,13 @@ const MyPage = () => {
     { id: "General", name: "자유게시판", icon: Archive },
   ];
 
-  // [MCP] 날짜 포맷 함수 (community와 동일하게)
+  // [MCP] 날짜 포맷 함수 - MM/DD/YYYY 형태
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 1) return '방금 전';
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
-    if (diffInHours < 48) return '어제';
-    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
   };
 
   // [MCP] 역할/상태 뱃지
@@ -340,6 +484,7 @@ const MyPage = () => {
   // [MCP] 사이드 메뉴 항목
   const menuItems = [
     { id: 'profile', label: t('mypage.menu.profile'), icon: User },
+    { id: 'groups', label: t('mypage.menu.groups'), icon: Users },
     { id: 'expert-status', label: t('mypage.menu.expertStatus'), icon: Award }
   ];
   // [MCP] 기본정보 메뉴 클릭 시 '내 AI 서비스'가 기본으로 보이게 기능 수정
@@ -347,7 +492,7 @@ const MyPage = () => {
     if (id === 'profile') {
       setActiveTab('services');
     } else {
-      setActiveTab(id as 'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status');
+      setActiveTab(id as 'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status' | 'groups' | 'bookmarked-groups');
     }
   };
   const MenuItem = ({ item, isActive }: any) => (
@@ -468,21 +613,58 @@ const MyPage = () => {
     setEditModalOpen(true);
   };
 
-  // [MCP] 좋아요한 포스트 하트 클릭 핸들러 (post_likes에서 삭제, optimistic UI)
+  // [MCP] 좋아요한 포스트 unlike 핸들러
   const handleUnlikeLikedPost = async (postId: number) => {
-    const original = [...likedPosts];
-    setLikedPosts(prev => prev.filter(p => p.id !== postId));
+    if (!user?.id) return;
     try {
       const { error } = await supabase
         .from('post_likes')
         .delete()
-        .eq('user_id', user?.id)
-        .eq('post_id', postId);
-      if (error) throw new Error(error.message || '좋아요 취소에 실패했습니다.');
-    } catch (e) {
-      setLikedPosts(original); // 롤백
+        .eq('post_id', postId)
+        .eq('user_id', user.id);
+      if (error) throw new Error(error.message);
+      // [MCP] 로컬 상태 업데이트
+      setLikedPosts(prev => prev.filter(post => post.id !== postId));
+    } catch (e: any) {
+      console.error('포스트 좋아요 취소 실패:', e.message);
     }
   };
+
+  // [MCP] 북마크한 그룹 북마크 해제 핸들러
+  const handleUnbookmarkGroup = async (groupId: number) => {
+    if (!user?.id) return;
+    try {
+      const { error } = await supabase
+        .from('group_bookmarks')
+        .delete()
+        .eq('group_id', groupId)
+        .eq('user_id', user.id);
+      if (error) throw new Error(error.message);
+      // [MCP] 로컬 상태 업데이트
+      setBookmarkedGroups(prev => prev.filter(group => group.id !== groupId));
+    } catch (e: any) {
+      console.error('그룹 북마크 해제 실패:', e.message);
+    }
+  };
+
+  // [MCP] 그룹 채팅 열기 함수
+  const handleOpenGroupChat = (group: any) => {
+    // URL 파라미터로 채팅 모달 열기 신호 전달
+    const url = new URL(window.location.href);
+    url.searchParams.set('openChat', 'true');
+    url.searchParams.set('selectedGroupId', group.id.toString());
+    window.history.replaceState({}, '', url.toString());
+    
+    // 페이지 새로고침하여 ChatProvider가 채팅 모달을 열도록 함
+    window.location.reload();
+  };
+
+  // [MCP] 쿼리스트링(tab=...) → activeTab 동기화
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'expert-status') setActiveTab('expert-status');
+    else setActiveTab('services');
+  }, [searchParams]);
 
   if (!isLoaded) return <div>Loading...</div>;
   if (!user) return <div>로그인이 필요합니다.</div>;
@@ -490,14 +672,33 @@ const MyPage = () => {
   return (
     // [MYPAGE][MCP] 전체 배경 그라데이션, 카드 soft shadow+border+hover, 사이드 메뉴 blur/투명도 등으로 세련된 느낌 강화
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-[104px] sm:pt-20">
-      {/* [MCP] 왼쪽 고정 사이드 메뉴: blur/투명도 효과 추가, 모바일에서는 숨김 */}
+      {/* [MCP] 왼쪽 고정 사이드 메뉴: PC(데스크탑)에서는 기존 디자인, 모바일에서는 상단 고정 가로 탭 */}
+      {/* 모바일: 상단 고정 가로 탭 메뉴 */}
+      <aside className="flex sm:hidden w-full bg-white/90 backdrop-blur-md shadow-xl border-b border-gray-100 fixed top-0 left-0 z-30 rounded-b-2xl px-4 py-2 overflow-x-auto whitespace-nowrap max-w-full flex-nowrap flex-row justify-between items-center">
+        <nav className="flex flex-row gap-2 w-auto">
+          {menuItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => handleMenuItemClick(item.id)}
+              className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
+                ${((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id)
+                  ? 'bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300'
+                  : 'bg-white text-gray-700 hover:bg-violet-50'}
+              `}
+              style={{ boxShadow: ((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id) ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
+            >
+              <item.icon size={18} />
+              <span className="ml-1">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      </aside>
+      {/* PC: 기존 세로 사이드바 */}
       <aside className="hidden sm:flex w-80 bg-white/90 backdrop-blur-md shadow-xl flex-col p-6 gap-8 border-r border-gray-100 min-h-screen">
-        {/* [MCP] 마이페이지 타이틀+아이콘 */}
         <div className="flex items-center gap-2 mb-6">
           <User className="w-6 h-6 text-blue-500" />
           <span className="text-lg font-bold text-gray-800">{t('mypage.title')}</span>
         </div>
-        {/* 네비게이션 메뉴 (유지) */}
         <nav className="space-y-2">
           {menuItems.map(item => (
             <MenuItem 
@@ -613,79 +814,19 @@ const MyPage = () => {
             </div>
           ) : (
             <>
-              <section className="w-full mb-8">
-                <div className="w-full">
-                  {/* 모바일: 기존 구조 유지 */}
-                  <div className="flex flex-col items-center sm:hidden px-0 py-8 bg-white border border-gray-200 shadow-lg rounded-xl">
-                    <div className="flex flex-row items-center gap-6">
-                      <img src={userData.profileImage} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 bg-white shadow-md" />
-                      {userData.role === 'expert' && (
-                        <img src="/images/role/expert2.png" alt="Expert Medal" className="w-24 h-24 object-contain" />
-                      )}
-                      {userData.role === 'creator' && (
-                        <img src="/images/role/creator2.png" alt="Creator Medal" className="w-24 h-24 object-contain" />
-                      )}
-                    </div>
-                    <div className="mt-2 flex flex-col items-center">
-                      <span className="text-xl font-bold text-gray-900">{userData.name}</span>
-                      <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
-                    </div>
-                    <div className="mt-4 text-center text-gray-700 space-y-1">
-                      <div>{t('mypage.profile.email')} {user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</div>
-                      <div>{t('mypage.profile.joinDate')} {userData.joinDate}</div>
-                      <div>{t('mypage.profile.phone')} {userData.phone}</div>
-                    </div>
-                  </div>
-                  {/* PC: 예시 구조로 */}
-                  <div className="hidden sm:flex backdrop-blur-md bg-white/70 border border-gray-200 shadow-lg rounded-3xl w-full flex-row items-center px-0 py-10 relative">
-                    {/* 왼쪽: 프로필/이름/역할/메달 */}
-                    <div className="flex items-center gap-8 pl-10 flex-1 min-w-0">
-                      <img 
-                        src={userData.profileImage} 
-                        alt="Profile" 
-                        className="w-24 h-24 rounded-full object-cover border-2 border-blue-200 bg-white shadow-md"
-                      />
-                      <div className="flex flex-col gap-2 min-w-0">
-                        <span className="text-2xl font-bold text-gray-900 truncate">{userData.name}</span>
-                        <span className="text-base font-semibold text-blue-500">{userData.role === 'expert' ? t('common.expert') : t('common.creator')}</span>
-                      </div>
-                      {/* [MCP] PC/모바일 모두 메달 이미지를 w-24 h-24 object-contain(테두리/배경/그림자 없음)으로 통일 */}
-                      {userData.role === 'expert' && (
-                        <img src="/images/role/expert2.png" alt="Expert Medal" className="w-32 h-32 rounded-full object-cover bg-white shadow-md" />
-                      )}
-                      {userData.role === 'creator' && (
-                        <img src="/images/role/creator2.png" alt="Creator Medal" className="w-32 h-32 rounded-full object-cover bg-white shadow-md" />
-                      )}
-                    </div>
-                    {/* 오른쪽: 정보 */}
-                    <div className="flex flex-col gap-3 min-w-[300px] pl-10 pr-10 text-left">
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.email')}</span>
-                        <span className="text-gray-800">{user?.primaryEmailAddress?.emailAddress || t('mypage.profile.noEmail')}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.joinDate')}</span>
-                        <span className="text-gray-800">{userData.joinDate}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 font-medium mr-2">{t('mypage.profile.phone')}</span>
-                        <span className="text-gray-800">{userData.phone}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
               {/* [MCP] 탭 네비게이션: 모바일 한 줄 pill + 가로 스크롤, 데스크탑 flex-wrap */}
               <div className="flex flex-row flex-nowrap overflow-x-auto whitespace-nowrap gap-2 -mx-4 px-4 mt-6 w-full justify-start sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
                 {[
                   { id: 'services', label: t('mypage.tab.services'), icon: Bot },
                   { id: 'posts', label: t('mypage.tab.posts'), icon: FileText },
                   { id: 'liked-posts', label: t('mypage.tab.likedPosts'), icon: Heart },
-                  { id: 'liked-services', label: t('mypage.tab.likedServices'), icon: Star }
+                  { id: 'liked-services', label: t('mypage.tab.likedServices'), icon: Star },
+                  { id: 'groups', label: t('mypage.tab.groups'), icon: Users },
+                  { id: 'bookmarked-groups', label: t('mypage.tab.bookmarkedGroups'), icon: Bookmark }
                 ].map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id as 'services' | 'posts' | 'liked-posts' | 'liked-services')}
+                    onClick={() => setActiveTab(item.id as 'services' | 'posts' | 'liked-posts' | 'liked-services' | 'groups' | 'bookmarked-groups')}
                     className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border transition-all text-base font-medium min-w-max
                       ${activeTab === item.id ? 'bg-blue-500 text-white shadow' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-200'}`}
                   >
@@ -1150,6 +1291,198 @@ const MyPage = () => {
                     </div>
                   </div>
                 )}
+                {activeTab === 'groups' && (
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myGroups')}</h2>
+                    {/* [MCP] 내 그룹 리스트 로딩/에러/빈 상태 처리 */}
+                    {myGroupsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
+                    {myGroupsError && <div className="text-center py-8 text-red-500">{myGroupsError}</div>}
+                    {!myGroupsLoading && !myGroupsError && myGroups.length === 0 && (
+                      <div className="text-center py-8 text-gray-400">{t('mypage.empty.myGroups')}</div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
+                      {myGroups.map((group) => (
+                        <div key={group.id} className="mb-4 sm:mb-0">
+                          <Card className="group cursor-pointer transition-all duration-500 hover:shadow-xl hover:-translate-y-1 shadow-lg border border-gray-200 rounded-2xl sm:rounded-3xl bg-white">
+                            <div className="relative overflow-hidden">
+                              {group.image_url ? (
+                                <Image
+                                  src={group.image_url}
+                                  alt={group.title}
+                                  width={400}
+                                  height={320}
+                                  className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                  quality={75}
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center w-full h-64 sm:h-80 bg-violet-50">
+                                  <Users className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
+                              <span className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-green-50 text-green-700 border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300">
+                                <Users className="w-4 h-4" /> {group.category || t('mypage.group.aiGroup')}
+                              </span>
+                            </div>
+                            <CardContent className="p-3 sm:p-4 lg:p-5 text-sm sm:text-base lg:text-base">
+                              <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                                <div>
+                                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-violet-600 transition-colors truncate whitespace-nowrap overflow-hidden max-w-full">
+                                    {group.title}
+                                  </h3>
+                                  <div className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-2 overflow-hidden max-w-full"
+                                    dangerouslySetInnerHTML={{ __html: formatContentWithRoundedImages(group.description || '') }}
+                                  />
+                                </div>
+                                {/* [MCP] 그룹 정보 영역: 북마크 상태와 멤버 수를 한 줄에 좌우 배치 */}
+                                <div className="flex items-center justify-between mt-2">
+                                  {/* 내 역할 뱃지 (왼쪽) */}
+                                  <span className="inline-flex items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold px-3 py-1.5 rounded-full text-xs shadow-sm">
+                                    {group.role === 'leader' ? (
+                                      <Crown className="w-3 h-3 mr-1" />
+                                    ) : (
+                                      <User className="w-3 h-3 mr-1" />
+                                    )}
+                                    {group.role === 'leader' ? t('mypage.group.leader') : t('mypage.group.member')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
+                                  <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                                    <span>{t('mypage.group.joinedAt')}</span>
+                                    <span className="font-semibold text-gray-700">
+                                      {formatDate(group.joined_at)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
+                                    <div className="flex items-center space-x-1">
+                                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                                      <span className="font-medium">{groupMemberCounts[group.id] || 0}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* [MCP] 그룹 입장 버튼 */}
+                                <div className="w-full mt-4">
+                                  <Button
+                                    className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white rounded-2xl transition-all duration-300 font-bold text-base py-4 shadow-xl hover:shadow-2xl transform hover:scale-[1.03] flex items-center justify-center gap-3 border-2 border-blue-400/20"
+                                    onClick={() => {
+                                      openChatWithGroup(group.id);
+                                    }}
+                                  >
+                                    <span className="text-lg">💬 {t('mypage.group.enterChat')}</span>
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {activeTab === 'bookmarked-groups' && (
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.bookmarkedGroups')}</h2>
+                    {/* [MCP] 북마크한 그룹 리스트 로딩/에러/빈 상태 처리 */}
+                    {bookmarkedGroupsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
+                    {bookmarkedGroupsError && <div className="text-center py-8 text-red-500">{bookmarkedGroupsError}</div>}
+                    {!bookmarkedGroupsLoading && !bookmarkedGroupsError && bookmarkedGroups.length === 0 && (
+                      <div className="text-center py-8 text-gray-400">{t('mypage.empty.bookmarkedGroups')}</div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
+                      {bookmarkedGroups.map((group) => (
+                        <div key={group.id} className="mb-4 sm:mb-0">
+                          <Card className="group cursor-pointer transition-all duration-500 hover:shadow-xl hover:-translate-y-1 shadow-lg border border-gray-200 rounded-2xl sm:rounded-3xl bg-white">
+                            <div className="relative overflow-hidden">
+                              {group.image_url ? (
+                                <Image
+                                  src={group.image_url}
+                                  alt={group.title}
+                                  width={400}
+                                  height={320}
+                                  className="w-full h-64 sm:h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                  quality={75}
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center w-full h-64 sm:h-80 bg-violet-50">
+                                  <Users className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
+                              <span className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-violet-50 text-violet-700 border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm font-medium text-xs sm:text-sm transition-colors duration-200 hover:bg-gray-100 hover:border-gray-300">
+                                <Bookmark className="w-4 h-4" /> {group.category || t('mypage.group.aiGroup')}
+                              </span>
+                              {/* [MCP] 북마크 해제 버튼 (우측 상단) */}
+                              <button
+                                className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-white/80 border border-gray-200 rounded-full p-2 shadow-sm hover:bg-red-50 hover:border-red-200 transition-colors z-10"
+                                aria-label={t('mypage.group.unbookmark')}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUnbookmarkGroup(group.id);
+                                }}
+                                type="button"
+                              >
+                                <Bookmark className="w-5 h-5 text-violet-500 fill-violet-500" />
+                              </button>
+                            </div>
+                            <CardContent className="p-3 sm:p-4 lg:p-5 text-sm sm:text-base lg:text-base">
+                              <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                                <div>
+                                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-violet-600 transition-colors truncate whitespace-nowrap overflow-hidden max-w-full">
+                                    {group.title}
+                                  </h3>
+                                  <div className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-2 overflow-hidden max-w-full"
+                                    dangerouslySetInnerHTML={{ __html: formatContentWithRoundedImages(group.description || '') }}
+                                  />
+                                </div>
+                                {/* [MCP] 그룹 정보 영역: 역할과 멤버 수를 한 줄에 좌우 배치 */}
+                                <div className="flex items-center justify-between mt-2">
+                                  {/* 내 역할 뱃지 (왼쪽) */}
+                                  <span className="inline-flex items-center bg-gradient-to-r from-violet-500 to-violet-600 text-white font-semibold px-3 py-1.5 rounded-full text-xs shadow-sm">
+                                    {group.role === 'leader' ? (
+                                      <Crown className="w-3 h-3 mr-1" />
+                                    ) : (
+                                      <User className="w-3 h-3 mr-1" />
+                                    )}
+                                    {group.role === 'leader' ? t('mypage.group.leader') : t('mypage.group.member')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-gray-100">
+                                  <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                                    <span>{t('mypage.group.bookmarkedAt')}</span>
+                                    <span className="font-semibold text-gray-700">
+                                      {formatDate(group.bookmarked_at)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 text-sm">
+                                    <div className="flex items-center space-x-1">
+                                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                                      <span className="font-medium">{groupMemberCounts[group.id] || 0}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* [MCP] 그룹 입장 버튼 */}
+                                <div className="w-full mt-4">
+                                  <Button
+                                    className="w-full bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-semibold text-base py-3"
+                                    onClick={() => {
+                                      router.push(`/match/groups/${group.id}`);
+                                    }}
+                                  >
+                                    {t('mypage.group.viewDetails')}
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -1249,4 +1582,19 @@ const MyPage = () => {
   );
 };
 
-export default MyPage; 
+// Suspense 래퍼 컴포넌트
+function MyPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-[104px] sm:pt-32 py-12">
+          <div className="text-center text-gray-500 py-8">로딩 중...</div>
+        </div>
+      </div>
+    }>
+      <MyPage />
+    </Suspense>
+  )
+}
+
+export default MyPageWrapper;

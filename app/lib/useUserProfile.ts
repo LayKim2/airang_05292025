@@ -38,7 +38,7 @@ export const useUserProfile = () => {
         const { data, error } = await supabase
           .from('users')
           .upsert(upsertData, { onConflict: 'clerk_user_id' })
-          .select()
+          .select('clerk_user_id, auth_type, email, first_name, last_name, avatar_url, created_at, last_sign_in_at, updated_at, user_role')
           .single();
 
         if (error) {

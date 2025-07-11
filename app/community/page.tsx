@@ -14,6 +14,7 @@ import PostCreateModal from "@/app/components/community/PostCreateModal"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/app/components/ui/select"
 import { supabase } from "@/lib/supabase"
 import SiteLoader from "@/app/components/ui/SiteLoader";
+import { useInView } from 'react-intersection-observer';
 
 export default function CommunityPage() {
   const { t } = useTranslation()
@@ -50,64 +51,67 @@ export default function CommunityPage() {
   const [filterSearch, setFilterSearch] = useState(searchQuery)
   const [postModalOpen, setPostModalOpen] = useState(false)
 
-  // [MCP] 게시글 목록 조회 - Supabase 직접 호출 (API Route 미사용)
+  // 무한 스크롤 관련 상태
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const { ref: loadMoreRef, inView } = useInView();
+
+  // [MCP] 게시글 목록 조회 - Supabase 직접 호출 (API Route 미사용, 무한 스크롤 적용)
   const fetchPosts = async (page: number = 1, reset: boolean = false) => {
     try {
-      setLoading(true)
-      setError(null)
-
-      // [MCP] 쿼리 파라미터 준비
-      const limit = 10
-      const from = (page - 1) * limit
-      const to = from + limit - 1
-
-      // [MCP] posts + 작성자(users) + 좋아요(post_likes) join (post_likes는 전체 컬럼)
+      if (reset) {
+        setInitialLoading(true);
+        setLoadingMore(false);
+      } else {
+        setLoadingMore(true);
+      }
+      setError(null);
+      // 쿼리 파라미터 준비
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
       let query = supabase
         .from('posts')
         .select(`*, users:author_id(*), post_likes(*)`, { count: 'exact' })
-        .range(from, to)
-
-      // [MCP] 정렬 옵션
-      query = query.order('created_at', { ascending: false })
-      // [MCP] 카테고리 필터
+        .range(from, to);
+      query = query.order('created_at', { ascending: false });
       if (selectedCategory !== 'all') {
-        query = query.eq('category', selectedCategory)
+        query = query.eq('category', selectedCategory);
       }
-      // [MCP] 검색 필터 (본문 기준)
       if (searchQuery.trim()) {
-        query = query.ilike('content', `%${searchQuery.trim()}%`)
+        query = query.ilike('content', `%${searchQuery.trim()}%`);
       }
-
-      const { data, error, count } = await query
-      if (error) throw new Error(error.message || t('community.errorFetch'))
-
-      // [MCP] 현재 로그인 유저 id (Clerk)
-      const userId = user?.id
-      // [MCP] 각 post별로 liked_by_user, like_count 계산
+      const { data, error, count } = await query;
+      if (error) throw new Error(error.message || t('community.errorFetch'));
+      const userId = user?.id;
       let postsWithLike = (data || []).map((post: any) => ({
         ...post,
         liked_by_user: userId ? Array.isArray(post.post_likes) && post.post_likes.some((like: any) => like.user_id === userId) : false,
         like_count: Array.isArray(post.post_likes) ? post.post_likes.length : 0,
         users: post.users,
-      }))
-      // [MCP] 인기순 정렬은 프론트에서 like_count 내림차순
+      }));
       if (sortBy === 'popular') {
-        postsWithLike = postsWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
+        postsWithLike = postsWithLike.sort((a, b) => (b.like_count || 0) - (a.like_count || 0));
       }
-
       if (reset) {
-        setPosts(postsWithLike)
+        setPosts(postsWithLike);
+        setPage(2);
       } else {
-        setPosts(prev => [...prev, ...postsWithLike])
+        setPosts(prev => [...prev, ...postsWithLike]);
+        setPage(prev => prev + 1);
       }
-      setHasMore((count || 0) > page * limit)
-      setCurrentPage(page)
+      setHasMore((count || 0) > page * PAGE_SIZE);
     } catch (err: any) {
-      setError(err.message || t('community.errorFetch'))
+      setError(err.message || t('community.errorFetch'));
     } finally {
-      setLoading(false)
+      if (reset) {
+        setInitialLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     }
-  }
+  };
 
   // 카테고리 변경
   const handleCategoryChange = (category: string) => {
@@ -127,11 +131,20 @@ export default function CommunityPage() {
     }
   }
 
-  // 초기 로드 또는 카테고리/검색어 변경 시 데이터 리프레시
+  // 초기 로드 또는 카테고리/검색어/정렬 변경 시 데이터 리프레시
   useEffect(() => {
-    fetchPosts(1, true)
+    setPage(1);
+    setHasMore(true);
+    fetchPosts(1, true);
     // eslint-disable-next-line
-  }, [selectedCategory, sortBy, searchQuery])
+  }, [selectedCategory, sortBy, searchQuery]);
+
+  // inView(하단 감지) 시 추가 fetch
+  useEffect(() => {
+    if (inView && hasMore && !initialLoading && !loadingMore) {
+      fetchPosts(page, false);
+    }
+  }, [inView]);
 
   // 좋아요 토글 핸들러
   const handleLike = async (postId: number) => {
@@ -274,6 +287,24 @@ export default function CommunityPage() {
                 </Badge>
               </motion.div>
             </motion.div>
+            {/* 글쓰기 버튼: 모든 해상도에서 타이틀 아래 오른쪽 정렬로 항상 노출 */}
+            <div className="flex justify-end mb-4 -mt-4">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-xl hover:scale-105 transition-all duration-300 font-semibold text-sm md:text-base"
+                style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
+                aria-label={t('community.createPost')}
+                onClick={() => {
+                  if (!isSignedIn) {
+                    openSignIn();
+                  } else {
+                    setPostModalOpen(true);
+                  }
+                }}
+              >
+                <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                <span>{t('community.createPost')}</span>
+              </button>
+            </div>
 
             {/* Search and Filter Section */}
             <motion.div
@@ -573,23 +604,16 @@ export default function CommunityPage() {
             </div>
 
             {/* Loading State */}
-            {loading && <SiteLoader text={t('community.loading')} />}
-
-            {/* Load More Button */}
-            {hasMore && !loading && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mt-8"
-              >
-                <Button
-                  onClick={handleLoadMore}
-                  variant="outline"
-                  className="px-6 py-3 rounded-xl"
-                >
-                  {t('community.loadMore')}
-                </Button>
-              </motion.div>
+            {initialLoading && <SiteLoader text={t('community.loading')} />}
+            {/* 무한 스크롤 하단 감지용 div */}
+            {hasMore && !initialLoading && !loadingMore && (
+              <div ref={loadMoreRef} className="h-10" />
+            )}
+            {/* 추가 로딩 시 하단에만 로딩 인디케이터 대신 텍스트 */}
+            {loadingMore && posts.length > 0 && (
+              <div className="flex justify-center py-4">
+                <span className="text-gray-400 text-sm">{t('community.loadingMore')}</span>
+              </div>
             )}
 
             {/* No Posts */}
@@ -614,19 +638,6 @@ export default function CommunityPage() {
         </section>
 
         {/* [MCP] 플로팅 버튼: 로그인 안 했으면 Clerk 로그인, 했으면 Post 작성 모달 */}
-        <button
-          className="fixed bottom-8 right-8 z-0 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-xl hover:scale-105 transition-all duration-300"
-          aria-label={t('community.createPost')}
-          onClick={() => {
-            if (!isSignedIn) {
-              openSignIn();
-            } else {
-              setPostModalOpen(true);
-            }
-          }}
-        >
-          <Plus className="w-8 h-8" />
-        </button>
         <PostCreateModal
           open={postModalOpen}
           onOpenChange={setPostModalOpen}

@@ -154,11 +154,11 @@ export default function MatchPage() {
             </button>
             <div className="flex flex-col items-center gap-4">
               <Sparkles className="w-10 h-10 text-violet-500 mb-2" />
-              <h2 className="text-xl font-bold text-gray-900 text-center">전문가 등록하고 수익을 얻으세요!</h2>
+              {/* 전문가 등록 알림 팝업 제목 */}
+              <h2 className="text-xl font-bold text-gray-900 text-center">{t('matchExpertAlertTitle')}</h2>
+              {/* 전문가 등록 알림 팝업 설명 */}
               <p className="text-gray-600 text-center text-base mb-2">
-                AI 전문가로 등록하면 강의와 의뢰를 받아<br />
-                지식과 경험을 수익으로 연결할 수 있습니다.<br />
-                지금 바로 전문가로 등록해보세요.
+                {t('matchExpertAlertDesc')}
               </p>
               <div className="flex items-center gap-2 mt-2 mb-2">
                 <input
@@ -168,15 +168,17 @@ export default function MatchPage() {
                   onChange={e => setDontShowForWeek(e.target.checked)}
                   className="w-4 h-4 accent-violet-600"
                 />
+                {/* 전문가 등록 알림 팝업 체크박스 라벨 */}
                 <label htmlFor="dontShowForWeek" className="text-sm text-gray-600 select-none cursor-pointer">
-                  일주일간 보지 않음
+                  {t('matchExpertAlertCheckbox')}
                 </label>
               </div>
+              {/* 전문가 등록 알림 팝업 버튼 */}
               <button
                 className="mt-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-semibold text-base hover:scale-105 transition-all"
                 onClick={handleExpertRegister}
               >
-                전문가 등록하러 가기
+                {t('matchExpertAlertButton')}
               </button>
             </div>
           </div>
@@ -196,16 +198,18 @@ export default function MatchPage() {
             </button>
             <div className="flex flex-col items-center gap-4">
               <Sparkles className="w-10 h-10 text-violet-500 mb-2" />
-              <h2 className="text-xl font-bold text-gray-900 text-center">서비스를 먼저 등록해 주세요</h2>
+              {/* 서비스 등록 안내 모달 제목 */}
+              <h2 className="text-xl font-bold text-gray-900 text-center">{t('matchServiceAlertTitle')}</h2>
+              {/* 서비스 등록 안내 모달 설명 */}
               <p className="text-gray-600 text-center text-base mb-2">
-                전문가로 활동하려면 AI 서비스를 1개 이상 등록해야 합니다.<br />
-                서비스 등록 후 강의 등록 및 의뢰를 받을 수 있습니다.
+                {t('matchServiceAlertDesc')}
               </p>
+              {/* 서비스 등록 안내 모달 버튼 */}
               <button
                 className="mt-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-semibold text-base hover:scale-105 transition-all"
                 onClick={() => { setShowServiceAlert(false); router.push("/services/register"); }}
               >
-                AI 서비스 등록하러 가기
+                {t('matchServiceAlertButton')}
               </button>
             </div>
           </div>
@@ -224,13 +228,16 @@ export default function MatchPage() {
               ×
             </button>
             <Sparkles className="w-10 h-10 text-violet-500 mb-2 mx-auto" />
-            <h2 className="text-lg font-bold text-gray-900 mb-2">서비스 준비중입니다</h2>
-            <p className="text-gray-600 text-base">빠른 시일 내에 오픈될 예정입니다.</p>
+            {/* 서비스 준비중 팝업 제목 */}
+            <h2 className="text-lg font-bold text-gray-900 mb-2">{t('matchComingSoonTitle')}</h2>
+            {/* 서비스 준비중 팝업 설명 */}
+            <p className="text-gray-600 text-base">{t('matchComingSoonDesc')}</p>
+            {/* 서비스 준비중 팝업 버튼 */}
             <button
               className="mt-6 px-6 py-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-semibold text-base hover:scale-105 transition-all"
               onClick={() => setShowComingSoon(false)}
             >
-              확인
+              {t('matchComingSoonButton')}
             </button>
           </div>
         </div>
@@ -265,10 +272,25 @@ export default function MatchPage() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
+              {/* 매칭/모임 타이틀(Badge) 중앙 정렬 */}
               <Badge className="bg-gradient-to-r from-pink-100 to-orange-100 text-pink-700 border-0 px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 {t('headerMatch')}
               </Badge>
+              {/* 전문가 등록 버튼: 모든 해상도에서 타이틀 아래 오른쪽 정렬로 항상 노출 */}
+              {canRegisterExpert === true && (
+                <div className="flex justify-end mb-4 -mt-4">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-xl hover:scale-105 transition-all duration-300 font-semibold text-sm md:text-base"
+                    style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
+                    aria-label="전문가 등록"
+                    onClick={handleExpertRegister}
+                  >
+                    <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                    <span>{t('matchExpertFab')}</span>
+                  </button>
+                </div>
+              )}
             </motion.div>
           </motion.div>
 
@@ -302,7 +324,8 @@ export default function MatchPage() {
           */}
 
           {/* Match Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
+          {/* 카드 2개 중앙 정렬: md 이상에서 2열, justify-center, max-w-3xl로 폭 제한 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12 justify-center">
 
             {/* [카드1] AI 크리에이터 모임 카드 */}
             <motion.div
@@ -381,18 +404,6 @@ export default function MatchPage() {
 
         </div>
 
-        {/* 전문가 등록 플로팅 버튼 (중복 신청 불가 시 숨김, 로딩중(null)일 때는 렌더링 안함) */}
-        {canRegisterExpert === true && (
-          <button
-            className="fixed bottom-8 right-8 z-50 flex items-center gap-2 sm:px-6 sm:py-3 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-full shadow-xl hover:scale-105 transition-all duration-300 font-semibold sm:text-lg text-base"
-            style={{ boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)' }}
-            aria-label="전문가 등록"
-            onClick={handleExpertRegister}
-          >
-            <Plus className="sm:w-6 sm:h-6 w-5 h-5" />
-            <span className="sm:inline inline">{t('matchExpertFab')}</span>
-          </button>
-        )}
       </section>
     </main>
   )

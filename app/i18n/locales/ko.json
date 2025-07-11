@@ -55,6 +55,7 @@
     "myPage": "마이페이지",
     "mainMenu": "메인 메뉴"
   },
+  "headerCommunity": "AI 크리에이터 커뮤니티",
   "communityBadge": "같은 관심사를 가진 사람들과의 연결",
   "communityTitleHighlight": "함께 만들어가는 AI",
   "communityDesc": "비슷한 관심사와 목표를 가진 크리에이터들과 연결되어 협업하고, 인사이트를 교환하며 함께 성장하세요.",
@@ -166,6 +167,12 @@
   "servicesTitle": "크리에이터들의 AI 작품",
   "servicesSearchPlaceholder": "서비스를 검색해보세요",
   "aiService": "AI 서비스",
+  "notFound": {
+    "title": "404",
+    "subtitle": "페이지를 찾을 수 없습니다",
+    "description": "요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.",
+    "backHome": "홈으로 돌아가기"
+  },
   "aiTools": {
     "header": "AI Tools",
     "category": {
@@ -191,16 +198,55 @@
       "presentation": "발표",
       "law": "법률"
     },
-    "button": {
-      "more": "더보기",
-      "less": "접기",
-      "visit": "바로가기"
-    },
+    "more": "더보기",
+    "less": "접기",
+    "visit": "바로가기",
     "label": {
       "free": "무료",
       "paid": "유료"
     },
     "placeholder": "AI 도구/모델 입력 후 Enter"
+  },
+  "button": {
+    "close": "닫기",
+    "send": "전송",
+    "leave": "모임 나가기",
+    "delete": "모임 삭제",
+    "kick": "내보내기",
+    "confirm": "확인",
+    "cancel": "취소"
+  },
+  "chat": {
+    "title": "모임 채팅",
+    "noGroups": "모임에 참여해주세요",
+    "noGroupsDesc": "채팅을 사용하려면 먼저 모임에 가입해야 합니다.",
+    "selectGroup": "모임을 선택해주세요",
+    "selectGroupDesc": "채팅을 보려면 왼쪽에서 모임을 선택하세요.",
+    "selectGroupMobile": "채팅을 보려면 상단 메뉴에서 모임을 선택하세요.",
+    "noMessages": "아직 메시지가 없습니다.",
+    "loading": "채팅을 불러오는 중...",
+    "messagePlaceholder": "메시지를 입력하세요...",
+    "membersTitle": "멤버 목록",
+    "participating": "명 참여 중",
+    "groupsParticipating": "개 모임 참여 중",
+    "leader": "리더",
+    "member": "멤버",
+    "leaveConfirm": "모임에서 나가시겠습니까?",
+    "deleteConfirm": "모임을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+    "kickConfirm": "님을 모임에서 내보내시겠습니까?",
+    "memberList": "멤버 목록",
+    "toggleMembers": "멤버 목록",
+    "toggleGroups": "모임 목록",
+    "systemMessages": {
+      "memberJoin": "{userName}님이 모임에 참여했습니다",
+      "memberLeave": "{userName}님이 모임을 나갔습니다",
+      "groupCreated": "{creatorName}님이 모임을 생성했습니다",
+      "roleChange": "{userName}님의 역할이 {oldRole}에서 {newRole}로 변경되었습니다",
+      "roles": {
+        "member": "멤버",
+        "leader": "리더"
+      }
+    }
   },
   "signIn": "로그인",
   "signUp": "회원가입",
@@ -245,7 +291,8 @@
       "search": "검색",
       "reset": "전체 초기화",
       "apply": "적용"
-    }
+    },
+    "createPost": "글쓰기"
   },
   "common": {
     "loading": "로딩 중...",
@@ -390,8 +437,8 @@
     },
     "detail": {
       "loading": "로딩 중...",
-      "notFound": "그룹 정보를 찾을 수 없습니다.",
-      "defaultTitle": "AIrang 그룹",
+      "notFound": "모임 정보를 찾을 수 없습니다.",
+      "defaultTitle": "AIrang 모임",
       "defaultDescription": "AI 크리에이터 모임",
       "unbookmark": "북마크 해제",
       "bookmark": "북마크 추가",
@@ -409,31 +456,39 @@
       "alreadyJoined": "이미 참여 중",
       "joinButton": "참여하기",
       "linkCopied": "링크가 복사되었습니다!"
-    }
+    },
+    "loadingMore": "더 불러오는 중..."
   },
   "mypage": {
     "title": "마이페이지",
     "menu": {
       "profile": "기본정보",
+      "groups": "내 모임",
       "expertStatus": "전문가 신청"
     },
     "tab": {
       "services": "내 AI 서비스",
       "posts": "내 포스트",
       "likedPosts": "좋아요한 포스트",
-      "likedServices": "좋아요한 서비스"
+      "likedServices": "좋아요한 서비스",
+      "groups": "내 모임",
+      "bookmarkedGroups": "북마크한 모임"
     },
     "section": {
       "myServices": "내 AI 서비스",
       "myPosts": "내 포스트",
       "likedPosts": "좋아요한 포스트",
-      "likedServices": "좋아요한 서비스"
+      "likedServices": "좋아요한 서비스",
+      "myGroups": "내 모임",
+      "bookmarkedGroups": "북마크한 모임"
     },
     "empty": {
       "myServices": "등록된 서비스가 없습니다.",
       "myPosts": "작성한 포스트가 없습니다.",
       "likedPosts": "좋아요한 포스트가 없습니다.",
-      "likedServices": "좋아요한 서비스가 없습니다."
+      "likedServices": "좋아요한 서비스가 없습니다.",
+      "myGroups": "참여한 모임이 없습니다.",
+      "bookmarkedGroups": "북마크한 모임이 없습니다."
     },
     "delete": {
       "serviceTitle": "서비스 삭제",
@@ -474,6 +529,29 @@
       "editPost": "포스트 수정",
       "deletePost": "포스트 삭제",
       "unlike": "좋아요 취소"
+    },
+    "group": {
+      "aiGroup": "AI 모임",
+      "members": "멤버",
+      "member": "멤버",
+      "leader": "리더",
+      "joinedAt": "참여일",
+      "enterGroup": "모임 입장",
+      "enterChat": "채팅방 입장",
+      "viewDetails": "자세히 보기",
+      "bookmarked": "북마크됨",
+      "bookmarkedAt": "북마크일",
+      "unbookmark": "북마크 해제"
     }
-  }
+  },
+  "matchExpertAlertTitle": "전문가 등록하고 수익을 얻으세요!",
+  "matchExpertAlertDesc": "AI 전문가로 등록하면 강의와 의뢰를 받아<br />지식과 경험을 수익으로 연결할 수 있습니다.<br />지금 바로 전문가로 등록해보세요.",
+  "matchExpertAlertCheckbox": "일주일간 보지 않음",
+  "matchExpertAlertButton": "전문가 등록하러 가기",
+  "matchServiceAlertTitle": "서비스를 먼저 등록해 주세요",
+  "matchServiceAlertDesc": "전문가로 활동하려면 AI 서비스를 1개 이상 등록해야 합니다.<br />서비스 등록 후 강의 등록 및 의뢰를 받을 수 있습니다.",
+  "matchServiceAlertButton": "AI 서비스 등록하러 가기",
+  "matchComingSoonTitle": "서비스 준비중입니다",
+  "matchComingSoonDesc": "빠른 시일 내에 오픈될 예정입니다.",
+  "matchComingSoonButton": "확인"
 } 

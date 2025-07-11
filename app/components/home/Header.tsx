@@ -1,41 +1,39 @@
 "use client"
 
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect, Suspense } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight } from "lucide-react"
+import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight, Award, Bookmark } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs"
+import { useUserProfile } from '@/app/lib/useUserProfile';
+import { Badge } from '@/app/components/ui/badge';
 
 // 모바일 하단 메뉴 높이 상수 (예: 48px)
 export const MOBILE_HEADER_TAB_HEIGHT = 56;
 
-export function Header() {
+function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(true)
   const pathname = usePathname()
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const { user, isLoaded } = useUser();
+  const { profile } = useUserProfile();
   const [showScrollRight, setShowScrollRight] = useState(false);
+  const isRootPage = pathname === "/";
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(false)
-      setTimeout(() => setIsAnimating(true), 100)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [])
+    // [MCP] root(/) 페이지에서만 스크롤 이벤트 리스너 등록 (성능 최적화)
+    if (isRootPage) {
+      const handleScroll = () => setScrollY(window.scrollY)
+      window.addEventListener("scroll", handleScroll)
+      return () => window.removeEventListener("scroll", handleScroll)
+    }
+  }, [isRootPage])
 
   useLayoutEffect(() => {
     const el = document.getElementById('mobile-menu-scroll');
@@ -51,11 +49,7 @@ export function Header() {
       window.removeEventListener('resize', checkScroll);
     };
   }, []);
-
-  const isServicesPage = pathname === "/services"
-  const isAIToolsPage = pathname === "/ai-tools"
-  const isMatchPage = pathname === "/match"
-  const isCommunityPage = pathname === "/community"
+  
   const isMyPage = pathname === "/mypage";
 
   // [MCP] 메뉴 항목: 데스크탑/모바일 분기용, 마이페이지는 모바일에서만 노출
@@ -69,13 +63,21 @@ export function Header() {
   // [MCP] 마이페이지 메뉴 별도 분리
   const myPageMenu = { name: t('header.myPage'), path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> };
 
+  // [MCP] 마이페이지 사이드바 메뉴(모바일용) - mypage에서만 사용
+  const myPageMenuItems = [
+    { name: t('mypage.menu.profile'), path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.groups'), path: "/mypage?tab=groups", icon: <Users className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.tab.bookmarkedGroups'), path: "/mypage?tab=bookmarked-groups", icon: <Bookmark className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.expertStatus'), path: "/mypage?tab=expert-status", icon: <Award className="w-5 h-5 mb-0.5" /> }
+  ];
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isMyPage
             ? "bg-white border-b border-gray-100 shadow"
-            : isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+            : !isRootPage || scrollY > 50
               ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100"
               : "bg-transparent"
         }`}
@@ -91,36 +93,12 @@ export function Header() {
                   <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce" />
                 </div>
                 <div>
-                  <AnimatePresence>
-                    {isAnimating && (
-                      <motion.h1 
-                        className="text-xl sm:text-3xl font-black"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <motion.span 
-                          className="bg-clip-text text-transparent"
-                          animate={{
-                            backgroundImage: [
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                              "linear-gradient(to right, #7c3aed, #db2777, #2563eb)",
-                              "linear-gradient(to right, #db2777, #2563eb, #7c3aed)",
-                              "linear-gradient(to right, #2563eb, #7c3aed, #db2777)",
-                            ]
-                          }}
-                          transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        >
-                          AIrang
-                        </motion.span>
-                      </motion.h1>
-                    )}
-                  </AnimatePresence>
+                  {/* [MCP] CSS로 슬라이드+페이드, 무한 그라데이션 애니메이션 */}
+                  <h1 className="text-xl sm:text-3xl font-black animate-fade-slide-in">
+                    <span className="bg-clip-text text-transparent animate-gradient-move bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500">
+                      AIrang
+                    </span>
+                  </h1>
                   <p className="text-xs sm:text-sm font-medium text-gray-500">
                     {t('headerCommunity')}
                   </p>
@@ -136,12 +114,12 @@ export function Header() {
                     key={item.name}
                     href={item.path}
                     className={`transition-colors font-semibold relative group ${
-                      isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                      !isRootPage || scrollY > 50
                         ? "text-gray-700 hover:text-violet-600"
                         : "text-gray-200 hover:text-white"
                     } ${
                       pathname === item.path
-                        ? isServicesPage || isAIToolsPage || isMatchPage || isCommunityPage || scrollY > 50
+                        ? !isRootPage || scrollY > 50
                           ? "text-violet-600"
                           : "text-white"
                         : ""
@@ -156,7 +134,20 @@ export function Header() {
               </nav>
             )}
             <div className="hidden sm:flex items-center space-x-4">
-              <LanguageSwitcher />
+              {/* [MCP] PC에서만 user_role Badge 표시 (LanguageSwitcher 왼쪽), root 페이지만 아니면 밝은 스타일 */}
+              {user && profile?.user_role && (
+                <Badge
+                  variant="outline"
+                  className={
+                    !isRootPage
+                      ? "text-base px-3 py-1 font-semibold capitalize bg-white/80 text-gray-700 border-gray-200 shadow"
+                      : "text-base px-3 py-1 font-semibold capitalize bg-transparent text-gray-200 border-gray-400"
+                  }
+                >
+                  {profile.user_role === 'expert' ? t('common.expert') : profile.user_role === 'creator' ? t('common.creator') : profile.user_role}
+                </Badge>
+              )}
+              
               <SignedOut>
                 <SignInButton mode="modal">
                   <Button
@@ -175,10 +166,21 @@ export function Header() {
                   </UserButton.MenuItems>
                 </UserButton>
               </SignedIn>
+              <LanguageSwitcher />
             </div>
             {/* [MCP] 모바일 메뉴(햄버거/하단탭)는 항상 노출 */}
             <div className="flex items-center space-x-2 sm:hidden">
-              <LanguageSwitcher />
+              {/* [MCP] 모바일: 로그인 시 역할(role) 텍스트를 한 줄로, 길면 '...' 처리로 Header 레이아웃 유지 */}
+              <SignedIn>
+                {user && profile?.user_role && (
+                  <Badge
+                    variant="outline"
+                    className="text-base px-3 py-1 font-semibold capitalize bg-gradient-to-r from-purple-500 to-blue-500 text-white border-none shadow max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap"
+                  >
+                    {profile.user_role === 'expert' ? t('common.expert') : profile.user_role === 'creator' ? t('common.creator') : profile.user_role}
+                  </Badge>
+                )}
+              </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
                   <Button
@@ -197,15 +199,18 @@ export function Header() {
                   </UserButton.MenuItems>
                 </UserButton>
               </SignedIn>
+              <LanguageSwitcher />
+              {/* <Button ...> ... <Menu /> ... </Button> 햄버거 메뉴 버튼은 모바일에서 숨김 */}
+              {/*
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="sm:hidden z-50 text-gray-200"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {/* [MCP] 햄버거 메뉴: 항상 Menu 아이콘만 보이고, 색상도 항상 text-gray-200으로 고정 */}
                 <Menu className="w-6 h-6" />
               </Button>
+              */}
             </div>
             {isMenuOpen && (
               <>
@@ -280,20 +285,33 @@ export function Header() {
               id="mobile-menu-scroll"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
-              {baseMenuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
-                    ${pathname === item.path ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300" : "bg-white text-gray-700 hover:bg-violet-50"
-                    }`}
-                  style={{ boxShadow: pathname === item.path ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.icon}
-                  <span className="ml-1">{item.name.replace('AI ', '')}</span>
-                </Link>
-              ))}
+              {(isMyPage ? myPageMenuItems : [...baseMenuItems, myPageMenu]).map((item) => {
+                // [MCP] 쿼리스트링(tab=...)까지 반영한 활성화 조건 (명확히 분리)
+                let isActive = false;
+                if (isMyPage) {
+                  if (item.path === "/mypage" && pathname === "/mypage" && !searchParams.get('tab')) {
+                    isActive = true;
+                  } else if (item.path.includes('tab=expert-status') && searchParams.get('tab') === 'expert-status') {
+                    isActive = true;
+                  }
+                } else {
+                  isActive = pathname === item.path;
+                }
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.path}
+                    className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
+                      ${isActive ? "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300" : "bg-white text-gray-700 hover:bg-violet-50"}
+                    `}
+                    style={{ boxShadow: isActive ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="ml-1">{item.name}</span>
+                  </Link>
+                );
+              })}
               {/* [MCP] 오른쪽 화살표 버튼: 메뉴가 넘칠 때만, 스크롤 오른쪽 끝이면 숨김, absolute로 고정 */}
               {showScrollRight && (
                 <button
@@ -315,4 +333,27 @@ export function Header() {
       
     </>
   )
-} 
+}
+
+// Suspense 래퍼 컴포넌트
+export function HeaderWrapper() {
+  return (
+    <Suspense fallback={
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 py-2 sm:py-4">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 rounded-2xl animate-pulse"></div>
+              <div className="text-xl sm:text-3xl font-black text-gray-300">AIrang</div>
+            </div>
+            <div className="hidden sm:flex items-center space-x-4">
+              <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    }>
+      <Header />
+    </Suspense>
+  )
+}

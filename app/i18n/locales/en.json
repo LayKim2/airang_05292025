@@ -166,6 +166,12 @@
   "servicesTitle": "AI Creator Works",
   "servicesSearchPlaceholder": "Search services...",
   "aiService": "AI Service",
+  "notFound": {
+    "title": "404",
+    "subtitle": "Page Not Found",
+    "description": "The page you requested does not exist or has been moved.",
+    "backHome": "Back to Home"
+  },
   "aiTools": {
     "header": "AI Tools",
     "category": {
@@ -191,16 +197,55 @@
       "presentation": "Presentation",
       "law": "Law"
     },
-    "button": {
-      "more": "More",
-      "less": "Less",
-      "visit": "Visit"
-    },
+    "more": "More",
+    "less": "Less",
+    "visit": "Visit",
     "label": {
       "free": "Free",
       "paid": "Paid"
     },
     "placeholder": "Enter AI tool/model and press Enter"
+  },
+  "button": {
+    "close": "Close",
+    "send": "Send",
+    "leave": "Leave Group",
+    "delete": "Delete Group",
+    "kick": "Kick",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "chat": {
+    "title": "Group Chat",
+    "noGroups": "Please join a group",
+    "noGroupsDesc": "You need to join a group first to use chat.",
+    "selectGroup": "Please select a group",
+    "selectGroupDesc": "Select a group from the left to view chat.",
+    "selectGroupMobile": "Select a group from the top menu to view chat.",
+    "noMessages": "No messages yet.",
+    "loading": "Loading chat...",
+    "messagePlaceholder": "Type a message...",
+    "membersTitle": "Members",
+    "participating": "participating",
+    "groupsParticipating": "groups participating",
+    "leader": "Leader",
+    "member": "Member",
+    "leaveConfirm": "Leave this group?",
+    "deleteConfirm": "Delete this group?\nThis action cannot be undone.",
+    "kickConfirm": "Kick this member from the group?",
+    "memberList": "Member List",
+    "toggleMembers": "Member List",
+    "toggleGroups": "Group List",
+    "systemMessages": {
+      "memberJoin": "{userName} joined the group",
+      "memberLeave": "{userName} left the group",
+      "groupCreated": "{creatorName} created the group",
+      "roleChange": "{userName}'s role changed from {oldRole} to {newRole}",
+      "roles": {
+        "member": "Member",
+        "leader": "Leader"
+      }
+    }
   },
   "signIn": "Sign In",
   "signUp": "Sign Up",
@@ -245,7 +290,9 @@
       "search": "Search",
       "reset": "Reset All",
       "apply": "Apply"
-    }
+    },
+    "createPost": "Create Post",
+    "loadingMore": "Loading more..."
   },
   "common": {
     "loading": "Loading...",
@@ -408,31 +455,39 @@
       "alreadyJoined": "Already Joined",
       "joinButton": "Join",
       "linkCopied": "Link copied!"
-    }
+    },
+    "loadingMore": "Loading more..."
   },
   "mypage": {
     "title": "My Page",
     "menu": {
       "profile": "Profile",
+      "groups": "My Groups",
       "expertStatus": "Expert Application"
     },
     "tab": {
       "services": "My AI Services",
       "posts": "My Posts",
       "likedPosts": "Liked Posts",
-      "likedServices": "Liked Services"
+      "likedServices": "Liked Services",
+      "groups": "My Groups",
+      "bookmarkedGroups": "Bookmarked Groups"
     },
     "section": {
       "myServices": "My AI Services",
       "myPosts": "My Posts",
       "likedPosts": "Liked Posts",
-      "likedServices": "Liked Services"
+      "likedServices": "Liked Services",
+      "myGroups": "My Groups",
+      "bookmarkedGroups": "Bookmarked Groups"
     },
     "empty": {
       "myServices": "No services registered.",
       "myPosts": "No posts written.",
       "likedPosts": "No liked posts.",
-      "likedServices": "No liked services."
+      "likedServices": "No liked services.",
+      "myGroups": "No groups joined.",
+      "bookmarkedGroups": "No bookmarked groups."
     },
     "delete": {
       "serviceTitle": "Delete Service",
@@ -473,6 +528,30 @@
       "editPost": "Edit Post",
       "deletePost": "Delete Post",
       "unlike": "Unlike"
+    },
+    "group": {
+      "aiGroup": "AI Group",
+      "members": "Members",
+      "member": "members",
+      "leader": "Leader",
+      "joinedAt": "Joined",
+      "enterGroup": "Enter Group",
+      "enterChat": "Enter Chat",
+      "viewDetails": "View Details",
+      "bookmarked": "Bookmarked",
+      "bookmarkedAt": "Bookmarked At",
+      "unbookmark": "Remove Bookmark"
     }
-  }
+  },
+  "headerCommunity": "AI Creator Community",
+  "matchExpertAlertTitle": "Register as an expert and earn income!",
+  "matchExpertAlertDesc": "Register as an AI expert to receive lectures and requests.<br />Turn your knowledge and experience into income.<br />Register now as an expert!",
+  "matchExpertAlertCheckbox": "Don't show for a week",
+  "matchExpertAlertButton": "Go to Expert Registration",
+  "matchServiceAlertTitle": "Please register a service first",
+  "matchServiceAlertDesc": "To work as an expert, you must register at least one AI service.<br />After registering a service, you can receive lectures and requests.",
+  "matchServiceAlertButton": "Go to Register AI Service",
+  "matchComingSoonTitle": "Service Coming Soon",
+  "matchComingSoonDesc": "It will be opened soon.",
+  "matchComingSoonButton": "OK"
 } 
