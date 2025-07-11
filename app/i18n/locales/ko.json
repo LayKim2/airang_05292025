@@ -462,8 +462,9 @@
   "mypage": {
     "title": "마이페이지",
     "menu": {
-      "profile": "기본정보",
-      "groups": "내 모임",
+      "aiService": "AI 서비스",
+      "group": "모임",
+      "post": "포스트",
       "expertStatus": "전문가 신청"
     },
     "tab": {

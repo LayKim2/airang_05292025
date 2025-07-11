@@ -420,8 +420,9 @@
   "mypage": {
     "title": "マイページ",
     "menu": {
-      "profile": "基本情報",
-      "groups": "マイグループ",
+      "aiService": "AIサービス",
+      "group": "グループ",
+      "post": "ポスト",
       "expertStatus": "専門家申請"
     },
     "tab": {

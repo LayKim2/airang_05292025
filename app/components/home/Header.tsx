@@ -4,7 +4,7 @@ import { useState, useEffect, useLayoutEffect, Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/app/components/ui/button"
-import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight, Award, Bookmark } from "lucide-react"
+import { Sparkles, Menu, X, Grid, Users, HeartHandshake, TrendingUp, Wrench, User, ChevronRight, Award, Bookmark, Bot, FileText } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { LanguageSwitcher } from "@/app/components/LanguageSwitcher"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -65,9 +65,9 @@ function Header() {
 
   // [MCP] 마이페이지 사이드바 메뉴(모바일용) - mypage에서만 사용
   const myPageMenuItems = [
-    { name: t('mypage.menu.profile'), path: "/mypage", icon: <User className="w-5 h-5 mb-0.5" /> },
-    { name: t('mypage.menu.groups'), path: "/mypage?tab=groups", icon: <Users className="w-5 h-5 mb-0.5" /> },
-    { name: t('mypage.tab.bookmarkedGroups'), path: "/mypage?tab=bookmarked-groups", icon: <Bookmark className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.aiService'), path: "/mypage", icon: <Bot className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.group'), path: "/mypage?tab=groups", icon: <Users className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.post'), path: "/mypage?tab=posts", icon: <FileText className="w-5 h-5 mb-0.5" /> },
     { name: t('mypage.menu.expertStatus'), path: "/mypage?tab=expert-status", icon: <Award className="w-5 h-5 mb-0.5" /> }
   ];
 

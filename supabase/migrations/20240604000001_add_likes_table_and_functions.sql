@@ -344,6 +344,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 -- 멤버 퇴장 시 시스템 메시지 생성 함수 (system_message_code와 system_message_params 활용)
 CREATE OR REPLACE FUNCTION create_member_leave_message()
 RETURNS TRIGGER AS $$
@@ -361,31 +362,37 @@ BEGIN
   FROM users 
   WHERE clerk_user_id = OLD.user_id;
   
-  -- 시스템 메시지 삽입 (system_message_code와 system_message_params 포함)
-  INSERT INTO group_chat_messages (
-    chat_room_id, 
-    user_id, 
-    message, 
-    message_type,
-    system_message_code,
-    system_message_params
-  )
-  VALUES (
-    chat_room_id, 
-    OLD.user_id, 
-    user_name || '님이 그룹을 나갔습니다.', 
-    'system',
-    'MEMBER_LEAVE',
-    json_build_object(
-      'user_name', user_name,
-      'user_id', OLD.user_id,
-      'role', OLD.role
+  -- chat_room_id가 존재할 때만 INSERT
+  IF chat_room_id IS NOT NULL THEN
+    INSERT INTO group_chat_messages (
+      chat_room_id, 
+      user_id, 
+      message, 
+      message_type,
+      system_message_code,
+      system_message_params
     )
-  );
-  
+    VALUES (
+      chat_room_id, 
+      OLD.user_id, 
+      user_name || '님이 그룹을 나갔습니다.', 
+      'system',
+      'MEMBER_LEAVE',
+      json_build_object(
+        'user_name', user_name,
+        'user_id', OLD.user_id,
+        'role', OLD.role
+      )
+    );
+  ELSE
+    -- 로그 출력 (선택)
+    RAISE NOTICE 'chat_room_id is NULL for group_id %, user_id %', OLD.group_id, OLD.user_id;
+  END IF;
+
   RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- 트리거 생성
 CREATE TRIGGER trigger_member_join_message

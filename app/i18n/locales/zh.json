@@ -423,8 +423,9 @@
   "mypage": {
     "title": "我的页面",
     "menu": {
-      "profile": "基本信息",
-      "groups": "我的小组",
+      "aiService": "AI服务",
+      "group": "小组",
+      "post": "帖子",
       "expertStatus": "专家申请"
     },
     "tab": {
