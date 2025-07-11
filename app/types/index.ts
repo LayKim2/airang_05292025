@@ -39,6 +39,7 @@ export interface Feature {
   title: string
   description: string
   color: string
+  link: string
 }
 
 export interface User {

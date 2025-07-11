@@ -8,14 +8,15 @@ import { Card, CardContent } from "@/app/components/ui/card"
 import { motion } from "framer-motion"
 import {
   Network,
-  UserPlus,
-  MessageSquare,
-  Handshake,
   MapPin,
   Briefcase,
   Rocket,
   Users,
   Clock,
+  Share2,
+  Users2,
+  DollarSign,
+  ArrowRight,
 } from "lucide-react"
 import { CommunityMember, Feature } from "@/app/types"
 import { useTranslation } from "@/app/i18n/useTranslation"
@@ -27,12 +28,27 @@ interface CommunityConnectionProps {
 // 메모이제이션된 피처 카드 컴포넌트
 const FeatureCard = memo(({ feature }: { feature: Feature }) => {
   const Icon = feature.icon
+  const { t } = useTranslation();
+  
   return (
     <Card className="p-6 sm:p-8 border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl sm:rounded-3xl group bg-white/80 backdrop-blur-sm">
-      <div
-        className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${feature.color} rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300`}
-      >
-        <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      <div className="flex items-start justify-between mb-4 sm:mb-6">
+        <div
+          className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${feature.color} rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+        >
+          <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+        </div>
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full px-3 sm:px-4 py-1 sm:py-2 transition-all duration-200 group-hover:scale-105"
+        >
+          <a href={feature.link}>
+            {t('browseButton')}
+            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+          </a>
+        </Button>
       </div>
       <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">{feature.title}</h3>
       <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{feature.description}</p>
@@ -145,22 +161,25 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
   const { t } = useTranslation();
   const features: Feature[] = [
     {
-      icon: UserPlus,
+      icon: Share2,
       title: t('communityFeatureSmartMatching'),
       description: t('communityFeatureSmartMatchingDesc'),
       color: "from-blue-500 to-cyan-500",
+      link: "/services",
     },
     {
-      icon: MessageSquare,
+      icon: Users2,
       title: t('communityFeatureRealtimeInsight'),
       description: t('communityFeatureRealtimeInsightDesc'),
       color: "from-purple-500 to-pink-500",
+      link: "/match/groups",
     },
     {
-      icon: Handshake,
+      icon: DollarSign,
       title: t('communityFeatureProjectMatching'),
       description: t('communityFeatureProjectMatchingDesc'),
       color: "from-green-500 to-emerald-500",
+      link: "/match",
     },
   ]
 
@@ -219,46 +238,7 @@ export function CommunityConnection({ members }: CommunityConnectionProps) {
           ))}
         </motion.div>
 
-        {/* Community Members Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-white/60 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl"
-        >
-          <div className="text-center mb-8 sm:mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">{t('communityActiveCreators')}</h3>
-            <p className="text-sm sm:text-base text-gray-600">{t('communityActiveCreatorsDesc')}</p>
-          </div>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          >
-            {members.map((member) => (
-              <motion.div key={member.id} variants={itemVariants}>
-                <MemberCard member={member} />
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-center mt-8 sm:mt-12"
-          >
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg"
-            >
-              <Network className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-              {t('communityMoreCreators')}
-            </Button>
-          </motion.div>
-        </motion.div>
+        
       </div>
     </section>
   )

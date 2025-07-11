@@ -64,21 +64,66 @@ export default function GroupsPage() {
     }
     const from = (reset ? 0 : (page - 1) * PAGE_SIZE);
     const to = from + PAGE_SIZE - 1;
-    const { data, error, count } = await supabase
+    
+    // 1. 그룹 정보 가져오기
+    const { data: groupsData, error: groupsError, count } = await supabase
       .from('groups')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to);
-    if (!error && data) {
+    
+    if (groupsError) {
+      console.error('그룹 조회 오류:', groupsError);
       if (reset) {
-        setGroups(data);
+        setInitialLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
+      return;
+    }
+    
+    if (groupsData && groupsData.length > 0) {
+      // 2. 각 그룹의 실제 멤버 수 계산
+      const groupIds = groupsData.map(group => group.id);
+      const { data: memberCounts, error: memberError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .in('group_id', groupIds);
+      
+      if (memberError) {
+        console.error('멤버 수 조회 오류:', memberError);
+      }
+      
+      // 3. 각 그룹별 멤버 수 계산
+      const memberCountMap = new Map<number, number>();
+      if (memberCounts) {
+        memberCounts.forEach(member => {
+          const currentCount = memberCountMap.get(member.group_id) || 0;
+          memberCountMap.set(member.group_id, currentCount + 1);
+        });
+      }
+      
+      // 4. 그룹 데이터에 실제 멤버 수 추가
+      const groupsWithMemberCount = groupsData.map(group => ({
+        ...group,
+        member_count: memberCountMap.get(group.id) || 0
+      }));
+      
+      if (reset) {
+        setGroups(groupsWithMemberCount);
         setPage(2);
       } else {
-        setGroups(prev => [...prev, ...data]);
+        setGroups(prev => [...prev, ...groupsWithMemberCount]);
         setPage(prev => prev + 1);
       }
-      setHasMore(data.length === PAGE_SIZE);
+      setHasMore(groupsData.length === PAGE_SIZE);
+    } else {
+      if (reset) {
+        setGroups([]);
+      }
+      setHasMore(false);
     }
+    
     if (reset) {
       setInitialLoading(false);
     } else {
@@ -311,7 +356,7 @@ export default function GroupsPage() {
                   </div>
                   <span className="flex items-center px-3 py-1 text-sm font-bold rounded-full bg-blue-50 text-blue-700 shadow border border-blue-100">
                     <Users className="w-4 h-4 mr-1 text-blue-400" />
-                    {group.member_count ?? group.current_count}/{group.recruit_count || '-'}
+                    {group.member_count}/{group.recruit_count || '-'}
                   </span>
                 </div>
                 {/* description은 다음 줄에 단독 배치 */}
