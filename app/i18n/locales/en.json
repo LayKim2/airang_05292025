@@ -461,8 +461,9 @@
   "mypage": {
     "title": "My Page",
     "menu": {
-      "profile": "Profile",
-      "groups": "My Groups",
+      "aiService": "AI Service",
+      "group": "Group",
+      "post": "Post",
       "expertStatus": "Expert Application"
     },
     "tab": {

@@ -21,6 +21,8 @@ function MyPage() {
   const [userRole, setUserRole] = useState<'creator' | 'expert'>('expert');
   // [MCP] 기본 activeTab을 'services'(내 AI 서비스)로 변경, 타입 명시
   const [activeTab, setActiveTab] = useState<'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status' | 'groups' | 'bookmarked-groups'>('services');
+  // [MCP] 현재 선택된 메뉴 상태 추가
+  const [selectedMenu, setSelectedMenu] = useState<'ai-service' | 'group' | 'post' | 'expert-application'>('ai-service');
   const { user, isLoaded } = useUser();
   const router = useRouter();
   // [MCP] 전문가 신청 상태 관리
@@ -481,18 +483,31 @@ function MyPage() {
       );
     }
   };
-  // [MCP] 사이드 메뉴 항목
+  // [MCP] 사이드 메뉴 항목 - PC/모바일 모두 동일하게 4개로 통일
   const menuItems = [
-    { id: 'profile', label: t('mypage.menu.profile'), icon: User },
-    { id: 'groups', label: t('mypage.menu.groups'), icon: Users },
+    { id: 'ai-service', label: t('mypage.menu.aiService'), icon: Bot },
+    { id: 'group', label: t('mypage.menu.group'), icon: Users },
+    { id: 'post', label: t('mypage.menu.post'), icon: FileText },
     { id: 'expert-status', label: t('mypage.menu.expertStatus'), icon: Award }
   ];
-  // [MCP] 기본정보 메뉴 클릭 시 '내 AI 서비스'가 기본으로 보이게 기능 수정
+  // [MCP] 메뉴 클릭 시 해당 메뉴의 첫 번째 탭으로 이동
   const handleMenuItemClick = (id: string) => {
-    if (id === 'profile') {
-      setActiveTab('services');
-    } else {
-      setActiveTab(id as 'services' | 'posts' | 'liked-posts' | 'liked-services' | 'expert-status' | 'groups' | 'bookmarked-groups');
+    setSelectedMenu(id as 'ai-service' | 'group' | 'post' | 'expert-application');
+    
+    // 각 메뉴별로 기본 탭 설정
+    switch (id) {
+      case 'ai-service':
+        setActiveTab('services');
+        break;
+      case 'post':
+        setActiveTab('posts');
+        break;
+      case 'group':
+        setActiveTab('groups');
+        break;
+      case 'expert-status':
+        setActiveTab('expert-status');
+        break;
     }
   };
   const MenuItem = ({ item, isActive }: any) => (
@@ -681,11 +696,11 @@ function MyPage() {
               key={item.id}
               onClick={() => handleMenuItemClick(item.id)}
               className={`flex flex-row items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 font-semibold text-xs gap-1 whitespace-nowrap
-                ${((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id)
+                ${selectedMenu === item.id
                   ? 'bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-md ring-2 ring-violet-300'
                   : 'bg-white text-gray-700 hover:bg-violet-50'}
               `}
-              style={{ boxShadow: ((item.id === 'profile' && ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)) || activeTab === item.id) ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
+              style={{ boxShadow: selectedMenu === item.id ? '0 2px 12px 0 rgba(124,58,237,0.15)' : undefined }}
             >
               <item.icon size={18} />
               <span className="ml-1">{item.label}</span>
@@ -704,9 +719,7 @@ function MyPage() {
             <MenuItem 
               key={item.id}
               item={item}
-              isActive={item.id === 'profile' 
-                ? ['profile', 'services', 'posts', 'liked-posts', 'liked-services'].includes(activeTab)
-                : activeTab === item.id}
+              isActive={selectedMenu === item.id}
             />
           ))}
         </nav>
@@ -816,17 +829,46 @@ function MyPage() {
             <>
               {/* [MCP] 탭 네비게이션: 모바일 한 줄 pill + 가로 스크롤, 데스크탑 flex-wrap */}
               <div className="flex flex-row flex-nowrap overflow-x-auto whitespace-nowrap gap-2 -mx-4 px-4 mt-6 w-full justify-start sm:flex-wrap sm:overflow-visible sm:whitespace-normal">
-                {[
+                {/* AI service 메뉴일 때만 services, liked-services 탭 보여주기 */}
+                {selectedMenu === 'ai-service' && [
                   { id: 'services', label: t('mypage.tab.services'), icon: Bot },
+                  { id: 'liked-services', label: t('mypage.tab.likedServices'), icon: Star }
+                ].map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as 'services' | 'liked-services')}
+                    className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border transition-all text-base font-medium min-w-max
+                      ${activeTab === item.id ? 'bg-blue-500 text-white shadow' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-200'}`}
+                  >
+                    <item.icon size={20} />
+                    {item.label}
+                  </button>
+                ))}
+                
+                {/* post 메뉴일 때만 posts, liked-posts 탭 보여주기 */}
+                {selectedMenu === 'post' && [
                   { id: 'posts', label: t('mypage.tab.posts'), icon: FileText },
-                  { id: 'liked-posts', label: t('mypage.tab.likedPosts'), icon: Heart },
-                  { id: 'liked-services', label: t('mypage.tab.likedServices'), icon: Star },
+                  { id: 'liked-posts', label: t('mypage.tab.likedPosts'), icon: Heart }
+                ].map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as 'posts' | 'liked-posts')}
+                    className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border transition-all text-base font-medium min-w-max
+                      ${activeTab === item.id ? 'bg-blue-500 text-white shadow' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-200'}`}
+                  >
+                    <item.icon size={20} />
+                    {item.label}
+                  </button>
+                ))}
+                
+                {/* group 메뉴일 때만 groups, bookmarked-groups 탭 보여주기 */}
+                {selectedMenu === 'group' && [
                   { id: 'groups', label: t('mypage.tab.groups'), icon: Users },
                   { id: 'bookmarked-groups', label: t('mypage.tab.bookmarkedGroups'), icon: Bookmark }
                 ].map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id as 'services' | 'posts' | 'liked-posts' | 'liked-services' | 'groups' | 'bookmarked-groups')}
+                    onClick={() => setActiveTab(item.id as 'groups' | 'bookmarked-groups')}
                     className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border transition-all text-base font-medium min-w-max
                       ${activeTab === item.id ? 'bg-blue-500 text-white shadow' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-200'}`}
                   >
@@ -838,7 +880,7 @@ function MyPage() {
                {/* [MCP] 탭 아래에 각 리스트 조건부 렌더링 */}
               <div className="w-full mt-6">
                 {activeTab === 'services' && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myServices')}</h2>
                     {/* [MCP] 내 서비스 리스트 로딩/에러/빈 상태 처리 */}
                     {myServicesLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
@@ -960,7 +1002,7 @@ function MyPage() {
                 {activeTab === 'posts' && (
                   <div className="w-full">
                     <div className="max-w-4xl mx-auto">
-                      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myPosts')}</h2>
                         {/* [MCP] 내 포스트 리스트 로딩/에러/빈 상태 처리 */}
                         {myPostsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
@@ -1075,7 +1117,7 @@ function MyPage() {
                 {activeTab === 'liked-posts' && (
                   <div className="w-full">
                     <div className="max-w-4xl mx-auto">
-                      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.likedPosts')}</h2>
                         {/* [MCP] 좋아요한 포스트 리스트 로딩/에러/빈 상태 처리 */}
                         {likedPostsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
@@ -1169,7 +1211,7 @@ function MyPage() {
                   </div>
                 )}
                 {activeTab === 'liked-services' && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.likedServices')}</h2>
                     {/* [MCP] 좋아요한 서비스 리스트 로딩/에러/빈 상태 처리 */}
                     {likedServicesLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
@@ -1292,7 +1334,7 @@ function MyPage() {
                   </div>
                 )}
                 {activeTab === 'groups' && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.myGroups')}</h2>
                     {/* [MCP] 내 그룹 리스트 로딩/에러/빈 상태 처리 */}
                     {myGroupsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
@@ -1382,7 +1424,7 @@ function MyPage() {
                   </div>
                 )}
                 {activeTab === 'bookmarked-groups' && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-8">
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg shadow-gray-200/60 border border-gray-100 p-4 sm:p-6 lg:p-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('mypage.section.bookmarkedGroups')}</h2>
                     {/* [MCP] 북마크한 그룹 리스트 로딩/에러/빈 상태 처리 */}
                     {bookmarkedGroupsLoading && <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>}
