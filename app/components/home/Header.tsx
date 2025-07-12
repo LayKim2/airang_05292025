@@ -65,9 +65,9 @@ function Header() {
 
   // [MCP] 마이페이지 사이드바 메뉴(모바일용) - mypage에서만 사용
   const myPageMenuItems = [
-    { name: t('mypage.menu.aiService'), path: "/mypage", icon: <Bot className="w-5 h-5 mb-0.5" /> },
-    { name: t('mypage.menu.group'), path: "/mypage?tab=groups", icon: <Users className="w-5 h-5 mb-0.5" /> },
-    { name: t('mypage.menu.post'), path: "/mypage?tab=posts", icon: <FileText className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.aiService'), path: "/mypage?menu=ai-service", icon: <Bot className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.group'), path: "/mypage?menu=group", icon: <Users className="w-5 h-5 mb-0.5" /> },
+    { name: t('mypage.menu.post'), path: "/mypage?menu=post", icon: <FileText className="w-5 h-5 mb-0.5" /> },
     { name: t('mypage.menu.expertStatus'), path: "/mypage?tab=expert-status", icon: <Award className="w-5 h-5 mb-0.5" /> }
   ];
 
@@ -285,11 +285,17 @@ function Header() {
               id="mobile-menu-scroll"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
-              {(isMyPage ? myPageMenuItems : [...baseMenuItems, myPageMenu]).map((item) => {
-                // [MCP] 쿼리스트링(tab=...)까지 반영한 활성화 조건 (명확히 분리)
+              {(isMyPage ? myPageMenuItems : baseMenuItems).map((item) => {
+                // [MCP] 쿼리스트링(tab=..., menu=...)까지 반영한 활성화 조건 (명확히 분리)
                 let isActive = false;
                 if (isMyPage) {
-                  if (item.path === "/mypage" && pathname === "/mypage" && !searchParams.get('tab')) {
+                  if (item.path === "/mypage" && pathname === "/mypage" && !searchParams.get('tab') && !searchParams.get('menu')) {
+                    isActive = true;
+                  } else if (item.path.includes('menu=ai-service') && searchParams.get('menu') === 'ai-service') {
+                    isActive = true;
+                  } else if (item.path.includes('menu=group') && searchParams.get('menu') === 'group') {
+                    isActive = true;
+                  } else if (item.path.includes('menu=post') && searchParams.get('menu') === 'post') {
                     isActive = true;
                   } else if (item.path.includes('tab=expert-status') && searchParams.get('tab') === 'expert-status') {
                     isActive = true;
