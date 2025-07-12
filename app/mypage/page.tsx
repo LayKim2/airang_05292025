@@ -657,11 +657,35 @@ function MyPage() {
     window.location.reload();
   };
 
-  // [MCP] 쿼리스트링(tab=...) → activeTab 동기화
+  // [MCP] 쿼리스트링(tab=..., menu=...) → activeTab, selectedMenu 동기화
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'expert-status') setActiveTab('expert-status');
-    else setActiveTab('services');
+    const menu = searchParams.get('menu');
+    
+    if (tab === 'expert-status') {
+      setActiveTab('expert-status');
+      setSelectedMenu('expert-application');
+    } else if (menu) {
+      setSelectedMenu(menu as 'ai-service' | 'group' | 'post' | 'expert-application');
+      // 각 메뉴별로 기본 탭 설정
+      switch (menu) {
+        case 'ai-service':
+          setActiveTab('services');
+          break;
+        case 'post':
+          setActiveTab('posts');
+          break;
+        case 'group':
+          setActiveTab('groups');
+          break;
+        case 'expert-status':
+          setActiveTab('expert-status');
+          break;
+      }
+    } else {
+      setActiveTab('services');
+      setSelectedMenu('ai-service');
+    }
   }, [searchParams]);
 
   if (!isLoaded) return <div>Loading...</div>;
